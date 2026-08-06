@@ -1,0 +1,20 @@
+{
+  "name": "moment",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MOMENT — creator-competition marketplace. Phase 1: the spine (backend only).",
+  "scripts": {
+    "api:dev": "pnpm --filter @moment/api start:dev",
+    "api:build": "pnpm --filter @moment/api build",
+    "api:test": "pnpm --filter @moment/api test",
+    "api:migrate": "pnpm --filter @moment/api prisma:migrate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines", "prisma", "msgpackr-extract"]
+  }
+}

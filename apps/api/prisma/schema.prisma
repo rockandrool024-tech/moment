@@ -1,0 +1,340 @@
+// MOMENT — Phase 1 data model.
+// Reflects ADR-001's base entities as superseded/extended by ADR-003, ADR-004, ADR-005.
+// ADR-002's creative-studio/referral-reward tables are intentionally absent — Phase 4 scope.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Identity ─────────────────────────────────────────────────────────────
+
+enum UserRole {
+  seller
+  creator
+  both
+}
+
+model User {
+  id                     String    @id @default(uuid())
+  role                   UserRole
+  phone                  String    @unique
+  phoneVerifiedAt        DateTime? @map("phone_verified_at")
+  displayName            String?   @map("display_name")
+  stripeConnectAccountId String?   @map("stripe_connect_account_id")
+  tier                   Int       @default(0)
+  tasteScore             Float     @default(0) @map("taste_score")
+  referralCode           String    @unique @default(cuid()) @map("referral_code")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  challenges          Challenge[]        @relation("SellerChallenges")
+  submissions         Submission[]
+  peerVotesCast       PeerVote[]
+  decks               Deck[]
+  votesCast           Vote[]
+  predictions         Prediction[]
+  payouts             Payout[]
+  ratingsGiven        Rating[]           @relation("RatingsGiven")
+  ratingsReceived     Rating[]           @relation("RatingsReceived")
+  rallyAttributionsAsVoter   RallyAttribution[] @relation("RallyVoter")
+  rallyAttributionsAsCreator RallyAttribution[] @relation("RallyCreator")
+
+  @@map("users")
+}
+
+// ── Challenges ───────────────────────────────────────────────────────────
+
+enum ChallengeStatus {
+  draft
+  funded
+  round1_open
+  round2_open
+  round3_open
+  resolved
+  cancelled
+}
+
+model Challenge {
+  id                String          @id @default(uuid())
+  sellerId          String          @map("seller_id")
+  seller            User            @relation("SellerChallenges", fields: [sellerId], references: [id])
+  title             String
+  brief             String
+  checklistCriteria Json            @map("checklist_criteria")
+  prizePool         Int             @map("prize_pool") // minor units (cents)
+  stipendPool       Int             @default(0) @map("stipend_pool")
+  takeRateBps       Int             @default(2000) @map("take_rate_bps") // 2000 = 20.00%
+  status            ChallengeStatus @default(draft)
+  stripePaymentIntentId String?     @map("stripe_payment_intent_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  resolvedAt        DateTime?       @map("resolved_at")
+
+  submissions        Submission[]
+  rounds             Round[]
+  payouts            Payout[]
+  ratings            Rating[]
+  rallyAttributions  RallyAttribution[]
+
+  @@index([sellerId])
+  @@index([status])
+  @@map("challenges")
+}
+
+// ── Submissions ──────────────────────────────────────────────────────────
+
+enum SubmissionPhase {
+  teaser
+  full_content
+}
+
+enum SubmissionStatus {
+  pending
+  advanced
+  eliminated
+}
+
+model Submission {
+  id          String           @id @default(uuid())
+  creatorId   String           @map("creator_id")
+  creator     User             @relation(fields: [creatorId], references: [id])
+  challengeId String           @map("challenge_id")
+  challenge   Challenge        @relation(fields: [challengeId], references: [id])
+  phase       SubmissionPhase
+  videoRef    String?          @map("video_ref") // Mux asset id
+  videoStatus String           @default("pending") @map("video_status") // pending | ready | errored
+  status      SubmissionStatus @default(pending)
+  sellerScore Int?             @map("seller_score") // 1-5, lightweight per ADR-003
+  compositeScore Float?        @map("composite_score") // 70% peer win-rate / 30% seller score, shown transparently
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  peerVotesReceived PeerVote[] @relation("SubmissionVotedFor")
+  votesReceived     Vote[]
+  predictions       Prediction[]
+
+  @@index([challengeId, phase])
+  @@index([creatorId])
+  @@map("submissions")
+}
+
+// ── Rounds (the crux) ────────────────────────────────────────────────────
+
+enum RoundType {
+  peer_vote_teaser
+  peer_vote_narrow
+  public_vote_final
+}
+
+enum RoundStatus {
+  open
+  closed
+  tallied
+  revealed
+}
+
+model Round {
+  id              String      @id @default(uuid())
+  challengeId     String      @map("challenge_id")
+  challenge       Challenge   @relation(fields: [challengeId], references: [id])
+  roundNumber     Int         @map("round_number")
+  type            RoundType
+  status          RoundStatus @default(open)
+  advanceCount    Int         @map("advance_count") // top N by composite/vote rank that advance
+  opensAt         DateTime    @map("opens_at")
+  closesAt        DateTime    @map("closes_at")
+  revealDeadlineAt DateTime?  @map("reveal_deadline_at")
+  revealedAt      DateTime?   @map("revealed_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  peerVotes   PeerVote[]
+  decks       Deck[]
+  votes       Vote[]
+  predictions Prediction[]
+
+  @@unique([challengeId, roundNumber])
+  @@index([status])
+  @@map("rounds")
+}
+
+// Creator-to-creator blind pairwise vote (round 1 / round 2). Distinct from
+// the public `Vote` table per ADR-003 — never exposed to other creators.
+model PeerVote {
+  id                String     @id @default(uuid())
+  roundId           String     @map("round_id")
+  round             Round      @relation(fields: [roundId], references: [id])
+  deckId            String     @map("deck_id")
+  deck              Deck       @relation(fields: [deckId], references: [id])
+  pairIndex         Int        @map("pair_index") // index into Deck.pairs — prevents double-answering + finds the attention-check pair
+  voterSubmissionId String     @map("voter_submission_id")
+  voter             User       @relation(fields: [voterUserId], references: [id])
+  voterUserId       String     @map("voter_user_id")
+  submissionId      String     @map("submission_id") // the winner of the pair
+  submission        Submission @relation("SubmissionVotedFor", fields: [submissionId], references: [id])
+  loserSubmissionId String     @map("loser_submission_id") // the other half of the pair, for win-rate denominators
+  createdAt         DateTime   @default(now()) @map("created_at")
+
+  @@unique([deckId, pairIndex])
+  @@index([roundId, voterUserId])
+  @@index([submissionId])
+  @@index([loserSubmissionId])
+  @@map("peer_votes")
+}
+
+// A blind pairwise deck shown to one voter for one round. Attention check =
+// one repeat pair inserted at `checkPairIndex`; inconsistent answers discard
+// the whole deck (ADR-005 vote-gate hardening).
+model Deck {
+  id             String    @id @default(uuid())
+  userId         String    @map("user_id")
+  user           User      @relation(fields: [userId], references: [id])
+  roundId        String    @map("round_id")
+  round          Round     @relation(fields: [roundId], references: [id])
+  pairs          Json // array of { a: submissionId, b: submissionId, minViewMs }
+  checkPairIndex Int       @map("check_pair_index")
+  completedAt    DateTime? @map("completed_at")
+  discarded      Boolean   @default(false)
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  peerVotes PeerVote[]
+
+  @@unique([userId, roundId])
+  @@map("decks")
+}
+
+enum VotePool {
+  quality
+  rally
+}
+
+// Public / verified-audience vote — round 3 (public_vote_final) only.
+model Vote {
+  id           String     @id @default(uuid())
+  roundId      String     @map("round_id")
+  round        Round      @relation(fields: [roundId], references: [id])
+  voterId      String     @map("voter_id")
+  voter        User       @relation(fields: [voterId], references: [id])
+  submissionId String     @map("submission_id")
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  pool         VotePool
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([roundId, voterId])
+  @@index([submissionId, pool])
+  @@map("votes")
+}
+
+// The per-creator-scoped taint edge (ADR-005 §1). Never expires. A voter
+// recruited by `creatorId`'s rally link is permanently excluded from the
+// *quality* pool only in campaigns where `creatorId` is still competing —
+// enforced at vote-cast time in the voting module, not by deleting rows here.
+model RallyAttribution {
+  id          String    @id @default(uuid())
+  voterId     String    @map("voter_id")
+  voter       User      @relation("RallyVoter", fields: [voterId], references: [id])
+  creatorId   String    @map("creator_id")
+  creator     User      @relation("RallyCreator", fields: [creatorId], references: [id])
+  campaignId  String    @map("campaign_id")
+  campaign    Challenge @relation(fields: [campaignId], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@unique([voterId, creatorId])
+  @@index([creatorId])
+  @@map("rally_attributions")
+}
+
+// Non-entrant retention hook (ADR-005 §2) — picks locked until round close.
+model Prediction {
+  id           String     @id @default(uuid())
+  userId       String     @map("user_id")
+  user         User       @relation(fields: [userId], references: [id])
+  roundId      String     @map("round_id")
+  round        Round      @relation(fields: [roundId], references: [id])
+  submissionId String     @map("submission_id")
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  lockedAt     DateTime   @map("locked_at")
+  correct      Boolean?
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([userId, roundId])
+  @@map("predictions")
+}
+
+// ── Payments ─────────────────────────────────────────────────────────────
+
+enum PayoutType {
+  winner
+  stipend
+  survivor_bonus
+  crowd_favourite
+}
+
+enum PayoutStatus {
+  pending
+  processing
+  paid
+  failed
+}
+
+model Payout {
+  id                String       @id @default(uuid())
+  challengeId       String       @map("challenge_id")
+  challenge         Challenge    @relation(fields: [challengeId], references: [id])
+  userId            String       @map("user_id")
+  user              User         @relation(fields: [userId], references: [id])
+  amount            Int // minor units (cents)
+  type              PayoutType
+  status            PayoutStatus @default(pending)
+  stripeTransferId  String?      @map("stripe_transfer_id")
+  paidAt            DateTime?    @map("paid_at")
+  payoutDueAt       DateTime?    @map("payout_due_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+
+  @@index([challengeId])
+  @@index([userId])
+  @@map("payouts")
+}
+
+// ── Trust ────────────────────────────────────────────────────────────────
+
+enum RatingDirection {
+  creator_to_brand
+  brand_to_creator
+}
+
+// Bidirectional, restricted to participants of a *resolved* challenge (ADR-004).
+model Rating {
+  id          String          @id @default(uuid())
+  challengeId String          @map("challenge_id")
+  challenge   Challenge       @relation(fields: [challengeId], references: [id])
+  raterId     String          @map("rater_id")
+  rater       User            @relation("RatingsGiven", fields: [raterId], references: [id])
+  rateeId     String          @map("ratee_id")
+  ratee       User            @relation("RatingsReceived", fields: [rateeId], references: [id])
+  direction   RatingDirection
+  score       Int // 1-5
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@unique([challengeId, raterId, rateeId])
+  @@map("ratings")
+}
+
+// ── Infra ────────────────────────────────────────────────────────────────
+
+// Idempotency ledger for provider webhooks (Stripe, Mux). Without this a
+// redelivered webhook (both providers retry on non-2xx / timeout) could
+// double-mark a payout paid or double-advance a submission's video status.
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  provider    String // "stripe" | "mux"
+  eventId     String
+  processedAt DateTime @default(now()) @map("processed_at")
+
+  @@unique([provider, eventId])
+  @@map("webhook_events")
+}

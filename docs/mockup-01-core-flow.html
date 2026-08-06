@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Core flow mockup — creator competition app</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+:root{
+  --surface-0:#f7f6f2; --surface-1:#f1efe8; --surface-2:#ffffff;
+  --text-primary:#171716; --text-secondary:#5f5e5a; --text-muted:#888780;
+  --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.2); --border-stronger:rgba(0,0,0,0.4);
+  --bg-accent:#e6f1fb; --text-accent:#0c447c; --border-accent:#378add; --fill-accent:#378add;
+  --bg-success:#eaf3de; --text-success:#27500a;
+  --bg-danger:#fcebeb; --text-danger:#791f1f;
+  --bg-warning:#faeeda; --text-warning:#633806; --fill-warning:#ef9f27;
+  --bg-pro:#eeedfe; --text-pro:#3c3489; --fill-pro:#534ab7;
+  --fill-secondary:transparent; --radius:8px;
+}
+body{background:var(--surface-0); font-family:-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px;}
+p{margin:0;}
+</style>
+</head>
+<body>
+<div style="display:flex; gap:16px; overflow-x:auto; padding:1rem 0 1.25rem;">
+
+<div style="flex:0 0 auto; width:220px;">
+  <div style="background:var(--surface-1); border-radius:12px; padding:8px; border:0.5px solid var(--border);">
+    <div style="background:var(--surface-2); border-radius:20px; border:5px solid var(--surface-0); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:6px 10px 2px; font-size:11px; color:var(--text-muted);"><span>9:41</span><span><i class="ti ti-wifi" aria-hidden="true"></i></span></div>
+      <div style="padding:10px 12px 14px;">
+        <p style="font-size:13px; font-weight:500; margin:0 0 10px;">New challenge</p>
+        <div style="background:var(--surface-1); border-radius:8px; padding:8px 10px; margin-bottom:8px;">
+          <p style="font-size:11px; color:var(--text-muted); margin:0 0 2px;">Title</p>
+          <p style="font-size:12px; margin:0;">Summer glow drop reel</p>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px;">
+          <div style="background:var(--bg-accent); border-radius:8px; padding:8px;">
+            <p style="font-size:10px; color:var(--text-accent); margin:0 0 2px;">Prize</p>
+            <p style="font-size:13px; font-weight:500; color:var(--text-accent); margin:0;">$2,000</p>
+          </div>
+          <div style="background:var(--bg-warning); border-radius:8px; padding:8px;">
+            <p style="font-size:10px; color:var(--text-warning); margin:0 0 2px;">Stipend</p>
+            <p style="font-size:13px; font-weight:500; color:var(--text-warning); margin:0;">$150 x3</p>
+          </div>
+        </div>
+        <p style="font-size:11px; color:var(--text-muted); margin:0 0 6px;">Checklist criteria</p>
+        <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:12px;">
+          <span style="font-size:11px; display:flex; gap:6px; align-items:center;"><i class="ti ti-check" style="color:var(--text-success); font-size:14px;" aria-hidden="true"></i>15-60s vertical video</span>
+          <span style="font-size:11px; display:flex; gap:6px; align-items:center;"><i class="ti ti-check" style="color:var(--text-success); font-size:14px;" aria-hidden="true"></i>Include #GlowDrop</span>
+          <span style="font-size:11px; display:flex; gap:6px; align-items:center;"><i class="ti ti-check" style="color:var(--text-success); font-size:14px;" aria-hidden="true"></i>Tag @brand</span>
+        </div>
+        <button style="width:100%; background:var(--fill-secondary); border:0.5px solid var(--border-strong); border-radius:8px; padding:8px; font-size:12px; font-weight:500;">Launch challenge</button>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 0;">1. Seller posts challenge</p>
+</div>
+
+<div style="flex:0 0 auto; width:220px;">
+  <div style="background:var(--surface-1); border-radius:12px; padding:8px; border:0.5px solid var(--border);">
+    <div style="background:var(--surface-2); border-radius:20px; border:5px solid var(--surface-0); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:6px 10px 2px; font-size:11px; color:var(--text-muted);"><span>9:41</span><span><i class="ti ti-wifi" aria-hidden="true"></i></span></div>
+      <div style="padding:10px 12px 14px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+          <div style="width:30px; height:30px; border-radius:50%; background:var(--bg-accent); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; color:var(--text-accent);">GD</div>
+          <div>
+            <p style="font-size:12px; font-weight:500; margin:0;">Glow drop challenge</p>
+            <p style="font-size:10px; color:var(--text-muted); margin:0;">$2,000 + stipend</p>
+          </div>
+        </div>
+        <div style="border:1.5px dashed var(--border-strong); border-radius:10px; height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; margin-bottom:8px;">
+          <i class="ti ti-player-play" style="font-size:22px; color:var(--text-muted);" aria-hidden="true"></i>
+          <span style="font-size:11px; color:var(--text-muted);">Upload your video</span>
+        </div>
+        <div style="background:var(--surface-1); border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+          <p style="font-size:11px; color:var(--text-muted); margin:0;">Caption goes here...</p>
+        </div>
+        <button style="width:100%; background:var(--fill-secondary); border:0.5px solid var(--border-strong); border-radius:8px; padding:8px; font-size:12px; font-weight:500; margin-bottom:6px;">Submit entry</button>
+        <p style="font-size:10px; color:var(--text-muted); text-align:center; margin:0;"><i class="ti ti-clock" style="font-size:12px; vertical-align:-1px;" aria-hidden="true"></i> 2d 14h left to submit</p>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 0;">2. Creator submits entry</p>
+</div>
+
+<div style="flex:0 0 auto; width:220px;">
+  <div style="background:var(--surface-1); border-radius:12px; padding:8px; border:0.5px solid var(--border);">
+    <div style="background:var(--surface-2); border-radius:20px; border:5px solid var(--surface-0); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:6px 10px 2px; font-size:11px; color:var(--text-muted);"><span>9:41</span><span><i class="ti ti-wifi" aria-hidden="true"></i></span></div>
+      <div style="padding:10px 12px 14px;">
+        <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Review entries</p>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@ava.creates</span>
+            <span style="font-size:9px; background:var(--bg-success); color:var(--text-success); padding:2px 6px; border-radius:6px;">passes</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@theo.vids</span>
+            <span style="font-size:9px; background:var(--bg-success); color:var(--text-success); padding:2px 6px; border-radius:6px;">passes</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@nia.reels</span>
+            <span style="font-size:9px; background:var(--bg-danger); color:var(--text-danger); padding:2px 6px; border-radius:6px;">no tag</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@marcus.c</span>
+            <span style="font-size:9px; background:var(--bg-success); color:var(--text-success); padding:2px 6px; border-radius:6px;">passes</span>
+          </div>
+        </div>
+        <p style="font-size:10px; color:var(--text-muted); margin:0 0 8px;">Checklist auto-filtered. Pick who advances from the rest.</p>
+        <button style="width:100%; background:var(--fill-secondary); border:0.5px solid var(--border-strong); border-radius:8px; padding:8px; font-size:12px; font-weight:500;">Advance 20 of 32</button>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 0;">3. Seller round 1 cut</p>
+</div>
+
+<div style="flex:0 0 auto; width:220px;">
+  <div style="background:var(--surface-1); border-radius:12px; padding:8px; border:0.5px solid var(--border);">
+    <div style="background:var(--surface-2); border-radius:20px; border:5px solid var(--surface-0); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:6px 10px 2px; font-size:11px; color:var(--text-muted);"><span>9:41</span><span><i class="ti ti-wifi" aria-hidden="true"></i></span></div>
+      <div style="padding:10px 12px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <p style="font-size:13px; font-weight:500; margin:0;">Round 2 · vote</p>
+          <span style="font-size:9px; color:var(--text-muted);"><i class="ti ti-clock" style="font-size:11px; vertical-align:-1px;" aria-hidden="true"></i> 4h left</span>
+        </div>
+        <div style="display:flex; gap:6px; margin-bottom:8px;">
+          <div style="flex:1; background:var(--surface-1); border-radius:10px; padding:8px; text-align:center;">
+            <div style="height:60px; background:var(--surface-0); border-radius:6px; display:flex; align-items:center; justify-content:center; margin-bottom:6px;"><i class="ti ti-player-play" style="font-size:18px; color:var(--text-muted);" aria-hidden="true"></i></div>
+            <p style="font-size:11px; margin:0 0 6px;">Entry A</p>
+            <button style="width:100%; background:var(--bg-accent); color:var(--text-accent); border:none; border-radius:6px; padding:5px; font-size:10px; font-weight:500;">Vote</button>
+          </div>
+          <div style="flex:1; background:var(--surface-1); border-radius:10px; padding:8px; text-align:center;">
+            <div style="height:60px; background:var(--surface-0); border-radius:6px; display:flex; align-items:center; justify-content:center; margin-bottom:6px;"><i class="ti ti-player-play" style="font-size:18px; color:var(--text-muted);" aria-hidden="true"></i></div>
+            <p style="font-size:11px; margin:0 0 6px;">Entry B</p>
+            <button style="width:100%; background:var(--bg-accent); color:var(--text-accent); border:none; border-radius:6px; padding:5px; font-size:10px; font-weight:500;">Vote</button>
+          </div>
+        </div>
+        <p style="font-size:10px; color:var(--text-muted); text-align:center; margin:0;"><i class="ti ti-shield-check" style="font-size:12px; vertical-align:-1px; color:var(--text-success);" aria-hidden="true"></i> Verified voters only · identities hidden</p>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 0;">4. Blind bracket vote</p>
+</div>
+
+<div style="flex:0 0 auto; width:220px;">
+  <div style="background:var(--surface-1); border-radius:12px; padding:8px; border:0.5px solid var(--border);">
+    <div style="background:var(--surface-2); border-radius:20px; border:5px solid var(--surface-0); overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; padding:6px 10px 2px; font-size:11px; color:var(--text-muted);"><span>9:41</span><span><i class="ti ti-wifi" aria-hidden="true"></i></span></div>
+      <div style="padding:10px 12px 14px;">
+        <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Challenge won</p>
+        <div style="background:var(--bg-warning); border-radius:10px; padding:10px; text-align:center; margin-bottom:8px;">
+          <i class="ti ti-trophy" style="font-size:22px; color:var(--text-warning);" aria-hidden="true"></i>
+          <p style="font-size:12px; font-weight:500; margin:4px 0 0; color:var(--text-warning);">@maya.creates</p>
+          <p style="font-size:11px; margin:2px 0 0; color:var(--text-warning);">$2,000 prize</p>
+        </div>
+        <p style="font-size:10px; color:var(--text-muted); margin:0 0 6px;">Finalist stipends</p>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@theo.vids</span>
+            <span style="font-size:10px; color:var(--text-success);">$150 paid</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+            <span style="font-size:11px;">@ava.creates</span>
+            <span style="font-size:10px; color:var(--text-success);">$150 paid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px; color:var(--text-muted); text-align:center; margin:6px 0 0;">5. Reveal &amp; payout</p>
+</div>
+
+</div>
+</body>
+</html>

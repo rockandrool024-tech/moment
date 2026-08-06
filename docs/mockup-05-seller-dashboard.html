@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Seller dashboard and analytics — creator competition app</title>
+<style>
+:root{
+  --surface-0:#f7f6f2; --surface-1:#f1efe8; --surface-2:#ffffff;
+  --text-primary:#171716; --text-secondary:#5f5e5a; --text-muted:#888780;
+  --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.2); --border-accent:#378add;
+  --bg-accent:#e6f1fb; --text-accent:#0c447c;
+  --bg-success:#eaf3de; --text-success:#27500a;
+  --bg-warning:#faeeda; --text-warning:#633806;
+  --fill-secondary:transparent;
+}
+body{background:var(--surface-0); font-family:-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px;}
+p{margin:0;}
+</style>
+</head>
+<body>
+<div style="max-width:680px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <p style="font-size:14px; font-weight:500; margin:0;">Your campaigns</p>
+    <button style="background:var(--fill-secondary); border:0.5px solid var(--border-strong); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:500;">New campaign</button>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-bottom:14px;">
+    <div style="background:var(--surface-1); border-radius:8px; padding:10px;"><p style="font-size:11px; color:var(--text-secondary); margin:0;">Active campaigns</p><p style="font-size:20px; font-weight:500; margin:2px 0 0;">4</p></div>
+    <div style="background:var(--surface-1); border-radius:8px; padding:10px;"><p style="font-size:11px; color:var(--text-secondary); margin:0;">Budget in escrow</p><p style="font-size:20px; font-weight:500; margin:2px 0 0;">$8,600</p></div>
+    <div style="background:var(--surface-1); border-radius:8px; padding:10px;"><p style="font-size:11px; color:var(--text-secondary); margin:0;">Avg entries / campaign</p><p style="font-size:20px; font-weight:500; margin:2px 0 0;">96</p></div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:18px;">
+    <div style="display:flex; align-items:center; gap:10px; background:var(--surface-1); border-radius:8px; padding:8px 10px;">
+      <span style="flex:1.4; font-size:12px;">Glow drop reel</span>
+      <span style="flex:1; font-size:10px; background:var(--bg-success); color:var(--text-success); padding:2px 8px; border-radius:6px; text-align:center;">Voting</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">128 entries</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">$2,000 / $2,450</span>
+      <span style="flex:0.8; font-size:11px; color:var(--text-muted);">2d left</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; background:var(--surface-1); border-radius:8px; padding:8px 10px;">
+      <span style="flex:1.4; font-size:12px;">Sneaker unboxing</span>
+      <span style="flex:1; font-size:10px; background:var(--bg-warning); color:var(--text-warning); padding:2px 8px; border-radius:6px; text-align:center;">Round 1 review</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">64 entries</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">$1,200 / $1,500</span>
+      <span style="flex:0.8; font-size:11px; color:var(--text-muted);">5d left</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; background:var(--surface-1); border-radius:8px; padding:8px 10px;">
+      <span style="flex:1.4; font-size:12px;">Fit check challenge</span>
+      <span style="flex:1; font-size:10px; background:var(--bg-accent); color:var(--text-accent); padding:2px 8px; border-radius:6px; text-align:center;">Open</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">210 entries</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">$900 / $1,150</span>
+      <span style="flex:0.8; font-size:11px; color:var(--text-muted);">12h left</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; background:var(--surface-1); border-radius:8px; padding:8px 10px;">
+      <span style="flex:1.4; font-size:12px;">Beach vibes</span>
+      <span style="flex:1; font-size:10px; background:var(--surface-2); color:var(--text-muted); padding:2px 8px; border-radius:6px; text-align:center; border:0.5px solid var(--border);">Closed</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">180 entries</span>
+      <span style="flex:1; font-size:11px; color:var(--text-secondary);">$1,800 / $1,800</span>
+      <span style="flex:0.8; font-size:11px; color:var(--text-muted);">Paid out</span>
+    </div>
+  </div>
+
+  <p style="font-size:14px; font-weight:500; margin:0 0 10px;">Glow drop reel · analytics</p>
+  <div style="display:flex; gap:16px;">
+    <div style="flex:1;">
+      <p style="font-size:11px; color:var(--text-muted); margin:0 0 8px;">Funnel</p>
+      <div style="display:flex; flex-direction:column; gap:5px;">
+        <div style="background:var(--bg-accent); border-radius:6px; padding:6px 10px; width:100%;"><span style="font-size:11px; color:var(--text-accent);">Viewed</span><span style="float:right; font-size:11px; font-weight:500; color:var(--text-accent);">4,820</span></div>
+        <div style="background:var(--bg-accent); border-radius:6px; padding:6px 10px; width:70%;"><span style="font-size:11px; color:var(--text-accent);">Submitted</span><span style="float:right; font-size:11px; font-weight:500; color:var(--text-accent);">128</span></div>
+        <div style="background:var(--bg-accent); border-radius:6px; padding:6px 10px; width:45%;"><span style="font-size:11px; color:var(--text-accent);">Advanced</span><span style="float:right; font-size:11px; font-weight:500; color:var(--text-accent);">20</span></div>
+        <div style="background:var(--bg-accent); border-radius:6px; padding:6px 10px; width:20%;"><span style="font-size:11px; color:var(--text-accent);">Finalists</span><span style="float:right; font-size:11px; font-weight:500; color:var(--text-accent);">3</span></div>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <p style="font-size:11px; color:var(--text-muted); margin:0 0 8px;">Entries over time</p>
+      <svg viewBox="0 0 200 90" width="100%" height="90">
+        <polyline points="0,80 30,65 60,60 90,40 120,35 150,15 180,10 200,8" fill="none" stroke="var(--border-accent)" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
+</div>
+</body>
+</html>

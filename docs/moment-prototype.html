@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOMENT — interactive prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#08080a; --panel:#101013; --surf:#17171b; --surf2:#1f1f25; --line:rgba(255,255,255,.09);
+  --line2:rgba(255,255,255,.2); --tx:#f6f6f4; --dim:#a5a59f; --dim2:#87877f;
+  --money:#c8f751; --money-d:#1e2a08; --hot:#ff4f3b; --hot-d:#2d0d09;
+  --gold:#ffbf29; --gold-d:#2b1e04; --vio:#8f7dff; --vio-d:#171233; --ok:#3ddc8b; --ok-d:#0a2418;
+  --r:12px;
+}
+body{margin:0; background:var(--bg); color:var(--tx);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif; font-variant-numeric:tabular-nums;}
+p,h1,h2,h3{margin:0;}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+.num{font-variant-numeric:tabular-nums; letter-spacing:-.02em;}
+
+.wrap{display:flex; gap:22px; padding:20px; align-items:flex-start; max-width:1500px; margin:0 auto;}
+.idx{width:212px; flex:0 0 auto; position:sticky; top:20px; max-height:94vh; overflow:auto;}
+.idx::-webkit-scrollbar{width:5px;} .idx::-webkit-scrollbar-thumb{background:var(--surf2); border-radius:3px;}
+.idx h1{font-size:15px; letter-spacing:.16em; font-weight:600; margin-bottom:2px;}
+.idx .sub{font-size:11px; color:var(--dim2); margin-bottom:14px;}
+.grp{font-size:9.5px; letter-spacing:.13em; color:var(--dim2); text-transform:uppercase; margin:14px 0 5px;}
+.ni{display:flex; gap:7px; align-items:center; padding:5px 8px; border-radius:7px; font-size:11.5px;
+  color:var(--dim); cursor:pointer; line-height:1.3;}
+.ni:hover{background:var(--surf); color:var(--tx);}
+.ni.on{background:var(--surf2); color:var(--tx);}
+.ni b{color:var(--dim2); font-weight:500; font-size:10px; width:15px; flex:0 0 auto;}
+.ni.on b{color:var(--money);}
+
+.stage{flex:1; display:flex; flex-direction:column; align-items:center; gap:12px;}
+.bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;}
+.btn{font-size:11.5px; padding:7px 13px; border-radius:20px; background:var(--surf);
+  border:.5px solid var(--line); color:var(--dim);}
+.btn:hover{color:var(--tx); border-color:var(--line2);}
+.btn.on{background:var(--money); color:#0b1300; border-color:var(--money); font-weight:600;}
+
+.phone{width:372px; height:788px; background:var(--panel); border-radius:38px; padding:9px;
+  border:1px solid var(--line); flex:0 0 auto;}
+.vp{width:100%; height:100%; background:var(--bg); border-radius:30px; overflow-y:auto; overflow-x:hidden;
+  position:relative; border:.5px solid var(--line);}
+.vp::-webkit-scrollbar{width:0;}
+.cap{font-size:11px; color:var(--dim2); text-align:center;}
+
+.sb{display:flex; justify-content:space-between; padding:11px 18px 4px; font-size:11px; color:var(--dim2);}
+.pad{padding:4px 18px 26px;}
+.tbar{position:sticky; bottom:0; display:flex; justify-content:space-around; padding:11px 0 15px;
+  background:linear-gradient(to top,var(--bg) 68%,transparent); border-top:.5px solid var(--line);}
+.tbar i{font-size:19px; color:var(--dim2);} .tbar i.on{color:var(--money);}
+
+.h{font-size:19px; font-weight:600; letter-spacing:-.02em;}
+.eyebrow{font-size:9.5px; letter-spacing:.15em; text-transform:uppercase; color:var(--dim2);}
+.money{font-size:46px; font-weight:700; letter-spacing:-.045em; line-height:1; color:var(--money);}
+.money-sm{font-size:26px; font-weight:700; letter-spacing:-.04em; color:var(--money);}
+.card{background:var(--surf); border-radius:var(--r); border:.5px solid var(--line); padding:13px;}
+.row{background:var(--surf); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px;}
+.pill{font-size:9.5px; padding:3px 8px; border-radius:20px; font-weight:600; letter-spacing:.02em; display:inline-block;}
+.p-money{background:var(--money-d); color:var(--money);}
+.p-hot{background:var(--hot-d); color:var(--hot);}
+.p-gold{background:var(--gold-d); color:var(--gold);}
+.p-vio{background:var(--vio-d); color:var(--vio);}
+.p-ok{background:var(--ok-d); color:var(--ok);}
+.p-dim{background:var(--surf2); color:var(--dim);}
+.cta{width:100%; padding:14px; border-radius:11px; background:var(--money); color:#0b1300;
+  font-size:14px; font-weight:700; letter-spacing:-.01em;}
+.cta:active{transform:scale(.985);}
+.cta.ghost{background:transparent; border:1px solid var(--line2); color:var(--tx); font-weight:600;}
+.cta.hot{background:var(--hot); color:#fff;}
+.cta:disabled{background:var(--surf2); color:var(--dim2); cursor:not-allowed;}
+.clock{font-size:11.5px; color:var(--hot); font-weight:600;}
+.bar-t{height:5px; background:var(--surf2); border-radius:3px; overflow:hidden;}
+.bar-f{height:100%; background:var(--money); border-radius:3px; transition:width .35s;}
+.av{border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 auto;}
+.thumb{background:linear-gradient(145deg,var(--surf2),var(--surf)); border-radius:9px;
+  display:flex; align-items:center; justify-content:center; color:var(--dim2);}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px;}
+.stat{background:var(--surf); border-radius:10px; padding:10px;}
+.stat .v{font-size:17px; font-weight:700; letter-spacing:-.03em;}
+.stat .l{font-size:9.5px; color:var(--dim2); margin-top:1px;}
+.sep{height:.5px; background:var(--line); margin:13px 0;}
+.note{font-size:10px; color:var(--dim2); line-height:1.5;}
+.tabs{display:flex; gap:16px; border-bottom:.5px solid var(--line);}
+.tab{font-size:12px; color:var(--dim2); padding-bottom:8px; cursor:pointer;}
+.tab.on{color:var(--tx); font-weight:600; box-shadow:inset 0 -1.5px 0 var(--money);}
+.vs{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:var(--bg);
+  border:1px solid var(--line2); width:30px; height:30px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--dim);}
+.gridview{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; padding:0 8px 40px;}
+.gcell{width:250px;}
+.gframe{width:250px; height:530px; background:var(--panel); border-radius:20px; padding:5px; border:1px solid var(--line);}
+.gvp{width:100%; height:100%; background:var(--bg); border-radius:16px; overflow:hidden; position:relative;}
+.gvp .inner{width:372px; transform:scale(.645); transform-origin:top left; height:815px; overflow:hidden;}
+.gcap{font-size:10.5px; color:var(--dim2); text-align:center; margin-top:6px;}
+.gcap b{color:var(--dim); font-weight:600;}
+@media print{ .idx,.bar{display:none;} body{background:#fff;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="idx" id="idx"></nav>
+  <div class="stage">
+    <div class="bar">
+      <button class="btn on" id="mPhone">Prototype</button>
+      <button class="btn" id="mGrid">All 30 screens</button>
+      <button class="btn" id="reset"><i class="ti ti-refresh"></i> Reset state</button>
+    </div>
+    <div id="stage"></div>
+  </div>
+</div>
+
+<script>
+const S = {
+  screen:'splash', tab:'campaigns', votes:0, need:8, deck:0, unlocked:false,
+  rally:127, copied:false, submitted:false, wizard:1, mode:'phone',
+  watched:0, check:false, preds:2, predLocked:true
+};
+const DECK = [
+  ['Teaser A','Teaser B'],['Teaser C','Teaser D'],['Teaser E','Teaser F'],['Teaser G','Teaser H'],
+  ['Teaser I','Teaser J'],['Teaser K','Teaser L'],['Teaser M','Teaser N'],['Teaser O','Teaser P']
+];
+const END = Date.now() + 2*3600*1000 + 14*60*1000;
+function cd(){ let d=Math.max(0,END-Date.now()), h=Math.floor(d/3.6e6), m=Math.floor(d%3.6e6/6e4), s=Math.floor(d%6e4/1e3);
+  return `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`; }
+
+const sb = () => `<div class="sb"><span>9:41</span><span><i class="ti ti-wifi"></i></span></div>`;
+const tbar = a => `<div class="tbar">
+  ${['home','compass','trophy','wallet','user'].map((i,n)=>`<i class="ti ti-${i} ${n===a?'on':''}" onclick="go('${['home','discovery','bracket','wallet','profile'][n]}')"></i>`).join('')}
+</div>`;
+const av = (t,c,s)=>`<div class="av" style="width:${s}px;height:${s}px;background:var(--${c}-d);color:var(--${c});font-size:${s*.36}px">${t}</div>`;
+
+const SCREENS = {
+
+splash:{g:'Creator',n:'Splash · role pick',r:()=>`${sb()}<div class="pad" style="display:flex;flex-direction:column;height:735px">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <p class="eyebrow" style="margin-bottom:14px">Live in Tunis</p>
+    <h1 style="font-size:44px;font-weight:700;letter-spacing:-.045em;line-height:.98">Get paid<br>for the<br>best post.</h1>
+    <p style="font-size:13.5px;color:var(--dim);margin-top:14px;line-height:1.5">32 creators enter. Peers vote blind.<br>One takes the pool. Finalists still get paid.</p>
+    <div class="card" style="margin-top:22px;display:flex;align-items:center;gap:12px">
+      <div><p class="eyebrow">Live pool right now</p><p class="money num">$5,000</p></div>
+      <div style="margin-left:auto;text-align:right"><p class="clock num" id="cd1">${cd()}</p><p class="note">until round 2 closes</p></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:9px">
+    <button class="cta" onclick="go('verify')">I'm a creator</button>
+    <button class="cta ghost" onclick="go('bhome')">I'm a brand</button>
+    <button class="cta ghost" style="border:none;color:var(--dim)" onclick="go('feed')">Just watching →</button>
+  </div></div>`},
+
+verify:{g:'Creator',n:'Verify · one human one vote',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow" style="margin-bottom:10px">Step 2 of 2</p>
+  <h2 class="h">Verify your number</h2>
+  <p class="note" style="margin:7px 0 18px">One human, one vote. This is what makes winning here mean something — and it's why brands trust the result.</p>
+  <div class="card" style="margin-bottom:10px"><p class="note">Phone</p><p style="font-size:16px;font-weight:600;margin-top:3px">+216 •• ••• 402</p></div>
+  <div style="display:flex;gap:7px;margin-bottom:16px">
+    ${[4,9,2,7,'',''].map(d=>`<div style="flex:1;aspect-ratio:1;background:var(--surf);border:.5px solid ${d===''?'var(--line)':'var(--line2)'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700">${d}</div>`).join('')}
+  </div>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:16px">
+    <p style="font-size:11.5px;color:var(--vio);font-weight:600"><i class="ti ti-shield-check"></i> Verified voter</p>
+    <p class="note" style="color:var(--vio);opacity:.75;margin-top:3px">Unverified accounts can watch everything. They just can't vote or win.</p>
+  </div>
+  <button class="cta" onclick="go('home')">Verify and enter</button>
+  <p class="note" style="text-align:center;margin-top:12px">Entry is always free. Winners are decided by votes on the work, never by payment.</p>
+</div>`},
+
+home:{g:'Creator',n:'Home · stakes and streak',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;margin-bottom:16px">
+    <div><p class="eyebrow">Tunis</p><h2 class="h">12 challenges near you</h2></div>
+    <div style="margin-left:auto;text-align:center;background:var(--surf);border-radius:10px;padding:7px 10px">
+      <p style="font-size:17px;font-weight:700;color:var(--gold)" class="num">6</p><p class="note">day streak</p></div>
+  </div>
+  <div class="card" style="border-color:var(--money);background:linear-gradient(160deg,var(--money-d),var(--surf));margin-bottom:11px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><p class="eyebrow" style="color:var(--money);opacity:.8">You're in · round 2 of 3</p>
+      <p class="money num" style="margin-top:5px">$5,000</p>
+      <p style="font-size:12px;color:var(--dim);margin-top:5px">Glow drop reel · Glow Co</p></div>
+      ${av('GC','money',38)}
+    </div>
+    <div class="sep" style="margin:12px 0"></div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="flex:1"><p class="clock num" id="cd2">${cd()}</p><p class="note">left to rally your voters</p></div>
+      <button class="cta" style="width:auto;padding:9px 15px;font-size:12px" onclick="go('rally')">Rally →</button>
+    </div>
+  </div>
+  <div class="card" style="background:var(--hot-d);border-color:transparent;margin-bottom:11px;display:flex;align-items:center;gap:11px">
+    <i class="ti ti-lock" style="font-size:21px;color:var(--hot)"></i>
+    <div style="flex:1"><p style="font-size:12.5px;font-weight:600;color:var(--hot)">Your round 1 result is locked</p>
+      <p class="note" style="color:var(--hot);opacity:.8">Vote on ${S.need-S.votes} more teasers to unlock it</p></div>
+    <button class="cta hot" style="width:auto;padding:8px 13px;font-size:11.5px" onclick="go('deck')">Vote</button>
+  </div>
+  <p class="eyebrow" style="margin:16px 0 8px">Closing soon</p>
+  ${[['Sneaker unboxing','Nova','$1,200','5h','money'],['Fit check','Fitted','$900','12h','gold']].map(c=>`
+  <div class="row" style="margin-bottom:8px" onclick="go('brief')">
+    ${av(c[1].slice(0,2).toUpperCase(),c[4],32)}
+    <div style="flex:1"><p style="font-size:12.5px;font-weight:600">${c[0]}</p><p class="note">${c[1]} · 64 entries</p></div>
+    <div style="text-align:right"><p class="money-sm num">${c[2]}</p><p class="clock" style="font-size:10px">${c[3]} left</p></div>
+  </div>`).join('')}
+</div>${tbar(0)}`},
+
+discovery:{g:'Creator',n:'Discovery · 3 tabs',r:()=>{
+  const t=S.tab;
+  const tabs=`<div class="tabs" style="margin-bottom:12px">${[['campaigns','Campaigns'],['creators','Creators'],['brands','Brands']].map(x=>
+    `<div class="tab ${t===x[0]?'on':''}" onclick="S.tab='${x[0]}';render()">${x[1]}</div>`).join('')}</div>`;
+  let body='';
+  if(t==='campaigns') body=[['Glow drop reel','Glow Co','$5,000','128','2d','money',1],['Sneaker unboxing','Nova','$1,200','64','5d','gold',1],['Fit check','Fitted','$900','210','12h','hot',0]]
+    .map(c=>`<div class="card" style="margin-bottom:9px" onclick="go('brief')">
+      <div class="thumb" style="height:88px;margin-bottom:9px"><i class="ti ti-player-play" style="font-size:24px"></i></div>
+      <div style="display:flex;align-items:center;gap:8px">${av(c[1].slice(0,2).toUpperCase(),c[5],26)}
+        <div style="flex:1"><p style="font-size:12.5px;font-weight:600">${c[0]} ${c[6]?'<i class="ti ti-rosette-discount-check" style="color:var(--vio);font-size:12px"></i>':''}</p>
+        <p class="note">${c[3]} entries · ${c[4]} left</p></div>
+        <p class="money-sm num">${c[2]}</p></div>
+      <p class="note" style="margin-top:8px;color:${c[6]?'var(--ok)':'var(--dim2)'}">
+        <i class="ti ti-${c[6]?'shield-check':'sparkles'}"></i> ${c[6]?c[1]+' · 100% paid on time':'First campaign · prize funded in escrow'}</p>
+    </div>`).join('');
+  if(t==='creators') body=`<div style="display:flex;gap:6px;margin-bottom:11px">
+    <span class="pill p-money">Top ranked</span><span class="pill p-dim">Near me</span><span class="pill p-dim">Rising</span></div>`+
+    [['maya.creates','Lagos · beauty','34','71%','4.8','vio','Diamond'],['theo.vids','Jakarta · tech','29','64%','4.6','vio','Diamond'],['ava.creates','Tunis · fashion','21','52%','4.4','gold','Gold']]
+    .map((c,i)=>`<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
+        <span class="note" style="width:9px">${i+1}</span>${av(c[0].slice(0,2).toUpperCase(),c[5],30)}
+        <div style="flex:1"><p style="font-size:12.5px;font-weight:600">@${c[0]}</p><p class="note">${c[1]}</p></div>
+        <span class="pill p-${c[5]}">${c[6]}</span></div>
+      <div class="grid3">${[[c[2],'Wins'],[c[3],'Finals rate'],[c[4],'Brand score']].map(s=>
+        `<div class="stat" style="background:var(--surf2);text-align:center"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}</div>
+    </div>`).join('');
+  if(t==='brands') body=[['Glow Co','Beauty · 2 live','18','$41k','$2.3k','4.9','100%','money',1],['Nova','Footwear · 1 live','9','$14k','$1.5k','4.5','96%','gold',1]]
+    .map(c=>`<div class="card" style="margin-bottom:9px" onclick="go('trust')">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">${av(c[0].slice(0,2).toUpperCase(),c[7],30)}
+        <div style="flex:1"><p style="font-size:12.5px;font-weight:600">${c[0]} <i class="ti ti-rosette-discount-check" style="color:var(--vio);font-size:12px"></i></p><p class="note">${c[1]}</p></div>
+        <span class="pill p-ok">${c[5]}</span></div>
+      <div class="grid3">${[[c[2],'Campaigns'],[c[3],'Paid out'],[c[4],'Avg prize']].map(s=>
+        `<div class="stat" style="background:var(--surf2);text-align:center"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}</div>
+      <p class="note" style="margin-top:8px;color:var(--ok)"><i class="ti ti-shield-check"></i> ${c[6]} paid on time</p>
+    </div>`).join('')+
+    `<div class="card" style="opacity:.75"><div style="display:flex;align-items:center;gap:9px">${av('FT','hot',30)}
+      <div style="flex:1"><p style="font-size:12.5px;font-weight:600">Fitted</p><p class="note">Fashion · 1 live</p></div>
+      <span class="pill p-dim">New</span></div>
+      <p class="note" style="margin-top:8px"><i class="ti ti-sparkles"></i> First campaign · $900 already funded in escrow</p></div>`;
+  return `${sb()}<div class="pad"><h2 class="h" style="margin-bottom:12px">Discover</h2>
+    <div class="row" style="margin-bottom:12px;padding:9px 12px"><i class="ti ti-search" style="color:var(--dim2)"></i>
+      <span class="note">Search ${t}</span></div>${tabs}${body}</div>${tbar(1)}`}},
+
+trust:{g:'Creator',n:'Trust ledger · brand profile',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">
+    <i class="ti ti-arrow-left" style="font-size:18px;color:var(--dim)" onclick="go('discovery')"></i>
+    ${av('GC','money',40)}
+    <div><p style="font-size:15px;font-weight:700">Glow Co <i class="ti ti-rosette-discount-check" style="color:var(--vio);font-size:13px"></i></p>
+    <p class="note">Beauty · Tunis, TN</p></div>
+  </div>
+  <div class="card" style="background:var(--ok-d);border-color:transparent;margin-bottom:11px;text-align:center">
+    <p class="eyebrow" style="color:var(--ok);opacity:.8">Stripe-verified payout history</p>
+    <p style="font-size:38px;font-weight:700;color:var(--ok);letter-spacing:-.04em;margin-top:4px" class="num">100%</p>
+    <p style="font-size:12px;color:var(--ok);opacity:.85">18 of 18 campaigns paid on time</p>
+  </div>
+  <div class="grid2" style="margin-bottom:11px">
+    ${[['18','Campaigns run'],['$41,200','Total paid out'],['$2,290','Avg prize'],['4.9','Creator rating']].map(s=>
+      `<div class="stat"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="note" style="margin-bottom:13px">Rating from 142 creators who finished a Glow Co campaign. Only participants of resolved campaigns can rate.</p>
+  <p class="eyebrow" style="margin-bottom:8px">Past winners</p>
+  <div class="grid3" style="margin-bottom:16px">
+    ${[['MC','vio'],['AC','gold'],['NR','money']].map(w=>`<div class="stat" style="text-align:center">
+      <div style="display:flex;justify-content:center;margin-bottom:5px">${av(w[0],w[1],28)}</div>
+      <p class="l">$2,000 won</p></div>`).join('')}
+  </div>
+  <button class="cta ghost" onclick="go('brief')">See live campaign</button>
+</div>`},
+
+local:{g:'Creator',n:'Local · city as identity',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Your city</p>
+  <h2 class="h" style="margin:3px 0 13px">Tunis</h2>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:11px">
+    <div style="position:relative;height:180px;background:var(--surf2)">
+      <svg viewBox="0 0 340 180" style="position:absolute;inset:0;width:100%;height:100%">
+        ${[[70,60,52,32],[180,48,40,26],[210,120,46,40],[290,80,42,48],[100,140,34,28]].map(e=>
+          `<ellipse cx="${e[0]}" cy="${e[1]}" rx="${e[2]}" ry="${e[3]}" fill="var(--surf)"/>`).join('')}
+      </svg>
+      ${[[62,50,'money',11],[196,104,'gold',9],[276,66,'vio',11],[166,38,'dim',8],[94,128,'hot',9]].map(p=>
+        `<div style="position:absolute;left:${p[0]}px;top:${p[1]}px;width:${p[3]}px;height:${p[3]}px;border-radius:50%;background:var(--${p[0]?p[2]:'dim'});border:2px solid var(--bg)"></div>`).join('')}
+      <div style="position:absolute;left:54px;top:30px;background:var(--bg);border:.5px solid var(--line2);padding:2px 7px;border-radius:9px;font-size:10px;font-weight:600">@ava.creates</div>
+      <div style="position:absolute;left:186px;top:132px;background:var(--money);color:#0b1300;padding:3px 8px;border-radius:9px;font-size:10px;font-weight:700">3 stores hiring</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;font-size:10px;color:var(--dim2);margin-bottom:13px">
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--vio);margin-right:4px"></span>Diamond</span>
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:4px"></span>Gold</span>
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--money);margin-right:4px"></span>You</span>
+    <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--hot);margin-right:4px"></span>Store</span>
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Tunis leaderboard</p>
+  ${[['ava.creates','21 wins','gold','1'],['momo24','1 win','money','7'],['sami.eats','7 wins','vio','3']].map(c=>
+    `<div class="row" style="margin-bottom:7px;${c[0]==='momo24'?'border:1px solid var(--money)':''}">
+      <span class="note" style="width:12px">${c[3]}</span>${av(c[0].slice(0,2).toUpperCase(),c[2],28)}
+      <p style="flex:1;font-size:12.5px">${c[0]==='momo24'?'You':'@'+c[0]}</p>
+      <span class="note">${c[1]}</span></div>`).join('')}
+  <div class="card" style="margin-top:11px;background:var(--hot-d);border-color:transparent">
+    <p style="font-size:12px;font-weight:600;color:var(--hot)"><i class="ti ti-map-pin"></i> 3 in-person shoots near you</p>
+    <p class="note" style="color:var(--hot);opacity:.8;margin-top:3px">Film at the store, book a slot, check in on arrival. 12% take rate — local supply is worth buying.</p>
+  </div>
+  <p class="note" style="margin-top:11px">Gen-Z virality is geographic before it's global. It moves campus by campus. The map isn't a feature, it's the go-to-market.</p>
+</div>${tbar(1)}`},
+
+brief:{g:'Creator',n:'Challenge brief',r:()=>`${sb()}<div class="pad">
+  <i class="ti ti-arrow-left" style="font-size:18px;color:var(--dim)" onclick="go('discovery')"></i>
+  <div class="thumb" style="height:130px;margin:12px 0"><i class="ti ti-player-play" style="font-size:30px"></i></div>
+  <p class="eyebrow">Glow Co · beauty</p>
+  <h2 class="h" style="margin:4px 0 12px">Summer glow drop reel</h2>
+  <div class="card" style="margin-bottom:11px">
+    <div style="display:flex;align-items:center;margin-bottom:11px">
+      <div><p class="eyebrow">Winner takes</p><p class="money num">$5,000</p></div>
+      <div style="margin-left:auto;text-align:right"><p class="eyebrow">Also paid</p>
+        <p class="money-sm num" style="color:var(--gold)">$1,150</p>
+        <p class="note">across 16 more creators</p></div></div>
+    <div class="sep" style="margin:9px 0"></div>
+    ${[['4 finalists','$150 each','gold'],['12 round-2 survivors','$25 each','money'],['Crowd favourite','$250','vio']].map(l=>
+      `<div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px">
+        <span style="color:var(--dim)">${l[0]}</span><b style="color:var(--${l[2]})">${l[1]}</b></div>`).join('')}
+    <p class="note" style="margin-top:8px">13 of 32 entrants leave with money. Reaching round 2 pays — you don't have to win.</p>
+  </div>
+  <div class="grid3" style="margin-bottom:12px">
+    ${[['32','Entries so far'],['3','Rounds'],['2d 14h','To submit']].map(s=>
+      `<div class="stat" style="text-align:center"><p class="v num" style="font-size:14px">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="eyebrow" style="margin-bottom:7px">The brief</p>
+  <p style="font-size:12.5px;color:var(--dim);line-height:1.6;margin-bottom:13px">Show the drop in your real morning routine. No studio lighting, no scripts. We want the version you'd post anyway.</p>
+  <p class="eyebrow" style="margin-bottom:7px">Must include</p>
+  ${['15s teaser first · full video only if you advance','Vertical, shot on phone','#GlowDrop and tag @glowco'].map(c=>
+    `<p style="font-size:12px;display:flex;gap:8px;margin-bottom:6px"><i class="ti ti-check" style="color:var(--money)"></i>${c}</p>`).join('')}
+  <div class="sep"></div>
+  <p class="note" style="margin-bottom:13px"><i class="ti ti-shield-check" style="color:var(--ok)"></i> Prize is already funded in escrow. Glow Co has paid 18 of 18 campaigns on time.</p>
+  <button class="cta" onclick="go('submit')">Enter — free</button>
+</div>`},
+
+submit:{g:'Creator',n:'Teaser submit',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <p class="eyebrow">Round 1 of 3</p><p class="clock num" id="cd3">${cd()}</p></div>
+  <h2 class="h" style="margin-bottom:5px">Drop your teaser</h2>
+  <p class="note" style="margin-bottom:15px">15 seconds max. Only survivors shoot the full piece — so nobody wastes a weekend on a maybe.</p>
+  ${S.submitted?`<div class="card" style="background:var(--ok-d);border-color:transparent;text-align:center;padding:26px 13px;margin-bottom:13px">
+    <i class="ti ti-circle-check" style="font-size:32px;color:var(--ok)"></i>
+    <p style="font-size:14px;font-weight:700;color:var(--ok);margin-top:7px">Teaser in</p>
+    <p class="note" style="color:var(--ok);opacity:.8">You're 1 of 32</p></div>
+    <button class="cta" onclick="go('deck')">Start voting to unlock your result</button>`
+  :`<div class="card" style="border:1.5px dashed var(--line2);background:transparent;height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;margin-bottom:11px">
+    <i class="ti ti-player-play" style="font-size:28px;color:var(--dim2)"></i>
+    <p style="font-size:12.5px;color:var(--dim)">Upload teaser</p>
+    <p class="note">or shoot it now</p></div>
+  <div class="card" style="margin-bottom:11px"><p class="note">Caption</p>
+    <p style="font-size:12.5px;color:var(--dim2);margin-top:4px">say something…</p></div>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:13px;display:flex;gap:10px;align-items:center">
+    <i class="ti ti-sparkles" style="font-size:19px;color:var(--vio)"></i>
+    <div style="flex:1"><p style="font-size:12px;font-weight:600;color:var(--vio)">Clean it up with AI — 12 credits</p>
+      <p class="note" style="color:var(--vio);opacity:.75">Captions, trim, trending audio</p></div></div>
+  <button class="cta" onclick="S.submitted=true;render()">Submit teaser</button>`}
+</div>`},
+
+deck:{g:'Creator',n:'Vote deck · gated and blind',r:()=>{
+  const done=S.votes>=S.need, pair=DECK[Math.min(S.deck,DECK.length-1)];
+  return `${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+    <div><p class="eyebrow">Round 1 · peer review</p><h2 class="h">Which is better?</h2></div>
+    <div style="text-align:right"><p style="font-size:17px;font-weight:700" class="num">${S.votes}<span style="color:var(--dim2)">/${S.need}</span></p>
+    <p class="note">votes cast</p></div>
+  </div>
+  <div class="bar-t" style="margin-bottom:13px"><div class="bar-f" style="width:${Math.min(100,S.votes/S.need*100)}%"></div></div>
+  ${done?`<div class="card" style="background:var(--ok-d);border-color:transparent;text-align:center;padding:30px 13px;margin-bottom:13px">
+      <i class="ti ti-lock-open" style="font-size:30px;color:var(--ok)"></i>
+      <p style="font-size:15px;font-weight:700;color:var(--ok);margin-top:8px">Deck complete</p>
+      <p class="note" style="color:var(--ok);opacity:.8;margin-top:3px">Your result is unlocked. Streak extended to 7 days.</p></div>
+    <button class="cta" onclick="S.unlocked=true;go('result')">See my result</button>`
+  :`${S.check?`<div class="card" style="background:var(--vio-d);border-color:var(--vio);margin-bottom:10px">
+      <p style="font-size:11.5px;font-weight:600;color:var(--vio)"><i class="ti ti-eye-check"></i> Attention check</p>
+      <p class="note" style="color:var(--vio);opacity:.85;margin-top:2px">You've seen this pair before. Answer consistently or the deck is discarded.</p></div>`:''}
+  <div style="position:relative;display:flex;gap:9px;margin-bottom:10px">
+    ${pair.map(t=>`<div class="card" style="flex:1;padding:9px">
+      <div class="thumb" style="height:180px;margin-bottom:8px"><i class="ti ti-player-play" style="font-size:22px"></i></div>
+      <p style="font-size:11.5px;text-align:center;color:var(--dim);margin-bottom:8px">${t}</p>
+      <button class="cta" ${S.watched<3?'disabled':''} style="padding:10px;font-size:12.5px" onclick="vote()">
+        ${S.watched<3?'Watch '+(3-S.watched)+'s':'Pick'}</button></div>`).join('')}
+    <div class="vs">VS</div></div>
+  <div class="bar-t" style="margin-bottom:8px"><div class="bar-f" style="width:${Math.min(100,S.watched/3*100)}%;background:var(--vio)"></div></div>
+  <p class="note" style="text-align:center;margin-bottom:11px">${S.watched<3?'Picking unlocks after 3 seconds of playback — speed-tapping pollutes the signal that decides round 1':'<i class="ti ti-eye-off"></i> Nobody sees who made these, and nobody sees who voted'}</p>
+  <div class="card" style="background:var(--hot-d);border-color:transparent">
+    <p style="font-size:11.5px;color:var(--hot);font-weight:600"><i class="ti ti-clock"></i> Deck expires in ${cd()}</p>
+    <p class="note" style="color:var(--hot);opacity:.8;margin-top:3px">Skip it and your composite score takes a ×0.9 hit</p></div>`}
+</div>`}},
+
+result:{g:'Creator',n:'Round result · advanced',r:()=>`${sb()}<div class="pad" style="text-align:center;padding-top:34px">
+  <i class="ti ti-arrow-big-up-lines" style="font-size:42px;color:var(--money)"></i>
+  <h2 style="font-size:27px;font-weight:700;letter-spacing:-.035em;margin:11px 0 5px">You advanced</h2>
+  <p class="note" style="margin-bottom:19px">12 of 32 made it through. You're in the money round.</p>
+  <div class="grid2" style="margin-bottom:11px">
+    <div class="stat"><p class="v num" style="color:var(--money)">78%</p><p class="l">Peer win rate</p></div>
+    <div class="stat"><p class="v num">4.6</p><p class="l">Brand score</p></div>
+  </div>
+  <div class="card" style="text-align:left;margin-bottom:11px">
+    <p class="eyebrow" style="margin-bottom:7px">How that was calculated</p>
+    <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px"><span style="color:var(--dim)">Peer votes (70%)</span><b>0.78</b></div>
+    <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:5px"><span style="color:var(--dim)">Brand score (30%)</span><b>0.92</b></div>
+    <div class="sep" style="margin:8px 0"></div>
+    <div style="display:flex;justify-content:space-between;font-size:12.5px"><b>Composite</b><b style="color:var(--money)">0.82 · rank 4</b></div>
+  </div>
+  <div class="card" style="background:var(--money-d);border-color:transparent;text-align:left;margin-bottom:13px">
+    <p style="font-size:12.5px;font-weight:700;color:var(--money)">Round 2 is where the money moves</p>
+    <p class="note" style="color:var(--money);opacity:.8;margin-top:3px">Shoot your full piece, then bring your people. Rally votes earn XP and the $250 crowd favourite — they can't buy you the prize.</p></div>
+  <button class="cta" onclick="go('rally')">Get my vote link</button>
+  <button class="cta ghost" style="margin-top:9px" onclick="go('bracket')">See the bracket</button>
+</div>`},
+
+submit2:{g:'Creator',n:'Round 2 · full content',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <p class="eyebrow">Round 2 of 3 · 12 left</p><p class="clock num">${cd()}</p></div>
+  <h2 class="h" style="margin-bottom:5px">Now make the real thing</h2>
+  <p class="note" style="margin-bottom:13px">Your teaser earned this. Full piece, up to 60s.</p>
+  <div class="card" style="background:var(--money-d);border-color:transparent;margin-bottom:11px">
+    <p style="font-size:12px;font-weight:700;color:var(--money)">You're already guaranteed $25</p>
+    <p class="note" style="color:var(--money);opacity:.85;margin-top:3px">Round-2 survivor bonus, paid whatever happens next. Reach the final four and it's $150.</p></div>
+  <div class="card" style="border:1.5px dashed var(--line2);background:transparent;height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;margin-bottom:10px">
+    <i class="ti ti-player-play" style="font-size:28px;color:var(--dim2)"></i>
+    <p style="font-size:12.5px;color:var(--dim)">Upload full video</p></div>
+  <div class="card" style="margin-bottom:10px">
+    <p class="note" style="margin-bottom:7px">Linked to your teaser</p>
+    <div style="display:flex;gap:9px;align-items:center">
+      <div class="thumb" style="width:44px;height:58px"><i class="ti ti-player-play" style="font-size:14px"></i></div>
+      <div style="flex:1"><p style="font-size:12px">Teaser · 14s</p><p class="note">78% peer win rate</p></div>
+      <span class="pill p-money">Rank 4</span></div></div>
+  <div class="card" style="margin-bottom:13px;display:flex;gap:10px;align-items:center">
+    <i class="ti ti-users" style="font-size:19px;color:var(--dim)"></i>
+    <div style="flex:1"><p style="font-size:12px">Peer vote opens when all 12 upload</p>
+      <p class="note">9 of 12 in · same blind pairwise deck</p></div></div>
+  <button class="cta" onclick="go('rally')">Submit and start rallying</button>
+</div>`},
+
+rally:{g:'Creator',n:'Rally · two-currency split',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Round 2 · live</p>
+  <h2 class="h" style="margin:3px 0 13px">Bring your people</h2>
+  <div class="card" style="background:linear-gradient(150deg,var(--vio-d),var(--surf));border-color:var(--vio);margin-bottom:11px">
+    <div style="display:flex;align-items:center"><div>
+      <p class="eyebrow" style="color:var(--vio);opacity:.85">Your voters</p>
+      <p style="font-size:40px;font-weight:700;color:var(--vio);letter-spacing:-.04em;line-height:1.05" class="num">${S.rally}</p></div>
+      <div style="margin-left:auto;text-align:right"><p class="clock num">${cd()}</p><p class="note">left</p></div></div>
+    <div class="sep" style="margin:11px 0"></div>
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="flex:1;background:var(--bg);border-radius:8px;padding:9px 11px">
+        <p style="font-size:12.5px;font-weight:600">moment.app/v/momo24</p></div>
+      <button class="cta" style="width:auto;padding:10px 13px;font-size:11.5px" onclick="S.rally+=3;S.copied=true;render()">
+        ${S.copied?'Copied':'Copy'}</button></div>
+  </div>
+  <div class="card" style="margin-bottom:11px">
+    <p class="eyebrow" style="margin-bottom:9px">Two scores. Only one decides the prize.</p>
+    <div style="display:flex;gap:9px">
+      <div style="flex:1;background:var(--money-d);border-radius:9px;padding:10px">
+        <p style="font-size:11px;font-weight:700;color:var(--money)">QUALITY</p>
+        <p style="font-size:20px;font-weight:700;color:var(--money);margin:3px 0" class="num">0.78</p>
+        <p class="note" style="color:var(--money);opacity:.75">Blind votes from a random verified pool. Decides the $5,000.</p></div>
+      <div style="flex:1;background:var(--vio-d);border-radius:9px;padding:10px">
+        <p style="font-size:11px;font-weight:700;color:var(--vio)">RALLY</p>
+        <p style="font-size:20px;font-weight:700;color:var(--vio);margin:3px 0" class="num">${S.rally}</p>
+        <p class="note" style="color:var(--vio);opacity:.75">Your link. Earns XP + the $250 crowd favourite. Capped.</p></div>
+    </div>
+    <p class="note" style="margin-top:10px">Your followers can't buy you the win here. That's the point — and it's why a 400-follower creator can still take the pool.</p>
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Ready-made assets</p>
+  <div class="grid3" style="margin-bottom:13px">
+    ${[['ti-clock','Countdown'],['ti-photo','Story card'],['ti-message','Caption']].map(a=>
+      `<div class="stat" style="text-align:center;padding:13px 7px"><i class="${'ti '+a[0]}" style="font-size:19px;color:var(--dim)"></i><p class="l" style="margin-top:5px">${a[1]}</p></div>`).join('')}
+  </div>
+  <button class="cta" onclick="S.rally+=11;render()">Share to story</button>
+</div>`},
+
+bracket:{g:'Creator',n:'Bracket · public elimination',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Glow drop reel · $5,000</p>
+  <h2 class="h" style="margin:3px 0 13px">32 → 12 → 4 → 1</h2>
+  <div class="card" style="margin-bottom:11px">
+    <div style="display:flex;gap:5px;align-items:flex-end;height:96px;margin-bottom:9px">
+      ${[[32,'R1',100,'dim'],[12,'R2',52,'money'],[4,'R3',24,'gold'],[1,'WIN',10,'vio']].map(b=>
+        `<div style="flex:1;text-align:center"><p style="font-size:13px;font-weight:700;color:var(--${b[3]})" class="num">${b[0]}</p>
+        <div style="height:${b[2]*.6}px;background:var(--${b[3]}-d);border-radius:5px;margin-top:5px;border-bottom:2px solid var(--${b[3]})"></div>
+        <p class="note" style="margin-top:4px">${b[1]}</p></div>`).join('')}
+    </div>
+    <div class="sep" style="margin:9px 0"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <p class="note">Round 2 closes in</p><p class="clock num">${cd()}</p></div>
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Still standing</p>
+  ${[['maya.creates','vio','0.91','1'],['you','money','0.78','4'],['theo.vids','gold','0.74','5']].map(c=>
+    `<div class="row" style="margin-bottom:7px;${c[0]==='you'?'border:1px solid var(--money)':''}">
+      <span class="note" style="width:12px">${c[3]}</span>${av(c[0].slice(0,2).toUpperCase(),c[1],28)}
+      <p style="flex:1;font-size:12.5px;font-weight:${c[0]==='you'?700:500}">${c[0]==='you'?'You':'@'+c[0]}</p>
+      <span class="pill p-${c[1]}">${c[2]}</span></div>`).join('')}
+  <div class="card" style="margin-top:11px;opacity:.55">
+    <p class="eyebrow" style="margin-bottom:7px">Knocked out</p>
+    <div style="display:flex;gap:-6px">${['NR','JK','LM','+17'].map(k=>
+      `<div style="margin-right:5px">${av(k,'dim',26)}</div>`).join('')}</div>
+  </div>
+  <button class="cta ghost" style="margin-top:13px" onclick="go('knockout')">See a knockout card</button>
+</div>${tbar(2)}`},
+
+knockout:{g:'Creator',n:'Knockout card · loss as content',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow" style="margin-bottom:11px">Auto-generated · yours to post</p>
+  <div style="background:linear-gradient(165deg,var(--hot-d),#140505);border-radius:18px;padding:22px 18px;border:1px solid var(--hot);margin-bottom:13px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:17px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--hot)">KNOCKED OUT</p>
+      <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim2)">MOMENT</p></div>
+    <p style="font-size:31px;font-weight:700;letter-spacing:-.04em;line-height:1.06">I lost a<br>$5,000<br>challenge</p>
+    <p style="font-size:13px;color:var(--dim);margin-top:11px">in round 2 of 3. by 0.03 points.</p>
+    <div class="sep" style="background:rgba(255,79,59,.25);margin:17px 0"></div>
+    <div style="display:flex;align-items:center;gap:9px">
+      ${av('MC','vio',32)}
+      <div style="flex:1"><p class="note">beaten by</p><p style="font-size:12.5px;font-weight:600">@maya.creates</p></div>
+      <span class="pill p-hot">go watch her →</span></div>
+    <p style="font-size:10px;color:var(--dim2);margin-top:15px">moment.app/c/glowdrop</p>
+  </div>
+  <p class="note" style="margin-bottom:13px">20 people lose every campaign and 1 wins. Losing loudly is funnier, more relatable, and 20× more shareable — so it gets a card too.</p>
+  <button class="cta hot">Post it</button>
+  <button class="cta ghost" style="margin-top:9px" onclick="go('wallet')">Claim my $150 stipend instead</button>
+</div>`},
+
+booking:{g:'Creator',n:'In-person · book and check in',r:()=>`${sb()}<div class="pad">
+  <i class="ti ti-arrow-left" style="font-size:18px;color:var(--dim)" onclick="go('local')"></i>
+  <div style="display:flex;align-items:center;gap:11px;margin:12px 0 13px">
+    ${av('CS','hot',40)}
+    <div><p style="font-size:14px;font-weight:700">Café Sidi</p><p class="note">400m · Rue de Marseille</p></div>
+    <p class="money-sm num" style="margin-left:auto">$600</p></div>
+  <div class="card" style="background:var(--hot-d);border-color:transparent;margin-bottom:11px">
+    <p style="font-size:12px;font-weight:600;color:var(--hot)"><i class="ti ti-map-pin"></i> Film on site</p>
+    <p class="note" style="color:var(--hot);opacity:.85;margin-top:3px">Book a slot, show up, check in with the QR at the counter. No-show inside 12h forfeits your round-2 spot.</p></div>
+  <p class="eyebrow" style="margin-bottom:8px">Tomorrow</p>
+  ${[['09:00','2 slots','ok'],['11:30','1 slot','gold'],['14:00','Full','dim'],['16:30','3 slots','ok']].map(s=>
+    `<div class="row" style="margin-bottom:7px;${s[0]==='11:30'?'border:1px solid var(--money)':''};opacity:${s[2]==='dim'?.45:1}">
+      <p style="flex:1;font-size:12.5px;font-weight:600">${s[0]}</p>
+      <span class="pill p-${s[2]}">${s[1]}</span></div>`).join('')}
+  <div class="card" style="margin:11px 0 13px;text-align:center">
+    <div style="width:96px;height:96px;background:var(--surf2);border-radius:10px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center">
+      <i class="ti ti-qrcode" style="font-size:44px;color:var(--dim)"></i></div>
+    <p class="note">Your check-in code · scan at arrival</p></div>
+  <button class="cta" onclick="go('submit')">Book 11:30</button>
+  <p class="note" style="text-align:center;margin-top:11px">In-person campaigns are charged at 12%, not 20% — local supply is worth buying.</p>
+</div>`},
+
+predict:{g:'Creator',n:'Predict · retention for non-entrants',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;margin-bottom:5px">
+    <div><p class="eyebrow">You haven't entered this one</p><h2 class="h">Call it</h2></div>
+    <div style="margin-left:auto;text-align:center;background:var(--surf);border-radius:10px;padding:7px 10px">
+      <p style="font-size:17px;font-weight:700;color:var(--vio)" class="num">71%</p><p class="note">taste score</p></div></div>
+  <p class="note" style="margin-bottom:13px">Pick who you think survives. Right calls build your taste score — and your picks stay locked until the round closes, same as everyone else's.</p>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:11px;display:flex;gap:10px;align-items:center">
+    <i class="ti ti-lock" style="font-size:19px;color:var(--vio)"></i>
+    <div style="flex:1"><p style="font-size:12px;font-weight:600;color:var(--vio)">${S.preds} picks locked in</p>
+      <p class="note" style="color:var(--vio);opacity:.8">Results reveal in ${cd()}</p></div></div>
+  <p class="eyebrow" style="margin-bottom:8px">Who makes the final four?</p>
+  ${[['Entry A','money',1],['Entry B','dim',0],['Entry C','money',1],['Entry D','dim',0]].map(e=>
+    `<div class="row" style="margin-bottom:7px;${e[2]?'border:1px solid var(--money)':''}">
+      <div class="thumb" style="width:34px;height:44px"><i class="ti ti-player-play" style="font-size:13px"></i></div>
+      <p style="flex:1;font-size:12.5px">${e[0]}</p>
+      <button class="cta ${e[2]?'':'ghost'}" style="width:auto;padding:7px 13px;font-size:11.5px" onclick="S.preds=${e[2]?'S.preds-1':'S.preds+1'};render()">${e[2]?'Picked':'Pick'}</button></div>`).join('')}
+  <div class="sep"></div>
+  <p class="eyebrow" style="margin-bottom:8px">What taste score unlocks</p>
+  ${[['ti-check','Early access to new drops','ok'],['ti-check','Your votes weigh more in the quality pool','ok'],['ti-lock','Judge a brand campaign · 85%','dim2']].map(u=>
+    `<div class="row" style="margin-bottom:7px"><i class="ti ${u[0]}" style="color:var(--${u[2]});font-size:15px"></i>
+      <p style="flex:1;font-size:12px;color:${u[2]==='ok'?'var(--tx)':'var(--dim2)'}">${u[1]}</p></div>`).join('')}
+  <p class="note" style="margin-top:11px">Most people arriving from a rally link never enter a challenge. Vote-to-unlock does nothing for them — this is their version of it.</p>
+</div>${tbar(2)}`},
+
+dispute:{g:'Creator',n:'Dispute · appeal an elimination',r:()=>`${sb()}<div class="pad">
+  <i class="ti ti-arrow-left" style="font-size:18px;color:var(--dim)" onclick="go('result')"></i>
+  <h2 class="h" style="margin:12px 0 5px">Something wrong?</h2>
+  <p class="note" style="margin-bottom:14px">Competitions live or die on whether a bad call can be fixed. Appeals are read by a human within 48h.</p>
+  <p class="eyebrow" style="margin-bottom:8px">What happened</p>
+  ${[['My elimination looks wrong','ti-alert-triangle',1],['Someone copied my content','ti-copy',0],['The brief changed mid-round','ti-file-alert',0],['I was charged incorrectly','ti-coin',0]].map(o=>
+    `<div class="row" style="margin-bottom:7px;${o[2]?'border:1px solid var(--money)':''}">
+      <i class="ti ${o[1]}" style="color:var(--${o[2]}?'money':'dim');font-size:16px"></i>
+      <p style="flex:1;font-size:12px">${o[0]}</p>
+      ${o[2]?'<i class="ti ti-circle-check" style="color:var(--money);font-size:16px"></i>':''}</div>`).join('')}
+  <div class="card" style="margin:11px 0"><p class="note">Tell us more</p>
+    <p style="font-size:12.5px;color:var(--dim2);margin-top:4px">My composite was 0.82 but I was cut at rank 4 of 12…</p></div>
+  <div class="card" style="background:var(--surf2);border-color:transparent;margin-bottom:13px">
+    <p class="eyebrow" style="margin-bottom:7px">Attached automatically</p>
+    ${['Your round-1 composite and rank','Vote counts on your pairings','Round open and close timestamps'].map(a=>
+      `<p style="font-size:11.5px;color:var(--dim);display:flex;gap:7px;margin-bottom:5px"><i class="ti ti-paperclip" style="font-size:13px"></i>${a}</p>`).join('')}
+  </div>
+  <button class="cta" onclick="go('admin')">Submit appeal</button>
+  <p class="note" style="text-align:center;margin-top:11px">Peer voter identities are never disclosed, in an appeal or anywhere else.</p>
+</div>`},
+
+notifs:{g:'Creator',n:'Notifications · rivalry and urgency',r:()=>`${sb()}<div class="pad">
+  <h2 class="h" style="margin-bottom:13px">Activity</h2>
+  <p class="eyebrow" style="margin-bottom:8px">Now</p>
+  ${[['ti-clock','Round 2 closes in 2 hours','You have 127 rally votes. @maya has 210.','hot'],
+     ['ti-flame','@theo.vids just passed you','Rank 4 → 5. He gained 38 votes in an hour.','hot']].map(n=>
+    `<div class="card" style="margin-bottom:8px;background:var(--hot-d);border-color:transparent;display:flex;gap:10px">
+      <i class="ti ${n[0]}" style="font-size:19px;color:var(--hot)"></i>
+      <div style="flex:1"><p style="font-size:12.5px;font-weight:600;color:var(--hot)">${n[1]}</p>
+        <p class="note" style="color:var(--hot);opacity:.8;margin-top:2px">${n[2]}</p></div></div>`).join('')}
+  <p class="eyebrow" style="margin:14px 0 8px">Today</p>
+  ${[['ti-lock','Your vote deck expires tonight','Skip it and your composite takes a ×0.9 hit','gold'],
+     ['ti-map-pin','New shoot 400m away','Café Sidi · $600 · 4 slots left','vio'],
+     ['ti-coin','Stipend paid','$150 from Sneaker unboxing','money'],
+     ['ti-flame','Streak day 6','Vote once to keep it alive','gold']].map(n=>
+    `<div class="row" style="margin-bottom:7px"><i class="ti ${n[0]}" style="color:var(--${n[3]});font-size:16px"></i>
+      <div style="flex:1"><p style="font-size:12px">${n[1]}</p><p class="note">${n[2]}</p></div></div>`).join('')}
+  <div class="card" style="margin-top:13px">
+    <p class="note">Every notification here is either a deadline, a rival, money, or something 400m away. Nothing is "someone liked your post" — that's a feed, and feeds don't bring people back for an event.</p>
+  </div>
+</div>${tbar(0)}`},
+
+wallet:{g:'Creator',n:'Wallet · first payout',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Balance</p>
+  <p class="money num" style="font-size:52px;margin:3px 0 13px">$2,150</p>
+  <div style="display:flex;gap:9px;margin-bottom:16px">
+    <button class="cta" style="flex:1;padding:12px;font-size:13px">Withdraw</button>
+    <button class="cta ghost" style="flex:1;padding:12px;font-size:13px">Add bank</button></div>
+  <div class="card" style="background:var(--gold-d);border-color:transparent;margin-bottom:13px;display:flex;gap:10px;align-items:center">
+    <i class="ti ti-gift" style="font-size:21px;color:var(--gold)"></i>
+    <div style="flex:1"><p style="font-size:12px;font-weight:600;color:var(--gold)">$5 first-deck bonus</p>
+      <p class="note" style="color:var(--gold);opacity:.8">Unlocks after your second campaign</p></div></div>
+  <p class="eyebrow" style="margin-bottom:8px">Activity</p>
+  ${[['Crowd favourite · Fit check','+$250','vio','2d'],['Finalist stipend · Sneaker','+$150','gold','5d'],['Won · Glow drop reel','+$2,000','money','1w'],['Referral · @sami','+$15','ok','2w']].map(t=>
+    `<div class="row" style="margin-bottom:7px">
+      <i class="ti ti-arrow-down-left" style="color:var(--${t[2]});font-size:16px"></i>
+      <div style="flex:1"><p style="font-size:12px">${t[0]}</p><p class="note">${t[3]} ago</p></div>
+      <p style="font-size:13px;font-weight:700;color:var(--${t[2]})" class="num">${t[1]}</p></div>`).join('')}
+  <p class="note" style="margin-top:13px">Every finalist gets paid, not just the winner. A creator who has been paid anything at all behaves completely differently from one who hasn't.</p>
+</div>${tbar(3)}`},
+
+tiers:{g:'Creator',n:'Tiers · functional not cosmetic',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Your tier</p>
+  <h2 style="font-size:29px;font-weight:700;color:var(--gold);letter-spacing:-.03em;margin:3px 0 4px">Gold</h2>
+  <p class="note" style="margin-bottom:13px">2,140 XP · 860 to Platinum</p>
+  <div class="bar-t" style="margin-bottom:16px"><div class="bar-f" style="width:71%;background:var(--gold)"></div></div>
+  <p class="eyebrow" style="margin-bottom:8px">What Gold unlocks</p>
+  ${[['ti-check','Challenges up to $5,000','ok'],['ti-check','12h early access to new drops','ok'],['ti-check','AI credits at 20% off','ok'],['ti-lock','Pools above $5,000 · Platinum','dim2'],['ti-lock','Direct brand invites · Platinum','dim2']].map(u=>
+    `<div class="row" style="margin-bottom:7px"><i class="ti ${u[0]}" style="color:var(--${u[2]});font-size:16px"></i>
+      <p style="flex:1;font-size:12px;color:${u[2]==='ok'?'var(--tx)':'var(--dim2)'}">${u[1]}</p></div>`).join('')}
+  <div class="sep"></div>
+  <p class="eyebrow" style="margin-bottom:8px">XP this week</p>
+  <div class="grid3">
+    ${[['+180','Votes cast'],['+220','Rally'],['+400','Advanced']].map(x=>
+      `<div class="stat" style="text-align:center"><p class="v num" style="color:var(--gold)">${x[0]}</p><p class="l">${x[1]}</p></div>`).join('')}
+  </div>
+  <p class="note" style="margin-top:13px">Voting XP is the only one you can earn every single day without needing something to post. That's deliberate — it's the daily-active driver.</p>
+</div>`},
+
+profile:{g:'Creator',n:'Creator profile',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+    ${av('MO','money',54)}
+    <div><p style="font-size:16px;font-weight:700">@momo24</p>
+      <p class="note">Tunis · food &amp; drink</p>
+      <span class="pill p-gold" style="margin-top:5px">Gold · 6-day streak</span></div>
+  </div>
+  <div class="grid3" style="margin-bottom:11px">
+    ${[['9','Entered'],['4','Finals'],['1','Won']].map(s=>
+      `<div class="stat" style="text-align:center"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <div class="grid2" style="margin-bottom:13px">
+    <div class="stat"><p class="v num" style="color:var(--money)">$2,150</p><p class="l">Lifetime earned</p></div>
+    <div class="stat"><p class="v num">4.7</p><p class="l">Brand rating</p></div>
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Wins</p>
+  <div class="grid3" style="margin-bottom:13px">
+    ${[1,2,3].map(()=>`<div class="thumb" style="aspect-ratio:.72"><i class="ti ti-player-play"></i></div>`).join('')}
+  </div>
+  <button class="cta ghost" onclick="go('tiers')">Tier and XP</button>
+</div>${tbar(4)}`},
+
+bhome:{g:'Brand',n:'Brand home',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;margin-bottom:16px">
+    <div><p class="eyebrow">Glow Co</p><h2 class="h">Campaigns</h2></div>
+    <button class="cta" style="width:auto;padding:9px 13px;font-size:12px;margin-left:auto" onclick="S.wizard=1;go('wizard')">+ New</button>
+  </div>
+  <div class="grid2" style="margin-bottom:13px">
+    ${[['$8,600','Spent'],['4,820','Votes'],['128','Entries'],['4.9','Rating']].map(s=>
+      `<div class="stat"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Live</p>
+  <div class="card" style="border-color:var(--money);margin-bottom:9px" onclick="go('judge')">
+    <div style="display:flex;align-items:flex-start">
+      <div><p style="font-size:13px;font-weight:600">Glow drop reel</p>
+        <p class="note" style="margin-top:3px">Round 2 · 12 creators left</p></div>
+      <p class="money-sm num" style="margin-left:auto">$5,000</p></div>
+    <div class="bar-t" style="margin-top:10px"><div class="bar-f" style="width:62%"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:7px">
+      <p class="note">128 entries</p><p class="clock">${cd()}</p></div>
+  </div>
+  ${[['Sneaker collab','Resolved','$1,200','Paid'],['Spring teaser','Resolved','$800','Paid']].map(c=>
+    `<div class="row" style="margin-bottom:7px">
+      <div style="flex:1"><p style="font-size:12.5px">${c[0]}</p><p class="note">${c[1]}</p></div>
+      <div style="text-align:right"><p style="font-size:12.5px;font-weight:600" class="num">${c[2]}</p>
+        <span class="pill p-ok">${c[3]}</span></div></div>`).join('')}
+</div>`},
+
+wizard:{g:'Brand',n:'Campaign wizard · brief',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;gap:5px;margin-bottom:14px">
+    ${[1,2,3].map(n=>`<div style="flex:1;height:3px;border-radius:2px;background:${n<=1?'var(--money)':'var(--surf2)'}"></div>`).join('')}
+  </div>
+  <p class="eyebrow">Step 1 of 3</p>
+  <h2 class="h" style="margin:3px 0 15px">What do you want made?</h2>
+  <div class="card" style="margin-bottom:9px"><p class="note">Title</p>
+    <p style="font-size:13px;margin-top:3px">Summer glow drop reel</p></div>
+  <div class="card" style="margin-bottom:9px"><p class="note">Brief</p>
+    <p style="font-size:12.5px;color:var(--dim);margin-top:3px;line-height:1.5">Show the drop in your real morning routine…</p></div>
+  <p class="eyebrow" style="margin-bottom:8px">Checklist criteria</p>
+  ${['15s teaser, vertical','#GlowDrop in caption','Tag @glowco'].map(c=>
+    `<div class="row" style="margin-bottom:7px"><i class="ti ti-check" style="color:var(--money);font-size:15px"></i>
+      <p style="flex:1;font-size:12px">${c}</p><i class="ti ti-x" style="color:var(--dim2);font-size:14px"></i></div>`).join('')}
+  <button class="cta ghost" style="margin:5px 0 13px;padding:10px;font-size:12px">+ Add criterion</button>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:13px;display:flex;gap:10px;align-items:center">
+    <i class="ti ti-map-pin" style="font-size:19px;color:var(--vio)"></i>
+    <div style="flex:1"><p style="font-size:12px;font-weight:600;color:var(--vio)">In-person campaign</p>
+      <p class="note" style="color:var(--vio);opacity:.75">Creators film at your store · 12% take rate</p></div>
+    <div style="width:36px;height:21px;background:var(--surf2);border-radius:11px;position:relative">
+      <div style="width:16px;height:16px;background:var(--dim);border-radius:50%;position:absolute;top:2.5px;left:3px"></div></div>
+  </div>
+  <button class="cta" onclick="go('fund')">Next — fund it</button>
+</div>`},
+
+fund:{g:'Brand',n:'Escrow funding',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;gap:5px;margin-bottom:14px">
+    ${[1,2,3].map(n=>`<div style="flex:1;height:3px;border-radius:2px;background:${n<=2?'var(--money)':'var(--surf2)'}"></div>`).join('')}
+  </div>
+  <p class="eyebrow">Step 2 of 3</p>
+  <h2 class="h" style="margin:3px 0 15px">Fund the pool</h2>
+  <div class="card" style="margin-bottom:11px">
+    ${[['Winner prize','$5,000','money'],['Finalist stipends · 12% of pool, 4 ways','$600','gold'],['Round-2 survivor bonus · 6% of pool, 12 ways','$300','money']].map(l=>
+      `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+        <span style="font-size:12px;color:var(--dim);flex:1;padding-right:10px">${l[0]}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--${l[2]})" class="num">${l[1]}</span></div>`).join('')}
+    <div class="sep" style="margin:9px 0"></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:9px">
+      <span style="font-size:12.5px;color:var(--dim)">Platform fee · 20% of $5,900</span>
+      <span style="font-size:13px;font-weight:600" class="num">$1,180</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:14px;font-weight:700">Total today</span>
+      <span class="money-sm num">$7,080</span></div>
+  </div>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:11px">
+    <p style="font-size:12px;font-weight:600;color:var(--vio)">Crowd favourite · $250 — not your cost</p>
+    <p class="note" style="color:var(--vio);opacity:.85;margin-top:3px">5% of the pool, minimum $50, paid by us out of the platform fee. It rewards creators who bring their own audience without letting that audience decide your winner.</p>
+  </div>
+  <div class="card" style="background:var(--ok-d);border-color:transparent;margin-bottom:13px">
+    <p style="font-size:12px;font-weight:600;color:var(--ok)"><i class="ti ti-lock"></i> Held in escrow</p>
+    <p class="note" style="color:var(--ok);opacity:.8;margin-top:3px">Nothing releases until the final round closes. Creators can see it's funded — that's why they enter for a brand they've never heard of.</p>
+  </div>
+  <p class="note" style="margin-bottom:13px">Card fees sit inside the 20%, not on top. 13 of your 32 entrants get paid something — that's what keeps them entering your next campaign.</p>
+  <button class="cta" onclick="go('bhome')">Fund and launch</button>
+</div>`},
+
+judge:{g:'Brand',n:'Judging · light score',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Round 1 · 32 teasers</p>
+  <h2 class="h" style="margin:3px 0 5px">Rate, don't agonise</h2>
+  <p class="note" style="margin-bottom:14px">Your score is 30% of the round. Peer votes are the other 70%.</p>
+  <div class="card" style="margin-bottom:11px">
+    <div class="thumb" style="height:200px;margin-bottom:11px"><i class="ti ti-player-play" style="font-size:26px"></i></div>
+    <p class="note" style="margin-bottom:9px">Teaser 14 of 32 · creator hidden until the round closes</p>
+    <div style="display:flex;gap:7px">
+      ${[1,2,3,4,5].map(n=>`<button class="cta ghost" style="flex:1;padding:12px 0;font-size:14px;${n===4?'background:var(--money);color:#0b1300;border-color:var(--money)':''}">${n}</button>`).join('')}
+    </div>
+  </div>
+  <div class="bar-t" style="margin-bottom:8px"><div class="bar-f" style="width:44%"></div></div>
+  <p class="note" style="text-align:center;margin-bottom:13px">14 of 32 rated · about 3 minutes left</p>
+  <button class="cta ghost" onclick="go('analytics')">Skip to analytics</button>
+</div>`},
+
+kyb:{g:'Brand',n:'KYB · verify the business',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Before you can fund</p>
+  <h2 class="h" style="margin:3px 0 5px">Verify your business</h2>
+  <p class="note" style="margin-bottom:14px">Required by Stripe before money moves, and it's what earns you the badge creators look for.</p>
+  ${[['Business details','Glow Co SARL · Tunis','ok','Done'],['Beneficial owner','ID verified','ok','Done'],['Bank account','•••• 4021','ok','Done'],['Tax registration','Upload needed','gold','Pending']].map(s=>
+    `<div class="row" style="margin-bottom:8px">
+      <i class="ti ti-${s[2]==='ok'?'circle-check':'clock'}" style="color:var(--${s[2]});font-size:17px"></i>
+      <div style="flex:1"><p style="font-size:12.5px;font-weight:600">${s[0]}</p><p class="note">${s[1]}</p></div>
+      <span class="pill p-${s[2]}">${s[3]}</span></div>`).join('')}
+  <div class="bar-t" style="margin:11px 0 8px"><div class="bar-f" style="width:75%"></div></div>
+  <p class="note" style="margin-bottom:13px">3 of 4 complete · usually approved within a day</p>
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin-bottom:13px">
+    <p style="font-size:12px;font-weight:600;color:var(--vio)"><i class="ti ti-rosette-discount-check"></i> What the badge does</p>
+    <p class="note" style="color:var(--vio);opacity:.85;margin-top:3px">Verified brands get roughly twice the entries. Creators are deciding whether to spend a weekend on you — the badge is most of that decision.</p></div>
+  <button class="cta" onclick="go('wizard')">Upload and continue</button>
+</div>`},
+
+final:{g:'Brand',n:'Round 3 · your final call',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Round 3 of 3 · public vote closed</p>
+  <h2 class="h" style="margin:3px 0 5px">Pick your winner</h2>
+  <p class="note" style="margin-bottom:13px">The public narrowed 12 to 4. The call between them is yours — this is the only point where you decide alone.</p>
+  ${[['Entry A','0.91','2,140','money',1],['Entry B','0.88','1,980','gold',0],['Entry C','0.74','1,210','dim',0],['Entry D','0.71','1,090','dim',0]].map(e=>
+    `<div class="card" style="margin-bottom:8px;${e[4]?'border-color:var(--money)':''}">
+      <div style="display:flex;gap:9px;align-items:center">
+        <div class="thumb" style="width:46px;height:60px"><i class="ti ti-player-play" style="font-size:15px"></i></div>
+        <div style="flex:1"><p style="font-size:12.5px;font-weight:600">${e[0]}</p>
+          <p class="note">${e[2]} public votes</p></div>
+        <div style="text-align:right"><p style="font-size:15px;font-weight:700;color:var(--${e[3]})" class="num">${e[1]}</p>
+          <p class="note">quality</p></div></div>
+      ${e[4]?'<button class="cta" style="margin-top:9px;padding:9px;font-size:12px">Selected</button>':
+        '<button class="cta ghost" style="margin-top:9px;padding:9px;font-size:12px">Choose</button>'}
+    </div>`).join('')}
+  <div class="card" style="background:var(--vio-d);border-color:transparent;margin:11px 0 13px">
+    <p style="font-size:12px;font-weight:600;color:var(--vio)">Crowd favourite · decided separately</p>
+    <p class="note" style="color:var(--vio);opacity:.85;margin-top:3px">Entry C brought 3,400 rally voters and takes the $250 — paid by us. It doesn't affect your pick.</p></div>
+  <button class="cta" onclick="go('analytics')">Confirm and pay out</button>
+</div>`},
+
+analytics:{g:'Brand',n:'Campaign analytics',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Glow drop reel</p>
+  <h2 class="h" style="margin:3px 0 13px">Performance</h2>
+  <div class="grid2" style="margin-bottom:13px">
+    ${[['128','Entries','money'],['4,820','Votes cast','tx'],['61k','Spectator views','vio'],['$54','Cost per entry','gold']].map(s=>
+      `<div class="stat"><p class="v num" style="color:var(--${s[2]==='tx'?'tx':s[2]})">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Funnel</p>
+  <div class="card" style="margin-bottom:13px">
+    ${[['Viewed brief','2,940',100],['Entered','128',34],['Advanced R2','12',18],['Finalists','4',9]].map(f=>
+      `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px">
+        <span style="color:var(--dim)">${f[0]}</span><b class="num">${f[1]}</b></div>
+        <div class="bar-t"><div class="bar-f" style="width:${f[2]}%"></div></div></div>`).join('')}
+  </div>
+  <div class="card" style="background:var(--money-d);border-color:transparent">
+    <p style="font-size:12px;font-weight:600;color:var(--money)">61,000 views you didn't pay for</p>
+    <p class="note" style="color:var(--money);opacity:.8;margin-top:3px">Generated by 12 creators rallying their own audiences during round 2. This is the number that makes the take rate defensible.</p>
+  </div>
+</div>`},
+
+invite:{g:'Brand',n:'Invite creators',r:()=>`${sb()}<div class="pad">
+  <h2 class="h" style="margin-bottom:5px">Invite creators</h2>
+  <p class="note" style="margin-bottom:13px">Pulled from the leaderboard and filtered to Tunis.</p>
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <span class="pill p-money">Tunis</span><span class="pill p-dim">Food &amp; drink</span><span class="pill p-dim">Gold+</span></div>
+  ${[['ava.creates','21 wins · 52% finals','gold','Gold'],['momo24','1 win · 44% finals','money','Gold'],['sami.eats','7 wins · 38% finals','vio','Silver']].map(c=>
+    `<div class="row" style="margin-bottom:8px">${av(c[0].slice(0,2).toUpperCase(),c[2],32)}
+      <div style="flex:1"><p style="font-size:12.5px;font-weight:600">@${c[0]}</p><p class="note">${c[1]}</p></div>
+      <button class="cta" style="width:auto;padding:7px 12px;font-size:11.5px">Invite</button></div>`).join('')}
+  <div class="card" style="margin-top:11px">
+    <p class="eyebrow" style="margin-bottom:7px">Coverage gap</p>
+    <p style="font-size:12px;color:var(--dim);line-height:1.5">Sfax has 3 brands and 41 creators but no live campaign. Cheapest city to open next.</p>
+  </div>
+</div>`},
+
+studio:{g:'Brand',n:'AI studio · credits',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;margin-bottom:14px">
+    <div><p class="eyebrow">Creative studio</p><h2 class="h">Generate assets</h2></div>
+    <div style="margin-left:auto;text-align:right"><p style="font-size:16px;font-weight:700;color:var(--vio)" class="num">412</p>
+      <p class="note">credits</p></div>
+  </div>
+  <div class="card" style="margin-bottom:11px"><p class="note">Prompt</p>
+    <p style="font-size:12.5px;margin-top:4px;line-height:1.5">Product hero, morning light, marble surface, dewy skin texture</p></div>
+  <div class="grid2" style="margin-bottom:11px">
+    ${[1,2,3,4].map(()=>`<div class="thumb" style="aspect-ratio:1"><i class="ti ti-photo" style="font-size:20px"></i></div>`).join('')}
+  </div>
+  <div class="card" style="margin-bottom:11px">
+    ${[['Standard image','3 credits'],['Premium / high-res','6 credits'],['Video edit · 15s','12 credits']].map(p=>
+      `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+        <span style="color:var(--dim)">${p[0]}</span><b>${p[1]}</b></div>`).join('')}
+  </div>
+  <p class="note" style="margin-bottom:12px"><i class="ti ti-shield-check" style="color:var(--ok)"></i> Everything generated is moderated before it can touch a public campaign.</p>
+  <button class="cta">Use in campaign — 3 credits</button>
+</div>`},
+
+feed:{g:'Public',n:'Spectator feed · no login',r:()=>`${sb()}<div class="pad">
+  <div style="display:flex;align-items:center;margin-bottom:14px">
+    <div><p class="eyebrow" style="color:var(--hot)">● LIVE NOW</p><h2 class="h">4 battles closing</h2></div>
+    <button class="cta" style="width:auto;padding:8px 13px;font-size:12px;margin-left:auto" onclick="go('verify')">Join free</button>
+  </div>
+  ${[['Glow drop reel','$5,000','2h 14m','1,204','money'],['Sneaker unboxing','$1,200','5h 02m','689','gold']].map(b=>
+    `<div class="card" style="margin-bottom:11px" onclick="go('battle')">
+      <div style="display:flex;gap:7px;margin-bottom:9px">
+        <div class="thumb" style="flex:1;height:112px"><i class="ti ti-player-play"></i></div>
+        <div class="thumb" style="flex:1;height:112px"><i class="ti ti-player-play"></i></div></div>
+      <div style="display:flex;align-items:center">
+        <div><p style="font-size:12.5px;font-weight:600">${b[0]}</p>
+          <p class="note">${b[3]} watching now</p></div>
+        <div style="margin-left:auto;text-align:right">
+          <p class="money-sm num" style="color:var(--${b[4]})">${b[1]}</p>
+          <p class="clock" style="font-size:10.5px">${b[2]} left</p></div></div>
+    </div>`).join('')}
+  <div class="card" style="background:var(--vio-d);border-color:transparent;text-align:center">
+    <p style="font-size:12.5px;font-weight:600;color:var(--vio)">Watch anything. Vote once you're verified.</p>
+    <p class="note" style="color:var(--vio);opacity:.75;margin-top:3px">No account needed to spectate — the gate is only on the vote.</p>
+  </div>
+</div>`},
+
+battle:{g:'Public',n:'Battle page · vote gate',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow" style="color:var(--hot)">● LIVE · round 2</p>
+  <h2 class="h" style="margin:3px 0 3px">Glow drop reel</h2>
+  <p class="money num" style="font-size:38px;margin-bottom:12px">$5,000</p>
+  <div style="position:relative;display:flex;gap:9px;margin-bottom:11px">
+    ${['A','B'].map(x=>`<div style="flex:1">
+      <div class="thumb" style="height:210px;margin-bottom:7px"><i class="ti ti-player-play" style="font-size:22px"></i></div>
+      <div class="bar-t"><div class="bar-f" style="width:${x==='A'?58:42}%"></div></div>
+      <p class="note" style="text-align:center;margin-top:5px">${x==='A'?58:42}%</p></div>`).join('')}
+    <div class="vs" style="top:42%">VS</div></div>
+  <div class="card" style="background:var(--hot-d);border-color:transparent;margin-bottom:11px;text-align:center">
+    <p class="clock num" style="font-size:19px">${cd()}</p>
+    <p class="note" style="color:var(--hot);opacity:.8">until this round closes</p></div>
+  <button class="cta" onclick="go('verify')">Verify to vote — 30 seconds</button>
+  <p class="note" style="text-align:center;margin:10px 0 13px"><i class="ti ti-shield-check" style="color:var(--ok)"></i> One human, one vote. That's why this result means something.</p>
+  <div class="card">
+    <p class="note">You arrived via <b style="color:var(--vio)">@momo24</b>'s link. Your vote counts toward their crowd-favourite bonus — but the $5,000 is decided by a separate blind pool.</p>
+  </div>
+</div>`},
+
+wincard:{g:'Public',n:'Win card · share asset',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow" style="margin-bottom:11px">Auto-generated the second you won</p>
+  <div style="background:linear-gradient(165deg,var(--money-d),#0b1204);border-radius:18px;padding:22px 18px;border:1px solid var(--money);margin-bottom:13px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:17px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--money)">WINNER</p>
+      <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim2)">MOMENT</p></div>
+    <p style="font-size:13px;color:var(--dim)">I just won</p>
+    <p style="font-size:56px;font-weight:700;color:var(--money);letter-spacing:-.05em;line-height:1" class="num">$5,000</p>
+    <p style="font-size:13px;color:var(--dim);margin-top:9px">beating 31 creators · voted blind</p>
+    <div class="sep" style="background:rgba(200,247,81,.2);margin:17px 0"></div>
+    <div style="display:flex;align-items:center;gap:9px">${av('MO','money',32)}
+      <p style="flex:1;font-size:13px;font-weight:600">@momo24</p>
+      <span class="pill p-money">Gold</span></div>
+    <p style="font-size:10px;color:var(--dim2);margin-top:15px">moment.app/c/glowdrop</p>
+  </div>
+  <div style="display:flex;gap:9px">
+    <button class="cta" style="flex:1">Post</button>
+    <button class="cta ghost" style="flex:1" onclick="go('referral')">Invite friends</button></div>
+</div>`},
+
+referral:{g:'Public',n:'Referral',r:()=>`${sb()}<div class="pad">
+  <h2 class="h" style="margin-bottom:5px">Invite and earn</h2>
+  <p class="note" style="margin-bottom:14px">$15 when they enter their first challenge — not when they sign up. Empty accounts pay nobody.</p>
+  <div class="card" style="text-align:center;margin-bottom:11px;padding:20px 13px">
+    <p class="eyebrow">Your code</p>
+    <p style="font-size:31px;font-weight:700;letter-spacing:.03em;margin:5px 0" >momo24</p>
+    <button class="cta" style="margin-top:9px">Copy invite link</button>
+  </div>
+  <div class="grid3" style="margin-bottom:13px">
+    ${[['7','Invited'],['4','Entered'],['$60','Earned']].map(s=>
+      `<div class="stat" style="text-align:center"><p class="v num">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Your invites</p>
+  ${[['sami.eats','Entered · paid','ok'],['lina.k','Signed up · pending','dim'],['yassine','Entered · paid','ok']].map(r=>
+    `<div class="row" style="margin-bottom:7px">${av(r[0].slice(0,2).toUpperCase(),r[2]==='ok'?'ok':'dim',28)}
+      <p style="flex:1;font-size:12px">@${r[0]}</p><span class="pill p-${r[2]==='ok'?'ok':'dim'}">${r[1]}</span></div>`).join('')}
+</div>`},
+
+admin:{g:'Ops',n:'Admin · moderation',r:()=>`${sb()}<div class="pad">
+  <h2 class="h" style="margin-bottom:13px">Admin</h2>
+  <div class="grid2" style="margin-bottom:13px">
+    ${[['7','Open flags','hot'],['3','KYB pending','gold'],['2','Disputes','vio'],['12','Live campaigns','money']].map(s=>
+      `<div class="stat"><p class="v num" style="color:var(--${s[2]})">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <p class="eyebrow" style="margin-bottom:8px">Flagged content</p>
+  ${[['Submission #4102','Nudity · auto-detected','hot'],['Submission #4088','Copyright claim','gold']].map(f=>
+    `<div class="row" style="margin-bottom:7px"><i class="ti ti-flag" style="color:var(--${f[2]});font-size:15px"></i>
+      <div style="flex:1"><p style="font-size:12px">${f[0]}</p><p class="note">${f[1]}</p></div>
+      <span class="pill p-dim">Review</span></div>`).join('')}
+  <p class="eyebrow" style="margin:13px 0 8px">Vote integrity</p>
+  <div class="card" style="background:var(--hot-d);border-color:transparent;margin-bottom:9px">
+    <p style="font-size:12px;font-weight:600;color:var(--hot)"><i class="ti ti-alert-triangle"></i> Ring suspected · campaign #88</p>
+    <p class="note" style="color:var(--hot);opacity:.8;margin-top:3px">6 accounts, same device fingerprint, voted identically across 4 pairings</p>
+    <div style="display:flex;gap:7px;margin-top:10px">
+      <button class="cta hot" style="flex:1;padding:9px;font-size:11.5px">Void votes</button>
+      <button class="cta ghost" style="flex:1;padding:9px;font-size:11.5px">Dismiss</button></div>
+  </div>
+  <p class="note">Thresholds are placeholders until there's real voting data to tune against. Shipping the queue now means the tuning has somewhere to land.</p>
+  <div class="sep"></div>
+  <p class="eyebrow" style="margin-bottom:8px">Round state · campaign #88</p>
+  <div class="row"><p style="flex:1;font-size:12px">R2 · open → closes ${cd()}</p>
+    <span class="pill p-ok">healthy</span></div>
+</div>`},
+
+states:{g:'Ops',n:'States · empty, loading, error',r:()=>`${sb()}<div class="pad">
+  <h2 class="h" style="margin-bottom:5px">UI states</h2>
+  <p class="note" style="margin-bottom:14px">Reference patterns. Every list, upload and payment screen needs all four.</p>
+  <p class="eyebrow" style="margin-bottom:7px">Empty · no supply</p>
+  <div class="card" style="text-align:center;padding:22px 13px;margin-bottom:11px">
+    <i class="ti ti-map-search" style="font-size:26px;color:var(--dim2)"></i>
+    <p style="font-size:13px;font-weight:600;margin-top:8px">No live challenges in Tunis</p>
+    <p class="note" style="margin-top:3px">Your streak is paused, not broken — it resumes when a campaign opens.</p>
+    <button class="cta ghost" style="margin-top:11px;padding:9px;font-size:12px">Watch a battle instead</button></div>
+  <p class="eyebrow" style="margin-bottom:7px">Loading</p>
+  <div class="card" style="margin-bottom:11px">
+    ${[70,90,50].map(w=>`<div style="height:11px;width:${w}%;background:var(--surf2);border-radius:5px;margin-bottom:8px"></div>`).join('')}
+    <div style="height:70px;background:var(--surf2);border-radius:9px"></div></div>
+  <p class="eyebrow" style="margin-bottom:7px">Error · recoverable</p>
+  <div class="card" style="background:var(--hot-d);border-color:transparent;margin-bottom:11px">
+    <p style="font-size:12.5px;font-weight:600;color:var(--hot)">Upload stopped at 60%</p>
+    <p class="note" style="color:var(--hot);opacity:.85;margin-top:3px">Your teaser is saved. Resume when you're back on wifi — you have 1d 6h.</p>
+    <button class="cta hot" style="margin-top:10px;padding:9px;font-size:12px">Resume upload</button></div>
+  <p class="eyebrow" style="margin-bottom:7px">Error · blocking, money involved</p>
+  <div class="card" style="border-color:var(--hot);margin-bottom:13px">
+    <p style="font-size:12.5px;font-weight:600">Payout held</p>
+    <p class="note" style="margin-top:3px">Your bank rejected the transfer. The $2,000 is still yours and still in escrow — nothing is lost.</p>
+    <button class="cta" style="margin-top:10px;padding:9px;font-size:12px">Update bank details</button></div>
+  <p class="note">Rule: never show a spinner where a skeleton fits, never blame the user, and when money is involved say explicitly where it is.</p>
+</div>`},
+
+growth:{g:'Ops',n:'Growth · the 8 numbers',r:()=>`${sb()}<div class="pad">
+  <p class="eyebrow">Rolling 7 days</p>
+  <h2 class="h" style="margin:3px 0 13px">Growth</h2>
+  <div class="card" style="background:linear-gradient(150deg,var(--money-d),var(--surf));border-color:var(--money);margin-bottom:11px">
+    <p class="eyebrow" style="color:var(--money);opacity:.85">Viral coefficient</p>
+    <p class="money num" style="font-size:50px">0.84</p>
+    <p class="note" style="color:var(--money);opacity:.8">Gate for paid spend is 0.6 — clear. Target for expansion is 0.9.</p>
+  </div>
+  <div class="grid2" style="margin-bottom:11px">
+    ${[['2.6d','Cycle time','tx'],['71%','Deck completion','money'],['46%','D1','ok'],['27%','D7','ok'],['13%','D30','gold'],['38','Entries/campaign','tx'],['44%','Brand repeat','money'],['0.9%','Flagged votes','ok']].map(s=>
+      `<div class="stat"><p class="v num" style="color:var(--${s[2]==='tx'?'tx':s[2]})">${s[0]}</p><p class="l">${s[1]}</p></div>`).join('')}
+  </div>
+  <div class="card" style="margin-bottom:11px">
+    <p class="eyebrow" style="margin-bottom:9px">Where signups came from</p>
+    ${[['Rally links','63%',63,'vio'],['Result cards','19%',19,'money'],['Referral',' 11%',11,'gold'],['Spectator','7%',7,'ok']].map(l=>
+      `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px">
+        <span style="color:var(--dim)">${l[0]}</span><b>${l[1]}</b></div>
+        <div class="bar-t"><div class="bar-f" style="width:${l[2]}%;background:var(--${l[3]})"></div></div></div>`).join('')}
+  </div>
+  <p class="note">Rally is 63% of acquisition and it doesn't touch who wins. That separation is the whole design.</p>
+</div>`}
+
+};
+
+const ORDER = Object.keys(SCREENS);
+function go(k){ S.screen=k; if(k==='deck'){S.watched=0;} render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function vote(){ if(S.watched<3) return;
+  S.votes=Math.min(S.need,S.votes+1); S.deck++; S.watched=0;
+  S.check = (S.votes===5);
+  render(); }
+
+function nav(){
+  let out='', last='';
+  ORDER.forEach((k,i)=>{
+    const s=SCREENS[k];
+    if(s.g!==last){ out+=`<div class="grp">${s.g}</div>`; last=s.g; }
+    out+=`<div class="ni ${S.screen===k&&S.mode==='phone'?'on':''}" onclick="go('${k}')"><b>${i+1}</b>${s.n}</div>`;
+  });
+  return `<h1>MOMENT</h1><p class="sub">${ORDER.length} screens · interactive</p>`+out;
+}
+
+function render(){
+  document.getElementById('idx').innerHTML = nav();
+  const st = document.getElementById('stage');
+  if(S.mode==='grid'){
+    st.innerHTML = `<div class="gridview">${ORDER.map((k,i)=>`
+      <div class="gcell"><div class="gframe"><div class="gvp"><div class="inner">${SCREENS[k].r()}</div></div></div>
+      <p class="gcap"><b>${i+1}.</b> ${SCREENS[k].n}</p></div>`).join('')}</div>`;
+  } else {
+    st.innerHTML = `<div class="phone"><div class="vp">${SCREENS[S.screen].r()}</div></div>
+      <p class="cap">${ORDER.indexOf(S.screen)+1} / ${ORDER.length} · ${SCREENS[S.screen].n}</p>`;
+  }
+}
+
+document.getElementById('mPhone').onclick=()=>{S.mode='phone';
+  document.getElementById('mPhone').classList.add('on');document.getElementById('mGrid').classList.remove('on');render();};
+document.getElementById('mGrid').onclick=()=>{S.mode='grid';
+  document.getElementById('mGrid').classList.add('on');document.getElementById('mPhone').classList.remove('on');render();};
+document.getElementById('reset').onclick=()=>{S.votes=0;S.deck=0;S.unlocked=false;S.submitted=false;S.rally=127;S.copied=false;S.tab='campaigns';go('splash');};
+
+setInterval(()=>{ if(S.mode!=='phone') return;
+  ['cd1','cd2','cd3'].forEach(id=>{const e=document.getElementById(id); if(e) e.textContent=cd();});
+  if(S.screen==='deck' && S.watched<3 && S.votes<S.need){ S.watched++; render(); } },1000);
+
+render();
+</script>
+</body>
+</html>

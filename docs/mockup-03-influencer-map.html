@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Influencer tier + geo map mockup — creator competition app</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+:root{
+  --surface-0:#f7f6f2; --surface-1:#f1efe8; --surface-2:#ffffff;
+  --text-primary:#171716; --text-secondary:#5f5e5a; --text-muted:#888780;
+  --border:rgba(0,0,0,0.08);
+  --bg-warning:#faeeda; --text-warning:#633806; --fill-warning:#ef9f27;
+  --bg-pro:#eeedfe; --text-pro:#3c3489; --fill-pro:#534ab7;
+}
+body{background:var(--surface-0); font-family:-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px;}
+p{margin:0;}
+</style>
+</head>
+<body>
+<div style="max-width:680px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <p style="font-size:14px; font-weight:500; margin:0;">Hot creators</p>
+    <div style="display:flex; gap:10px; font-size:11px; color:var(--text-secondary);">
+      <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-pro); margin-right:4px;"></span>Diamond</span>
+      <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-warning); margin-right:4px;"></span>Gold</span>
+      <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-secondary); margin-right:4px;"></span>Silver</span>
+      <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--text-danger,#791f1f); margin-right:4px;"></span>Bronze</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:16px;">
+    <div style="flex:1.4; position:relative; background:var(--surface-1); border-radius:12px; height:270px; overflow:hidden;">
+      <svg viewBox="0 0 400 270" width="100%" height="270" style="position:absolute; top:0; left:0;">
+        <ellipse cx="90" cy="90" rx="65" ry="40" fill="var(--surface-0)" />
+        <ellipse cx="200" cy="70" rx="45" ry="30" fill="var(--surface-0)" />
+        <ellipse cx="240" cy="150" rx="55" ry="50" fill="var(--surface-0)" />
+        <ellipse cx="330" cy="110" rx="50" ry="60" fill="var(--surface-0)" />
+        <ellipse cx="120" cy="190" rx="40" ry="35" fill="var(--surface-0)" />
+      </svg>
+      <div style="position:absolute; left:78px; top:70px; width:12px; height:12px; border-radius:50%; background:var(--fill-pro); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:230px; top:130px; width:10px; height:10px; border-radius:50%; background:var(--fill-warning); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:310px; top:90px; width:12px; height:12px; border-radius:50%; background:var(--fill-pro); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:190px; top:55px; width:8px; height:8px; border-radius:50%; background:var(--text-secondary); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:110px; top:175px; width:8px; height:8px; border-radius:50%; background:var(--text-danger,#791f1f); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:345px; top:150px; width:10px; height:10px; border-radius:50%; background:var(--fill-warning); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:60px; top:105px; width:8px; height:8px; border-radius:50%; background:var(--text-secondary); border:2px solid var(--surface-2);"></div>
+      <div style="position:absolute; left:82px; top:56px; font-size:10px; font-weight:500; color:var(--text-pro); background:var(--surface-2); padding:1px 5px; border-radius:6px;">@maya.creates</div>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; align-items:center; gap:8px; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+        <span style="font-size:11px; color:var(--text-muted); width:12px;">1</span>
+        <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-pro); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:500; color:var(--text-pro);">MC</div>
+        <div style="flex:1;">
+          <p style="font-size:11px; margin:0;">@maya.creates</p>
+          <p style="font-size:9px; color:var(--text-muted); margin:0;">Lagos · 34 wins</p>
+        </div>
+        <span style="font-size:9px; background:var(--bg-pro); color:var(--text-pro); padding:2px 6px; border-radius:6px;">Diamond</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+        <span style="font-size:11px; color:var(--text-muted); width:12px;">2</span>
+        <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-pro); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:500; color:var(--text-pro);">TV</div>
+        <div style="flex:1;">
+          <p style="font-size:11px; margin:0;">@theo.vids</p>
+          <p style="font-size:9px; color:var(--text-muted); margin:0;">Jakarta · 29 wins</p>
+        </div>
+        <span style="font-size:9px; background:var(--bg-pro); color:var(--text-pro); padding:2px 6px; border-radius:6px;">Diamond</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+        <span style="font-size:11px; color:var(--text-muted); width:12px;">3</span>
+        <div style="width:22px; height:22px; border-radius:50%; background:var(--bg-warning); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:500; color:var(--text-warning);">AC</div>
+        <div style="flex:1;">
+          <p style="font-size:11px; margin:0;">@ava.creates</p>
+          <p style="font-size:9px; color:var(--text-muted); margin:0;">Sao Paulo · 21 wins</p>
+        </div>
+        <span style="font-size:9px; background:var(--bg-warning); color:var(--text-warning); padding:2px 6px; border-radius:6px;">Gold</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; background:var(--surface-1); border-radius:8px; padding:6px 8px;">
+        <span style="font-size:11px; color:var(--text-muted); width:12px;">4</span>
+        <div style="width:22px; height:22px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:500; color:var(--text-secondary);">NR</div>
+        <div style="flex:1;">
+          <p style="font-size:11px; margin:0;">@nia.reels</p>
+          <p style="font-size:9px; color:var(--text-muted); margin:0;">Manila · 14 wins</p>
+        </div>
+        <span style="font-size:9px; background:var(--surface-2); color:var(--text-secondary); padding:2px 6px; border-radius:6px;">Silver</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
