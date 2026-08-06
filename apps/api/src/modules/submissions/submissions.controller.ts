@@ -34,4 +34,12 @@ export class SubmissionsController {
   ): Promise<Submission[]> {
     return this.submissions.findMany({ challengeId, phase, creatorId });
   }
+
+  // Public — no guard. Powers the shareable /results/[submissionId] page and
+  // its opengraph-image (see apps/web), which unauthenticated visitors hit
+  // directly from a shared link.
+  @Get(":id")
+  findOne(@Param("id", ParseUUIDPipe) id: string) {
+    return this.submissions.findByIdWithOutcome(id);
+  }
 }

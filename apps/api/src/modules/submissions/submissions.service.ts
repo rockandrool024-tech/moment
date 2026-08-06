@@ -65,4 +65,28 @@ export class SubmissionsService {
       orderBy: { createdAt: "asc" },
     });
   }
+
+  /**
+   * Public (no auth) — powers both the /results/[submissionId] share-card
+   * page and its opengraph-image, which need to render for an unauthenticated
+   * visitor who clicked a shared link. `isWinner` is derived from the
+   * Payout ledger, never from Submission.status alone, since "advanced" in
+   * the final round doesn't by itself distinguish the winner from the other
+   * finalists (see round-state-machine.service.ts's tallyPublicFinal).
+   */
+  async findByIdWithOutcome(submissionId: string): Promise<
+    Submission & { isWinner: boolean; challenge: { title: string; prizePool: number } }
+  > {
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: submissionId },
+      include: { challenge: { select: { title: true, prizePool: true } } },
+    });
+    if (!submission) throw new NotFoundException("Submission not found");
+
+    const winnerPayout = await this.prisma.payout.findFirst({
+      where: { challengeId: submission.challengeId, userId: submission.creatorId, type: "winner" },
+    });
+
+    return { ...submission, isWinner: !!winnerPayout };
+  }
 }

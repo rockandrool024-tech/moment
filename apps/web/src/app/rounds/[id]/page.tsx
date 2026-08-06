@@ -2,9 +2,53 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
 import { Round, Submission } from "@/lib/types";
 import { VoteDeck } from "@/components/VoteDeck";
+import { getRallyCode } from "@/lib/rally";
+import { useAuth } from "@/lib/auth-context";
+
+function ShareResultLink({ challengeId }: { challengeId: string }) {
+  const { user } = useAuth();
+  const [submission, setSubmission] = useState<Submission | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    api
+      .get<Submission[]>(`/submissions?challengeId=${challengeId}&creatorId=${user.id}`)
+      .then((all) => setSubmission(all[all.length - 1] ?? null));
+  }, [user, challengeId]);
+
+  if (!submission) return null;
+
+  return (
+    <p style={{ marginTop: "1rem" }}>
+      <Link href={`/results/${submission.id}`} className="btn">
+        Share your result
+      </Link>
+    </p>
+  );
+}
+
+// Best-effort: if this visitor arrived via a creator's rally link
+// (RallyCapture on the /battle page stored the code), attribute them before
+// their vote is cast. Attribution is by the *rallying* creator, not by
+// whoever they end up voting for (ADR-005 §1) — failure here never blocks
+// the vote itself, it just means growth-viral-mechanics.md's rally loop
+// doesn't get credit for this particular voter.
+async function attributeRallyIfPresent(campaignId: string): Promise<void> {
+  const code = getRallyCode();
+  if (!code) return;
+  try {
+    const { creatorId } = await api.get<{ creatorId: string; challengeId: string }>(
+      `/rally/${code}/resolve`,
+    );
+    await api.post("/rally-attributions", { creatorId, campaignId });
+  } catch {
+    // No-op — see rationale above.
+  }
+}
 
 function PublicVote({ round }: { round: Round }) {
   const [finalists, setFinalists] = useState<Submission[]>([]);
@@ -27,6 +71,7 @@ function PublicVote({ round }: { round: Round }) {
     setBusy(true);
     setError(null);
     try {
+      await attributeRallyIfPresent(round.challengeId);
       await api.post(`/rounds/${round.id}/votes`, { submissionId });
       setVotedFor(submissionId);
     } catch (err) {
@@ -74,7 +119,12 @@ export default function RoundPage() {
       </h1>
       <p className="muted">{round.type}</p>
 
-      {round.status === "revealed" && <p>This round has been revealed — results are final.</p>}
+      {round.status === "revealed" && (
+        <>
+          <p>This round has been revealed — results are final.</p>
+          <ShareResultLink challengeId={round.challengeId} />
+        </>
+      )}
 
       {round.status !== "revealed" &&
         (round.type === "public_vote_final" ? (

@@ -45,12 +45,53 @@ export class VotingService {
     const pool = await this.classifyPool(userId, submission.creatorId);
 
     try {
-      return await this.prisma.vote.create({
-        data: { roundId, voterId: userId, submissionId, pool },
-      });
+      // Rally votes earn the creator XP (growth-viral-mechanics.md §2) in the
+      // same transaction as the vote — no XP is awarded if the vote itself
+      // fails (e.g. already voted this round).
+      const [vote] = await this.prisma.$transaction([
+        this.prisma.vote.create({ data: { roundId, voterId: userId, submissionId, pool } }),
+        ...(pool === "rally"
+          ? [
+              this.prisma.user.update({
+                where: { id: submission.creatorId },
+                data: { rallyXp: { increment: 1 } },
+              }),
+            ]
+          : []),
+      ]);
+      return vote;
     } catch {
       throw new BadRequestException("You have already voted in this round");
     }
+  }
+
+  /** ADR-002/growth-viral-mechanics.md §2: resolves a creator's personal rally
+   * link to whatever battle they currently have live. */
+  async resolveRallyCode(code: string): Promise<{ creatorId: string; challengeId: string }> {
+    const creator = await this.prisma.user.findUnique({ where: { referralCode: code } });
+    if (!creator) throw new BadRequestException("Unknown rally code");
+
+    const activeSubmission = await this.prisma.submission.findFirst({
+      where: {
+        creatorId: creator.id,
+        status: { not: "eliminated" },
+        challenge: { status: { in: ["round1_open", "round2_open", "round3_open"] } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!activeSubmission) throw new BadRequestException("This creator has no active battle right now");
+
+    return { creatorId: creator.id, challengeId: activeSubmission.challengeId };
+  }
+
+  /** "Your voters" counter (growth-viral-mechanics.md §2) — total people ever
+   * recruited via this creator's rally link, plus their accrued rally XP. */
+  async getRallyStats(userId: string): Promise<{ totalVoters: number; rallyXp: number }> {
+    const [totalVoters, user] = await Promise.all([
+      this.prisma.rallyAttribution.count({ where: { creatorId: userId } }),
+      this.prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+    ]);
+    return { totalVoters, rallyXp: user.rallyXp };
   }
 
   /**

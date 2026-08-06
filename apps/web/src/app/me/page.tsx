@@ -1,13 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
+import { RallyStats } from "@/lib/types";
 
 export default function MePage() {
   const { user, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [rallyStats, setRallyStats] = useState<RallyStats | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (user) api.get<RallyStats>("/users/me/rally-stats").then(setRallyStats);
+  }, [user]);
+
+  function copyRallyLink() {
+    if (!user) return;
+    const link = `${window.location.origin}/v/${user.referralCode}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   async function startStripeOnboarding() {
     setBusy(true);
@@ -35,6 +50,27 @@ export default function MePage() {
         <p>Tier: {user.tier}</p>
         <p>Taste score: {user.tasteScore}</p>
         <p>Referral code: {user.referralCode}</p>
+      </div>
+
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>Your rally link</h2>
+        <p className="muted">
+          Share this — it always points at whatever battle you currently have live. Votes that
+          arrive through it earn you rally XP and count toward crowd favourite; they never
+          decide the prize (two-currency split, ADR-005).
+        </p>
+        <p>
+          <code>/v/{user.referralCode}</code>{" "}
+          <button className="secondary" onClick={copyRallyLink}>
+            {copied ? "Copied!" : "Copy link"}
+          </button>
+        </p>
+        {rallyStats && (
+          <p>
+            <strong>{rallyStats.totalVoters}</strong> voters recruited ·{" "}
+            <strong>{rallyStats.rallyXp}</strong> rally XP
+          </p>
+        )}
       </div>
 
       <div className="card">

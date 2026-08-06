@@ -103,3 +103,37 @@ export interface FundingResult {
   clientSecret: string;
   breakdown: FundingBreakdown;
 }
+
+// ── Growth (rally / share cards / public spectator) ─────────────────────
+
+export interface SubmissionWithOutcome extends Submission {
+  isWinner: boolean;
+  challenge: { title: string; prizePool: number };
+}
+
+export interface RallyStats {
+  totalVoters: number;
+  rallyXp: number;
+}
+
+export interface PublicChallengeSummary {
+  id: string;
+  title: string;
+  brief: string;
+  prizePool: number;
+  stipendPool: number;
+  status: ChallengeStatus;
+  currentRound: {
+    id: string;
+    roundNumber: number;
+    type: RoundType;
+    status: RoundStatus;
+    closesAt: string;
+  } | null;
+}
+
+export interface PublicTally {
+  roundId: string;
+  visible: boolean;
+  tallies: { submissionId: string; votes: number }[];
+}
