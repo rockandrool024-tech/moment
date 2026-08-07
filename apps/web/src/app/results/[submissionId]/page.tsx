@@ -4,8 +4,8 @@ import { api } from "@/lib/api-client";
 import { PublicChallengeSummary, PublicTally, SubmissionWithOutcome } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { outcomeTone, OUTCOME_COPY } from "@/lib/outcome";
-import { tierLabel } from "@/lib/tier";
-import { avatarUrl } from "@/lib/avatar";
+import { tierBadgeStyle, tierLabel } from "@/lib/tier";
+import { Avatar } from "@/components/Avatar";
 
 async function load(submissionId: string) {
   return api.get<SubmissionWithOutcome>(`/submissions/${submissionId}`);
@@ -58,18 +58,14 @@ export default async function ResultPage({ params }: { params: { submissionId: s
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- external, API-served avatar */}
-        <img
-          src={avatarUrl(submission.creatorId)}
-          alt=""
-          width={56}
-          height={56}
-          style={{ borderRadius: "50%", border: "1px solid var(--border)" }}
-        />
+        <Avatar userId={submission.creatorId} size={56} tier={submission.creatorTier} />
         <h1 style={{ margin: 0 }}>{headline}</h1>
       </div>
       <p className="muted">
-        {tagline} · <span className="badge">{tierLabel(submission.creatorTier)}</span>
+        {tagline} ·{" "}
+        <span className="badge badge-tier" style={tierBadgeStyle(submission.creatorTier) as React.CSSProperties}>
+          {tierLabel(submission.creatorTier)}
+        </span>
       </p>
 
       {votingIsLive && (

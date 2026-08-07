@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api-client";
 import { MapNearbyResponse, MapPin } from "@/lib/types";
 import { avatarUrl } from "@/lib/avatar";
+import { tierColorVar } from "@/lib/tier";
 import { CompassIcon, PinIcon } from "@/components/icons";
 import styles from "./map.module.css";
 
-const TIER_COLORS = ["#c9834b", "#b9c2c9", "#e6b93c", "#7ee0c9"]; // bronze, silver, gold, platinum
-const CHALLENGE_COLOR = "#ff6f91";
+// Shared tokens (globals.css --tier-0..3, --rally) — kept as plain var()
+// references here rather than re-deriving hex values, per the UI alignment
+// pass extending /map's own design system to the rest of the app.
+const CHALLENGE_COLOR = "var(--rally)";
 
 function pinColor(pin: MapPin): string {
-  return pin.kind === "challenge" ? CHALLENGE_COLOR : TIER_COLORS[pin.tier] ?? TIER_COLORS[0];
+  return pin.kind === "challenge" ? CHALLENGE_COLOR : tierColorVar(pin.tier);
 }
 
 function initials(name: string | null): string {
@@ -22,13 +26,32 @@ function initials(name: string | null): string {
 }
 
 export default function MapPage() {
+  return (
+    <Suspense fallback={null}>
+      <MapPageInner />
+    </Suspense>
+  );
+}
+
+function MapPageInner() {
+  const searchParams = useSearchParams();
+  const preselectId = searchParams.get("pin");
   const [pins, setPins] = useState<MapPin[] | null>(null);
   const [selected, setSelected] = useState<MapPin | null>(null);
   const [tilt, setTilt] = useState({ rz: 0 });
   const sceneRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    api.get<MapNearbyResponse>("/public/map/nearby").then((r) => setPins(r.pins));
+    api.get<MapNearbyResponse>("/public/map/nearby").then((r) => {
+      setPins(r.pins);
+      // Deep-link from /discovery's "View on map" — pre-opens that pin's
+      // sheet instead of making the visitor find it themselves.
+      if (preselectId) {
+        const match = r.pins.find((p) => p.id === preselectId);
+        if (match) setSelected(match);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- preselect only on initial load
   }, []);
 
   const reducedMotion = useMemo(
@@ -86,7 +109,7 @@ export default function MapPage() {
                   top: `${p.y}%`,
                   width: size,
                   height,
-                  background: `linear-gradient(180deg, ${pinColor(p)}cc, ${pinColor(p)}55)`,
+                  background: `linear-gradient(180deg, color-mix(in srgb, ${pinColor(p)} 80%, transparent), color-mix(in srgb, ${pinColor(p)} 33%, transparent))`,
                 }}
               />
             );
@@ -136,7 +159,7 @@ export default function MapPage() {
       <div className={styles.legend}>
         {["Bronze", "Silver", "Gold", "Platinum"].map((label, i) => (
           <span key={label}>
-            <span className={styles.legendDot} style={{ background: TIER_COLORS[i] }} />
+            <span className={styles.legendDot} style={{ background: tierColorVar(i) }} />
             {label}
           </span>
         ))}
