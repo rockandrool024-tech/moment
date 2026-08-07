@@ -6,7 +6,8 @@ import { api } from "@/lib/api-client";
 import { DiscoveryBrand, DiscoveryCreator } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { tierBadgeStyle, tierLabel } from "@/lib/tier";
-import { avatarUrl } from "@/lib/avatar";
+import { Avatar } from "@/components/Avatar";
+import { PinIcon } from "@/components/icons";
 
 type Tab = "creators" | "brands";
 
@@ -44,27 +45,28 @@ export default function DiscoveryPage() {
           {creators === null && <p className="muted">Loading…</p>}
           {creators?.length === 0 && <p className="muted">No creators yet.</p>}
           {creators?.map((c) => (
-            <Link key={c.id} href={`/v/${c.referralCode}`} style={{ textDecoration: "none" }}>
-              <div className="card" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- external, API-served avatar */}
-                  <img
-                    src={avatarUrl(c.id)}
-                    alt=""
-                    width={36}
-                    height={36}
-                    style={{ borderRadius: "50%", border: "1px solid var(--border)" }}
-                  />
-                  {c.displayName ?? "Unnamed creator"}
+            <div
+              key={c.id}
+              className="card card-elevated card-interactive"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <Link
+                href={`/v/${c.referralCode}`}
+                style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "0.7rem" }}
+              >
+                <Avatar userId={c.id} size={36} tier={c.tier} />
+                {c.displayName ?? "Unnamed creator"}
+              </Link>
+              <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span className="badge badge-tier" style={tierBadgeStyle(c.tier) as React.CSSProperties}>
+                  {tierLabel(c.tier)}
                 </span>
-                <span>
-                  <span className="badge badge-tier" style={tierBadgeStyle(c.tier) as React.CSSProperties}>
-                    {tierLabel(c.tier)}
-                  </span>{" "}
-                  <span className="muted">{c.wins} wins</span>
-                </span>
-              </div>
-            </Link>
+                <span className="muted">{c.wins} wins</span>
+                <Link href={`/map?pin=${c.id}`} className="muted" title="View on map">
+                  <PinIcon width={16} height={16} aria-hidden />
+                </Link>
+              </span>
+            </div>
           ))}
         </>
       )}
@@ -74,8 +76,13 @@ export default function DiscoveryPage() {
           {brands === null && <p className="muted">Loading…</p>}
           {brands?.length === 0 && <p className="muted">No active campaigns right now.</p>}
           {brands?.map((b) => (
-            <div key={b.id} className="card" style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>
+            <div
+              key={b.id}
+              className="card card-elevated card-interactive"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <PinIcon width={18} height={18} style={{ color: "var(--rally)" }} aria-hidden />
                 {b.displayName ?? "Unnamed brand"}
                 {b.isColdStart && <span className="muted"> · first campaign</span>}
               </span>
