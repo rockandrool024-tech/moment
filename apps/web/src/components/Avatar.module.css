@@ -1,0 +1,44 @@
+/* Presence-ring avatar — same visual language as /map's pins (pulsing
+   tier-colored ring), reused here as a shared component instead of being
+   redrawn per screen. */
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.wrap::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ring-color, var(--accent));
+  opacity: 0.55;
+  animation: pulse 2.6s ease-out infinite;
+}
+
+.img {
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap::before {
+    animation: none;
+    opacity: 0.3;
+  }
+}

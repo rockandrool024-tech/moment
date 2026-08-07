@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { RallyStats, StreakSummary, User } from "@/lib/types";
-import { tierLabel } from "@/lib/tier";
-import { avatarUrl } from "@/lib/avatar";
+import { tierBadgeStyle, tierLabel } from "@/lib/tier";
+import { Avatar } from "@/components/Avatar";
+import { FlameIcon, RallyIcon, ShareIcon, WalletIcon } from "@/components/icons";
 
 export default function MePage() {
   const { user, loading } = useAuth();
@@ -65,13 +66,11 @@ export default function MePage() {
       <h1>My profile</h1>
       <div className="card">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- external, API-served, not a static asset Next can optimize */}
-          <img
-            src={avatarUrl(user.id, avatarVersion ? String(avatarVersion) : user.updatedAt)}
-            alt=""
-            width={72}
-            height={72}
-            style={{ borderRadius: "50%", border: "1px solid var(--border)" }}
+          <Avatar
+            userId={user.id}
+            size={72}
+            tier={user.tier}
+            cacheBust={avatarVersion ? String(avatarVersion) : user.updatedAt}
           />
           <div>
             <button className="secondary" onClick={regenerateAvatar} disabled={avatarBusy}>
@@ -86,20 +85,25 @@ export default function MePage() {
         <p>Role: {user.role}</p>
         <p>Phone verified: {user.phoneVerifiedAt ? "yes" : "no"}</p>
         <p>
-          Tier: <span className="badge">{tierLabel(user.tier)}</span>
+          Tier:{" "}
+          <span className="badge badge-tier" style={tierBadgeStyle(user.tier) as React.CSSProperties}>
+            {tierLabel(user.tier)}
+          </span>
         </p>
         <p>Taste score: {user.tasteScore}</p>
         <p>Referral code: {user.referralCode}</p>
         {streak && (
-          <p>
+          <p style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
             {streak.streakPausedReason ? (
               <>
-                <span aria-hidden>⏸️</span> {streak.streakCount}-day streak paused — no eligible
-                content to vote on yet, it&rsquo;ll resume on your next vote
+                <FlameIcon width={16} height={16} style={{ color: "var(--muted)" }} aria-hidden />
+                {streak.streakCount}-day streak paused — no eligible content to vote on yet,
+                it&rsquo;ll resume on your next vote
               </>
             ) : streak.streakCount > 0 ? (
               <>
-                <span aria-hidden>🔥</span> {streak.streakCount}-day voting streak
+                <FlameIcon width={16} height={16} style={{ color: "var(--tier-0)" }} aria-hidden />
+                {streak.streakCount}-day voting streak
               </>
             ) : (
               <span className="muted">Vote today to start a streak</span>
@@ -109,7 +113,9 @@ export default function MePage() {
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0 }}>Your rally link</h2>
+        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <RallyIcon width={18} height={18} aria-hidden /> Your rally link
+        </h2>
         <p className="muted">
           Share this — it always points at whatever battle you currently have live. Votes that
           arrive through it earn you rally XP and count toward crowd favourite; they never
@@ -118,6 +124,7 @@ export default function MePage() {
         <p>
           <code>/v/{user.referralCode}</code>{" "}
           <button className="secondary" onClick={copyRallyLink}>
+            <ShareIcon width={14} height={14} aria-hidden style={{ verticalAlign: "-2px" }} />{" "}
             {copied ? "Copied!" : "Copy link"}
           </button>
         </p>
@@ -130,7 +137,9 @@ export default function MePage() {
       </div>
 
       <div className="card">
-        <h2 style={{ marginTop: 0 }}>Payouts</h2>
+        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <WalletIcon width={18} height={18} aria-hidden /> Payouts
+        </h2>
         {user.stripeConnectAccountId ? (
           <p>Stripe Connect account linked ✓</p>
         ) : (

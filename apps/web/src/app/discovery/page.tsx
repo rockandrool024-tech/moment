@@ -5,7 +5,7 @@ import Link from "next/link";
 import { api } from "@/lib/api-client";
 import { DiscoveryBrand, DiscoveryCreator } from "@/lib/types";
 import { formatCents } from "@/lib/format";
-import { tierLabel } from "@/lib/tier";
+import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { avatarUrl } from "@/lib/avatar";
 
 type Tab = "creators" | "brands";
@@ -58,7 +58,9 @@ export default function DiscoveryPage() {
                   {c.displayName ?? "Unnamed creator"}
                 </span>
                 <span>
-                  <span className="badge">{tierLabel(c.tier)}</span>{" "}
+                  <span className="badge badge-tier" style={tierBadgeStyle(c.tier) as React.CSSProperties}>
+                    {tierLabel(c.tier)}
+                  </span>{" "}
                   <span className="muted">{c.wins} wins</span>
                 </span>
               </div>

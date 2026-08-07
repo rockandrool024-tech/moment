@@ -237,10 +237,12 @@ button.secondary {
 /* Responsive pass (Sprint 2 PWA) — vote-deck pairs stack on narrow phones
    instead of squeezing two side-by-side cards, and every tap target below
    this width grows past the 48px touch-target floor.
-   .btn-block is opt-in full-width (mobile only) — NOT a blanket rule on
-   `button`/`.btn`, which used to stretch /map's small icon buttons
-   (compass, pin, sheet-close) to 100% width until it was caught. Add the
-   class explicitly to buttons meant to be a full-width primary action. */
+   `.btn` (the deliberate "big CTA" marker used on Link-styled actions
+   throughout the app) keeps stretching full-width on mobile as before.
+   Bare `<button>` no longer does — that blanket match is what stretched
+   /map's small icon buttons (compass, pin, sheet-close) to 100% width
+   until it was caught. `.btn-block` opts a plain <button> into the same
+   full-width treatment where that's actually the intent (form submits). */
 @media (max-width: 480px) {
   .pair-row {
     flex-direction: column;
@@ -251,6 +253,7 @@ button.secondary {
     min-height: 52px;
   }
 
+  .btn,
   .btn-block {
     width: 100%;
   }

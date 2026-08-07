@@ -136,7 +136,7 @@ export default function SubmitPage() {
           />
         </div>
         {error && <p className="error">{error}</p>}
-        <button type="submit" disabled={busy}>
+        <button type="submit" className="btn-block" disabled={busy}>
           Submit
         </button>
       </form>

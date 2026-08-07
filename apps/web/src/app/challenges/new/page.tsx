@@ -87,7 +87,7 @@ export default function NewChallengePage() {
           />
         </div>
         {error && <p className="error">{error}</p>}
-        <button type="submit" disabled={busy}>
+        <button type="submit" className="btn-block" disabled={busy}>
           Create (as draft)
         </button>
       </form>

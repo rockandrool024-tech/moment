@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
 import { Challenge, DiscoveryCreator } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
-import { tierLabel } from "@/lib/tier";
+import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 
 export default function InviteCreatorsPage() {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +75,9 @@ export default function InviteCreatorsPage() {
           <div key={c.id} className="card">
             <p style={{ margin: 0 }}>
               <strong>{c.displayName ?? "Unnamed creator"}</strong>{" "}
-              <span className="badge">{tierLabel(c.tier)}</span>
+              <span className="badge badge-tier" style={tierBadgeStyle(c.tier) as React.CSSProperties}>
+                {tierLabel(c.tier)}
+              </span>
             </p>
             <p className="muted" style={{ margin: "4px 0" }}>
               {c.wins} win{c.wins === 1 ? "" : "s"} · referral code {c.referralCode}
