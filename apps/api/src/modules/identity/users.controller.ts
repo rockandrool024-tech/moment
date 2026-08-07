@@ -21,4 +21,11 @@ export class UsersController {
   requestKyb(@CurrentUser() user: User): Promise<User> {
     return this.users.requestKyb(user.id);
   }
+
+  // Public, unauthenticated serving happens in avatar.controller.ts — this
+  // stays here since it's a /users/me/* mutation like requestKyb above.
+  @Post("me/avatar/generate")
+  generateAvatar(@CurrentUser() user: User): Promise<User> {
+    return this.users.generateAvatar(user.id);
+  }
 }

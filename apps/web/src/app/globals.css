@@ -94,6 +94,7 @@ button,
 .btn {
   font: inherit;
   padding: 0.5rem 1rem;
+  min-height: 48px;
   border-radius: 6px;
   border: 1px solid var(--accent);
   background: var(--accent);
@@ -148,4 +149,24 @@ button.secondary {
 
 .pair-option:hover {
   border-color: var(--accent);
+}
+
+/* Responsive pass (Sprint 2 PWA) — vote-deck pairs stack on narrow phones
+   instead of squeezing two side-by-side cards, and every tap target below
+   this width grows past the 48px touch-target floor. */
+@media (max-width: 480px) {
+  .pair-row {
+    flex-direction: column;
+  }
+
+  button,
+  .btn {
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
 }

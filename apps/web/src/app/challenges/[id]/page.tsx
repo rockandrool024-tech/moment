@@ -26,6 +26,7 @@ export default function ChallengeDetailPage() {
   const [busy, setBusy] = useState(false);
   const [finalists, setFinalists] = useState<Submission[]>([]);
   const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
+  const [wizardStatus, setWizardStatus] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [c, r] = await Promise.all([

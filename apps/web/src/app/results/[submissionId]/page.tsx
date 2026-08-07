@@ -4,6 +4,8 @@ import { api } from "@/lib/api-client";
 import { PublicChallengeSummary, PublicTally, SubmissionWithOutcome } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { outcomeTone, OUTCOME_COPY } from "@/lib/outcome";
+import { tierLabel } from "@/lib/tier";
+import { avatarUrl } from "@/lib/avatar";
 
 async function load(submissionId: string) {
   return api.get<SubmissionWithOutcome>(`/submissions/${submissionId}`);
@@ -55,8 +57,20 @@ export default async function ResultPage({ params }: { params: { submissionId: s
 
   return (
     <div>
-      <h1>{headline}</h1>
-      <p className="muted">{tagline}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- external, API-served avatar */}
+        <img
+          src={avatarUrl(submission.creatorId)}
+          alt=""
+          width={56}
+          height={56}
+          style={{ borderRadius: "50%", border: "1px solid var(--border)" }}
+        />
+        <h1 style={{ margin: 0 }}>{headline}</h1>
+      </div>
+      <p className="muted">
+        {tagline} · <span className="badge">{tierLabel(submission.creatorTier)}</span>
+      </p>
 
       {votingIsLive && (
         <div className="card" style={{ textAlign: "center" }}>

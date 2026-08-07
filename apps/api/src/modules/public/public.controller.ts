@@ -1,6 +1,12 @@
 import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from "@nestjs/common";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
-import { PublicChallengeSummary, PublicService, PublicTally } from "./public.service";
+import {
+  DiscoveryBrand,
+  DiscoveryCreator,
+  PublicChallengeSummary,
+  PublicService,
+  PublicTally,
+} from "./public.service";
 
 // The one surface designed to take anonymous, potentially viral traffic
 // (ADR-002) — rate-limited independently of the rest of the API so a spike
@@ -19,5 +25,15 @@ export class PublicController {
   @Get("challenges/:id/tally")
   getTally(@Param("id", ParseUUIDPipe) id: string): Promise<PublicTally> {
     return this.publicService.getCurrentTally(id);
+  }
+
+  @Get("discovery/creators")
+  getDiscoveryCreators(): Promise<DiscoveryCreator[]> {
+    return this.publicService.getDiscoveryCreators();
+  }
+
+  @Get("discovery/brands")
+  getDiscoveryBrands(): Promise<DiscoveryBrand[]> {
+    return this.publicService.getDiscoveryBrands();
   }
 }

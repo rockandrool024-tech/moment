@@ -4,6 +4,7 @@ import { Deck } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { RoundStateMachineService } from "../rounds/round-state-machine.service";
 import { generatePairs, insertAttentionCheck, Pair } from "./deck-generation";
+import { StreakService } from "./streak.service";
 
 const MIN_VIEW_DURATION_MS = 3000; // ADR-005 §4 vote-gate hardening
 
@@ -18,6 +19,7 @@ export class DeckService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly stateMachine: RoundStateMachineService,
+    private readonly streakService: StreakService,
   ) {}
 
   async generateDeck(userId: string, roundId: string): Promise<Deck> {
@@ -121,6 +123,11 @@ export class DeckService {
     } catch {
       throw new BadRequestException("This pair was already answered");
     }
+
+    // A cast vote resumes/extends the streak regardless of the later
+    // attention-check outcome — the streak measures showing up to vote,
+    // the attention check is a separate data-quality gate.
+    await this.streakService.applyVoteForUser(userId);
 
     let discarded = false;
     if (pairIndex === deck.checkPairIndex) {

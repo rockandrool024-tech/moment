@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PayoutType } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StripeService } from "./stripe.service";
+import { computeTier } from "./tier";
 
 export interface PayoutEntry {
   userId: string;
@@ -52,6 +53,27 @@ export class PayoutsService {
     for (const payout of payouts) {
       await this.transferOne(payout.id);
     }
+
+    const recipientIds = [...new Set(payouts.map((p) => p.userId))];
+    await Promise.all(recipientIds.map((userId) => this.recomputeEarningsAndTier(userId)));
+  }
+
+  /**
+   * Lifetime earnings + tier (growth-viral-mechanics.md §4), recomputed
+   * whenever a payout is created — "earned" the moment it's owed, same as
+   * the wallet page's own definition, not gated on Stripe actually settling.
+   */
+  private async recomputeEarningsAndTier(userId: string): Promise<void> {
+    const [earningsAgg, wins] = await Promise.all([
+      this.prisma.payout.aggregate({ where: { userId }, _sum: { amount: true } }),
+      this.prisma.payout.count({ where: { userId, type: "winner" } }),
+    ]);
+    const lifetimeEarnings = earningsAgg._sum.amount ?? 0;
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lifetimeEarnings, tier: computeTier(lifetimeEarnings, wins) },
+    });
   }
 
   private async transferOne(payoutId: string): Promise<void> {

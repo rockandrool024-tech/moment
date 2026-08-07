@@ -12,5 +12,6 @@ import { PublicCacheService } from "./public-cache.service";
   ],
   controllers: [PublicController],
   providers: [PublicService, PublicCacheService],
+  exports: [PublicCacheService],
 })
 export class PublicModule {}

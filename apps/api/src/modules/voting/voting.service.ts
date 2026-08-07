@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { RallyAttribution, Vote, VotePool } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { StreakService } from "./streak.service";
 
 @Injectable()
 export class VotingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly streakService: StreakService,
+  ) {}
 
   /**
    * Records the per-creator-scoped taint edge (ADR-005 §1) — called when a
@@ -44,11 +48,12 @@ export class VotingService {
 
     const pool = await this.classifyPool(userId, submission.creatorId);
 
+    let vote: Vote;
     try {
       // Rally votes earn the creator XP (growth-viral-mechanics.md §2) in the
       // same transaction as the vote — no XP is awarded if the vote itself
       // fails (e.g. already voted this round).
-      const [vote] = await this.prisma.$transaction([
+      [vote] = await this.prisma.$transaction([
         this.prisma.vote.create({ data: { roundId, voterId: userId, submissionId, pool } }),
         ...(pool === "rally"
           ? [
@@ -59,10 +64,14 @@ export class VotingService {
             ]
           : []),
       ]);
-      return vote;
     } catch {
       throw new BadRequestException("You have already voted in this round");
     }
+
+    // Runs after the vote is durably committed, outside the try/catch, so a
+    // streak-update failure never gets misreported as "already voted."
+    await this.streakService.applyVoteForUser(userId);
+    return vote;
   }
 
   /** ADR-002/growth-viral-mechanics.md §2: resolves a creator's personal rally

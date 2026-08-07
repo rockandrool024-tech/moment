@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 const TOKEN_KEY = "moment.accessToken";
 
 export function getToken(): string | null {

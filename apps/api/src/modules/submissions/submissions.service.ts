@@ -79,13 +79,14 @@ export class SubmissionsService {
       isWinner: boolean;
       challenge: { title: string; prizePool: number };
       creatorReferralCode: string;
+      creatorTier: number;
     }
   > {
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
       include: {
         challenge: { select: { title: true, prizePool: true } },
-        creator: { select: { referralCode: true } },
+        creator: { select: { referralCode: true, tier: true } },
       },
     });
     if (!submission) throw new NotFoundException("Submission not found");
@@ -95,6 +96,11 @@ export class SubmissionsService {
     });
 
     const { creator, ...rest } = submission;
-    return { ...rest, isWinner: !!winnerPayout, creatorReferralCode: creator.referralCode };
+    return {
+      ...rest,
+      isWinner: !!winnerPayout,
+      creatorReferralCode: creator.referralCode,
+      creatorTier: creator.tier,
+    };
   }
 }

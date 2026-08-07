@@ -37,4 +37,21 @@ export class UsersService {
       data: { kybRequestedAt: new Date() },
     });
   }
+
+  // "Generation" today just re-seeds the deterministic placeholder identicon
+  // (see avatar-generator.ts) by bumping the timestamp it's derived from —
+  // no external call yet. Swap in a real provider call + avatarUrl write
+  // here once AI_AVATAR_PROVIDER_KEY exists; callers never need to change.
+  //
+  // NOTE: because the seed is (userId + avatarGeneratedAt), regenerating
+  // changes the identicon everywhere it's shown (profile, discovery, old
+  // share cards) — acceptable for a stub, but a real provider swap should
+  // consider versioning or history if "my past share cards changed" turns
+  // out to matter to creators.
+  generateAvatar(userId: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarGeneratedAt: new Date(), avatarUrl: null },
+    });
+  }
 }

@@ -117,11 +117,18 @@ export interface SubmissionWithOutcome extends Submission {
   isWinner: boolean;
   challenge: { title: string; prizePool: number };
   creatorReferralCode: string;
+  creatorTier: number;
 }
 
 export interface RallyStats {
   totalVoters: number;
   rallyXp: number;
+}
+
+export interface StreakSummary {
+  streakCount: number;
+  lastVoteDate: string | null;
+  streakPausedReason: string | null;
 }
 
 export interface PublicChallengeSummary {
@@ -144,6 +151,22 @@ export interface PublicTally {
   roundId: string;
   visible: boolean;
   tallies: { submissionId: string; votes: number }[];
+}
+
+export interface DiscoveryCreator {
+  id: string;
+  displayName: string | null;
+  tier: number;
+  wins: number;
+  referralCode: string;
+}
+
+export interface DiscoveryBrand {
+  id: string;
+  displayName: string | null;
+  activeChallengeCount: number;
+  activePrizePoolCents: number;
+  isColdStart: boolean;
 }
 
 // ── Wallet / trust (sprint 1) ────────────────────────────────────────────

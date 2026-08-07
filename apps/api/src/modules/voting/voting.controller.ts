@@ -1,10 +1,11 @@
-import { Body, Controller, Param, ParseUUIDPipe, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from "@nestjs/common";
 import { Deck, RallyAttribution, User, Vote } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { PhoneVerifiedGuard } from "../../common/guards/phone-verified.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { DeckService, CastPeerVoteResult } from "./deck.service";
 import { VotingService } from "./voting.service";
+import { StreakService, StreakSummary } from "./streak.service";
 import { CastPeerVoteDto } from "./dto/cast-peer-vote.dto";
 import { CastVoteDto } from "./dto/cast-vote.dto";
 import { RecordRallyAttributionDto } from "./dto/record-rally-attribution.dto";
@@ -17,7 +18,13 @@ export class VotingController {
   constructor(
     private readonly deckService: DeckService,
     private readonly votingService: VotingService,
+    private readonly streakService: StreakService,
   ) {}
+
+  @Get("users/me/streak")
+  getStreak(@CurrentUser() user: User): Promise<StreakSummary> {
+    return this.streakService.getStreak(user.id);
+  }
 
   @Post("rounds/:roundId/decks")
   generateDeck(

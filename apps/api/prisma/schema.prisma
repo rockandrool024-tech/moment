@@ -50,6 +50,15 @@ model User {
   streakCount        Int       @default(0) @map("streak_count")
   streakPausedReason String?   @map("streak_paused_reason")
 
+  // AI-generated creator avatar (growth: a consistent visual reference for
+  // the creator across discovery/share cards/results, not a document photo
+  // — no relation to KYC). avatarUrl is where a REAL provider image lands;
+  // until a provider key exists, GET /users/:id/avatar.png derives a
+  // deterministic placeholder from avatarGeneratedAt so "Generate avatar"
+  // still does something real and swaps cleanly later (see avatar.service.ts).
+  avatarUrl         String?   @map("avatar_url")
+  avatarGeneratedAt DateTime? @map("avatar_generated_at")
+
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
