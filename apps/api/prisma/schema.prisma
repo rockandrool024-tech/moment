@@ -196,6 +196,14 @@ model Round {
   revealedAt      DateTime?   @map("revealed_at")
   createdAt       DateTime    @default(now()) @map("created_at")
 
+  // Sprint 3: seller override for the round-3 winner (public_vote_final
+  // only). Must land before the round closes — tallyPublicFinal runs
+  // synchronously inside closeRound() for this round type (no participation
+  // gate to wait on), so there's no post-close window to set this in.
+  // Null (never called, or the vote itself decides) falls back to the
+  // top-quality-vote winner, same as before this feature existed.
+  finalPickSubmissionId String? @map("final_pick_submission_id")
+
   peerVotes   PeerVote[]
   decks       Deck[]
   votes       Vote[]

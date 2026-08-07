@@ -23,28 +23,33 @@ crowd-favourite payouts actually triggered (was a schema-supported-but-never-fir
 round scheduling (`POST /challenges/:id/rounds/auto`), live vote count + "Vote for me" on the
 entry/share-card page, `?returnTo=` on login.
 
+**Sprint 2 (retention & social proof)** — tiers wired end-to-end (badge on profile/entry/OG
+image), voting streaks (pause-not-break, `GET /users/me/streak`, flame/pause UI on `/me`),
+discovery feed (`GET /public/discovery/creators` / `/brands`, `/discovery` tabs page), PWA infra
+(manifest, app-shell service worker, custom install prompt after 2nd visit, responsive pass —
+`.pair-row` stacks under 480px, buttons ≥48px), AI-avatar stub (deterministic identicon,
+Redis-cached, `POST /users/me/avatar/generate` + public `GET /users/:id/avatar.png`, shown on
+profile/discovery/results/share-card).
+
+**Sprint 3 (brand tools)** — campaign funding wizard (auto-opens round 1 once the funding webhook
+confirms, no separate manual step), round-3 seller final pick (`PATCH /rounds/:id/final-pick`,
+falls back to top-quality-vote automatically), campaign analytics (`GET /challenges/:id/analytics`
+— submission funnel, votes per round, payouts by type — `/challenges/:id/analytics` page), invite
+creators (`POST /challenges/:id/invite`, reuses the discovery feed + notification queue).
+
+**Fixed: round-3 payout bug** — `tallyPublicFinal` queried `status: "pending"` for finalists, but
+round 2's own tally already flips them to `"advanced"` — the query always returned zero rows, so
+the winner/stipend/crowd-favourite payout block silently never ran. Caught while wiring seller
+final-pick; fixed and covered by `apps/api/scripts/verify-round3-payout.ts` (seeds real DB state,
+runs the actual state machine, asserts the winner payout exists, cleans up after itself).
+
 **Deploy stack** (prepared, not live) — Dockerfiles for both apps, `docker-compose.prod.yml`
 (Postgres, Redis, api, web, Caddy for automatic TLS), `deploy/DEPLOY.md` + `deploy.sh`.
 
-## Next — Sprint 2 (retention & social proof)
+## Next — Sprint 2.5 (Zenly-style discovery map)
 
-- [ ] Tiers made functional: `computeTier(lifetimeEarnings, wins)` pure function (unit-tested),
-      recomputed on payout creation, badge shown on profile/entry/discovery
-- [ ] Voting streaks: pause (never break) when no eligible deck/round exists that day (ADR-005 §5)
-- [ ] Discovery feed: `GET /discovery/creators` / `/discovery/brands`, `/discovery` tabs page
-- [ ] PWA: `manifest.json`, minimal app-shell service worker, custom install prompt, responsive
-      pass (vote-deck `.pair-row` stacks under 480px, all buttons ≥48px touch targets)
-- [ ] Zenly-style discovery map (screen 5) — CSS-generated 3D city map, avatar presence rings,
-      challenge pins, `GET /map/nearby`; real map tiles/geocoding/live-presence explicitly stubbed
-
-## Sprint 3 (brand tools)
-
-- [ ] Campaign wizard: fold round-1 scheduling into challenge creation
-- [ ] Round-3 seller final pick (`PATCH /rounds/:id/final-pick`), same gate/deadline pattern as the
-      participation gate, falls back to top-quality-vote automatically
-- [ ] Campaign analytics (`GET /challenges/:id/analytics`) — submit/advance/vote/payout funnel
-      counts; no view tracking (schema doesn't have it, won't fake it)
-- [ ] Invite creators — reuse discovery-creators list + a notification to a specific creator
+- [ ] CSS-generated 3D city map, avatar presence rings, challenge pins, `GET /map/nearby`; real map
+      tiles/geocoding/live-presence explicitly stubbed
 
 ## Sprint 4 (growth & ops)
 

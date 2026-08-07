@@ -248,11 +248,14 @@ export class RoundStateMachineService {
   }
 
   private async tallyPublicFinal(round: Round): Promise<void> {
-    // All round-3 entrants are already "finalists" — round 2 did the
-    // narrowing. This tally only ranks them to find the winner; nobody
-    // gets eliminated further.
+    // All round-3 entrants are already "finalists" — round 2's own tally
+    // (tallyPeerVoteRound, shared across rounds 1 and 2) already flipped
+    // their status to "advanced" when they cleared peer_vote_narrow; round
+    // 3 never creates a new submission row, so that's the status to look
+    // for here, not "pending" (which would only ever match a full_content
+    // submission that hasn't been through round 2's tally at all).
     const finalists = await this.prisma.submission.findMany({
-      where: { challengeId: round.challengeId, phase: "full_content", status: "pending" },
+      where: { challengeId: round.challengeId, phase: "full_content", status: "advanced" },
     });
 
     const qualityTallies = await this.prisma.vote.groupBy({
@@ -269,7 +272,13 @@ export class RoundStateMachineService {
         (qualityVotesBySubmission.get(b.id) ?? 0) - (qualityVotesBySubmission.get(a.id) ?? 0);
       return diff !== 0 ? diff : a.id.localeCompare(b.id);
     });
-    const winner = ranked[0];
+    // Seller final pick (Sprint 3) overrides the vote-ranked winner if one
+    // was set via PATCH /rounds/:id/final-pick — falls back to the top
+    // quality-vote finalist otherwise, exactly as before this existed.
+    const finalPick = round.finalPickSubmissionId
+      ? finalists.find((f) => f.id === round.finalPickSubmissionId)
+      : undefined;
+    const winner = finalPick ?? ranked[0];
 
     const challenge = await this.prisma.challenge.findUniqueOrThrow({
       where: { id: round.challengeId },

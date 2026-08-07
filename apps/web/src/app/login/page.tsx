@@ -83,7 +83,7 @@ function LoginForm() {
             />
           </div>
           {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={busy}>
+          <button type="submit" className="btn-block" disabled={busy}>
             Send code
           </button>
         </form>
@@ -111,7 +111,7 @@ function LoginForm() {
             </select>
           </div>
           {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={busy}>
+          <button type="submit" className="btn-block" disabled={busy}>
             Verify &amp; log in
           </button>{" "}
           <button type="button" className="secondary" onClick={() => setStep("phone")}>

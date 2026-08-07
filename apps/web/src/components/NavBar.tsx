@@ -12,6 +12,7 @@ export function NavBar() {
     <nav className="nav">
       <Link href="/challenges">MOMENT</Link>
       <Link href="/challenges">Challenges</Link>
+      <Link href="/map">Map</Link>
       <Link href="/discovery">Discover</Link>
       {user && <Link href="/wallet">Wallet</Link>}
       {user && <Link href="/me">Me</Link>}

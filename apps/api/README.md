@@ -4,23 +4,24 @@ The MOMENT backend — a modular monolith (NestJS) per [ADR-001](../../docs/ADR-
 
 Current coverage: the Phase 1 spine (schema, escrow, video upload, the round state machine,
 phone-OTP-gated voting), the growth loops (rally links, share cards, public spectator API), and
-Sprint 1 of the post-launch build-out (wallet, trust/ratings, KYB gate). See
-[/TODO.md](../../TODO.md) at the repo root for what's built vs. still open across every sprint.
+Sprints 1-3 of the post-launch build-out (wallet/trust/KYB, tiers/streaks/discovery/PWA/avatar,
+campaign wizard/final-pick/analytics/invites). See [/TODO.md](../../TODO.md) at the repo root for
+what's built vs. still open across every sprint.
 
 ## Modules
 
 | Module | Owns |
 |---|---|
-| `identity` | Users, phone OTP (Twilio Verify), JWT issuance, KYB request |
-| `challenges` | Challenge CRUD + status lifecycle |
+| `identity` | Users, phone OTP (Twilio Verify), JWT issuance, KYB request, AI-avatar stub (`POST /users/me/avatar/generate`, public `GET /users/:id/avatar.png`) |
+| `challenges` | Challenge CRUD + status lifecycle, seller analytics funnel (`GET /challenges/:id/analytics`), invite creators (`POST /challenges/:id/invite`) |
 | `submissions` | Submission CRUD, teaser/full-content phases, checklist auto-filter |
-| `rounds` | **The round state machine** — open → closed → tallied → revealed, driven by BullMQ. `POST /challenges/:id/rounds/auto` server-derives the next round's type/advanceCount/schedule |
-| `voting` | Blind pairwise peer-vote decks (rounds 1-2), public quality/rally voting (round 3), rally-link resolution + stats |
-| `payments` | Stripe Connect escrow funding + payout transfers (winner/stipend/survivor-bonus/crowd-favourite), Connect onboarding, wallet summary, webhooks |
+| `rounds` | **The round state machine** — open → closed → tallied → revealed, driven by BullMQ. `POST /challenges/:id/rounds/auto` server-derives the next round's type/advanceCount/schedule; `PATCH /rounds/:id/final-pick` lets the seller override the round-3 winner before close |
+| `voting` | Blind pairwise peer-vote decks (rounds 1-2), public quality/rally voting (round 3), rally-link resolution + stats, voting streaks (`streak.ts` pure logic + `StreakService`, `GET /users/me/streak`) |
+| `payments` | Stripe Connect escrow funding + payout transfers (winner/stipend/survivor-bonus/crowd-favourite), Connect onboarding, wallet summary, tier computation, webhooks |
 | `trust` | Bidirectional ratings + public creator/brand trust stats (ADR-004) |
 | `media` | Mux direct uploads + asset-ready webhook |
-| `public` | Cached, rate-limited no-auth reads for the spectator battle pages (ADR-002) |
-| `notifications` | Queue-backed stub — no delivery channel wired up yet |
+| `public` | Cached, rate-limited no-auth reads for the spectator battle pages (ADR-002) + discovery feed (`GET /public/discovery/creators` / `/brands`) |
+| `notifications` | Queue-backed stub — no delivery channel wired up yet; `challenge_invite` is the newest event type |
 
 ## Local development
 

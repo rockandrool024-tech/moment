@@ -9,6 +9,14 @@
   --accent-fg: #ffffff;
   --danger: #a6212e;
   --card-bg: #fafafa;
+
+  /* Design tokens introduced by /map — shared here so every screen
+     references the same values instead of re-deriving them per file. */
+  --tier-0: #c9834b; /* bronze */
+  --tier-1: #b9c2c9; /* silver */
+  --tier-2: #e6b93c; /* gold */
+  --tier-3: #7ee0c9; /* platinum */
+  --rally: #ff6f91; /* challenge/rally coral */
 }
 
 * {
@@ -65,6 +73,42 @@ h2 {
   padding: 1rem;
   margin-bottom: 1rem;
   background: var(--card-bg);
+}
+
+/* Elevated variant — shadow instead of a flat border, matching /map's plot
+   and sheet treatment. Used where a card should read as "raised," not just
+   grouped (challenges list, PWA install/offline chrome). */
+.card-elevated {
+  border: none;
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--card-bg);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Left edge colored by tier/status — set --edge-color inline. */
+.card-elevated.card-edged {
+  border-left: 4px solid var(--edge-color, var(--border));
+}
+
+.card-interactive {
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.07);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive:hover {
+    transform: none;
+  }
 }
 
 .field {
@@ -131,6 +175,17 @@ button.secondary {
   color: var(--muted);
 }
 
+/* Tier badges get the color scale instead of the flat grey every other
+   badge uses — set style={{ "--tier-color": "var(--tier-N)" }} on the
+   element (see tier.ts's tierColorVar()). */
+.badge-tier {
+  border-width: 1.5px;
+  border-color: var(--tier-color, var(--border));
+  color: color-mix(in srgb, var(--tier-color, var(--muted)) 70%, black);
+  background: color-mix(in srgb, var(--tier-color, var(--border)) 16%, var(--bg));
+  font-weight: 600;
+}
+
 .pair-row {
   display: flex;
   gap: 1rem;
@@ -149,11 +204,43 @@ button.secondary {
 
 .pair-option:hover {
   border-color: var(--accent);
+  transform: translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pair-option:hover {
+    transform: none;
+  }
+}
+
+/* Standard modal/bottom-sheet entrance — reused everywhere a confirm step
+   or detail panel slides in (funding breakdown, rating form, /map's pin
+   sheet), instead of a one-off animation per screen. */
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-rise {
+  animation: rise 0.22s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-rise {
+    animation: none;
+  }
 }
 
 /* Responsive pass (Sprint 2 PWA) — vote-deck pairs stack on narrow phones
    instead of squeezing two side-by-side cards, and every tap target below
-   this width grows past the 48px touch-target floor. */
+   this width grows past the 48px touch-target floor.
+   .btn-block is opt-in full-width (mobile only) — NOT a blanket rule on
+   `button`/`.btn`, which used to stretch /map's small icon buttons
+   (compass, pin, sheet-close) to 100% width until it was caught. Add the
+   class explicitly to buttons meant to be a full-width primary action. */
 @media (max-width: 480px) {
   .pair-row {
     flex-direction: column;
@@ -161,8 +248,11 @@ button.secondary {
 
   button,
   .btn {
-    width: 100%;
     min-height: 52px;
+  }
+
+  .btn-block {
+    width: 100%;
   }
 
   .nav {

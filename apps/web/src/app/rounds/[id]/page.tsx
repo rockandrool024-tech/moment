@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
-import { Round, Submission } from "@/lib/types";
+import { Challenge, Round, Submission } from "@/lib/types";
 import { VoteDeck } from "@/components/VoteDeck";
 import { getRallyCode } from "@/lib/rally";
 import { useAuth } from "@/lib/auth-context";
@@ -48,6 +48,63 @@ async function attributeRallyIfPresent(campaignId: string): Promise<void> {
   } catch {
     // No-op — see rationale above.
   }
+}
+
+// Seller-only override for the round-3 winner. Purely additive — the vote
+// itself still runs and still decides if the seller never touches this
+// (rounds.service.ts falls back to the top quality-vote finalist).
+function SellerFinalPick({ round }: { round: Round }) {
+  const { user } = useAuth();
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [finalists, setFinalists] = useState<Submission[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(round.finalPickSubmissionId);
+
+  useEffect(() => {
+    api.get<Challenge>(`/challenges/${round.challengeId}`).then(setChallenge);
+    api
+      .get<Submission[]>(`/submissions?challengeId=${round.challengeId}&phase=full_content`)
+      .then((all) => setFinalists(all.filter((s) => s.status === "advanced")));
+  }, [round.challengeId]);
+
+  if (!user || !challenge || user.id !== challenge.sellerId || round.status !== "open") return null;
+
+  async function pick(submissionId: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.patch(`/rounds/${round.id}/final-pick`, { submissionId });
+      setSaved(submissionId);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="card">
+      <h2 style={{ marginTop: 0 }}>Final pick (optional)</h2>
+      <p className="muted">
+        Override the crowd vote and choose the winner yourself. If you never set this, the
+        finalist with the most quality votes wins automatically.
+      </p>
+      {finalists.map((f) => (
+        <div key={f.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>Submission {f.id.slice(0, 8)}</span>
+          {saved === f.id ? (
+            <span className="badge">your pick</span>
+          ) : (
+            <button className="secondary" disabled={busy} onClick={() => pick(f.id)}>
+              Pick as winner
+            </button>
+          )}
+        </div>
+      ))}
+      {error && <p className="error">{error}</p>}
+    </div>
+  );
 }
 
 function PublicVote({ round }: { round: Round }) {
@@ -128,7 +185,10 @@ export default function RoundPage() {
 
       {round.status !== "revealed" &&
         (round.type === "public_vote_final" ? (
-          <PublicVote round={round} />
+          <>
+            <SellerFinalPick round={round} />
+            <PublicVote round={round} />
+          </>
         ) : (
           <VoteDeck roundId={round.id} />
         ))}

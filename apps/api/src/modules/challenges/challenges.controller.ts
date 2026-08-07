@@ -2,8 +2,9 @@ import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } f
 import { Challenge, ChallengeStatus, User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
-import { ChallengesService } from "./challenges.service";
+import { ChallengesService, ChallengeAnalytics } from "./challenges.service";
 import { CreateChallengeDto } from "./dto/create-challenge.dto";
+import { InviteCreatorDto } from "./dto/invite-creator.dto";
 import { FundingService, FundingResult } from "../payments/funding.service";
 
 @Controller("challenges")
@@ -36,5 +37,24 @@ export class ChallengesController {
     @CurrentUser() user: User,
   ): Promise<FundingResult> {
     return this.funding.fundChallenge(id, user.id);
+  }
+
+  @Get(":id/analytics")
+  @UseGuards(JwtAuthGuard)
+  getAnalytics(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ): Promise<ChallengeAnalytics> {
+    return this.challenges.getAnalytics(id, user.id);
+  }
+
+  @Post(":id/invite")
+  @UseGuards(JwtAuthGuard)
+  invite(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: InviteCreatorDto,
+    @CurrentUser() user: User,
+  ): Promise<{ sent: true }> {
+    return this.challenges.inviteCreator(id, user.id, dto.creatorId);
   }
 }

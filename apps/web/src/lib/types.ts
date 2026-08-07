@@ -79,6 +79,7 @@ export interface Round {
   closesAt: string;
   revealDeadlineAt: string | null;
   revealedAt: string | null;
+  finalPickSubmissionId: string | null;
 }
 
 export interface Pair {
@@ -167,6 +168,54 @@ export interface DiscoveryBrand {
   activeChallengeCount: number;
   activePrizePoolCents: number;
   isColdStart: boolean;
+}
+
+export interface MapPin {
+  id: string;
+  kind: "creator" | "challenge";
+  displayName: string | null;
+  referralCode: string | null;
+  tier: number;
+  x: number;
+  y: number;
+  heightScale: number;
+  meta: string;
+}
+
+export interface MapNearbyResponse {
+  pins: MapPin[];
+}
+
+// ── Campaign analytics (seller-only funnel) ──────────────────────────────
+
+export type PayoutType = "winner" | "stipend" | "survivor_bonus" | "crowd_favourite" | "referral_bonus";
+
+export interface PhaseFunnelStats {
+  phase: SubmissionPhase;
+  submitted: number;
+  advanced: number;
+  eliminated: number;
+  pending: number;
+}
+
+export interface RoundVoteStats {
+  roundId: string;
+  roundNumber: number;
+  type: RoundType;
+  votes: number;
+}
+
+export interface PayoutTypeStats {
+  type: PayoutType;
+  count: number;
+  totalAmount: number;
+}
+
+export interface ChallengeAnalytics {
+  challengeId: string;
+  phases: PhaseFunnelStats[];
+  rounds: RoundVoteStats[];
+  payouts: PayoutTypeStats[];
 }
 
 // ── Wallet / trust (sprint 1) ────────────────────────────────────────────

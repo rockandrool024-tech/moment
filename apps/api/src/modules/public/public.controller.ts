@@ -3,6 +3,7 @@ import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import {
   DiscoveryBrand,
   DiscoveryCreator,
+  MapNearbyResponse,
   PublicChallengeSummary,
   PublicService,
   PublicTally,
@@ -35,5 +36,10 @@ export class PublicController {
   @Get("discovery/brands")
   getDiscoveryBrands(): Promise<DiscoveryBrand[]> {
     return this.publicService.getDiscoveryBrands();
+  }
+
+  @Get("map/nearby")
+  getMapNearby(): Promise<MapNearbyResponse> {
+    return this.publicService.getMapNearby();
   }
 }

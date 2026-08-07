@@ -1,0 +1,711 @@
+<!doctype html>
+<title>MOMENT — UX Experience Audit</title>
+<meta name="description" content="An adversarial, user-side teardown of the MOMENT creator-competition app, tested live." />
+<style>
+  :root {
+    --bg: #eef0ea;
+    --bg-raised: #ffffff;
+    --bg-sunken: #e4e6dd;
+    --text: #1a1d18;
+    --text-muted: #5b6058;
+    --text-faint: #8a8f80;
+    --accent: #c81e3a;
+    --accent-soft: #f6dfe2;
+    --accent-ink: #7a1226;
+    --brand: #146b45;
+    --brand-soft: #dcece2;
+    --border: #d7d9cf;
+    --border-strong: #c3c6b8;
+    --code-bg: #e4e6dd;
+    --sev-p0: #c81e3a;
+    --sev-p0-soft: #f6dfe2;
+    --sev-p1: #b9660f;
+    --sev-p1-soft: #f5e4cd;
+    --sev-p2: #2f6f9e;
+    --sev-p2-soft: #dde9f0;
+    --sev-p3: #5b6058;
+    --sev-p3-soft: #e4e6dd;
+    --shadow: 0 1px 2px rgba(20, 22, 15, 0.06), 0 8px 24px -12px rgba(20, 22, 15, 0.18);
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #13160f;
+      --bg-raised: #1b1e17;
+      --bg-sunken: #20241b;
+      --text: #eceee6;
+      --text-muted: #a3a897;
+      --text-faint: #767b6c;
+      --accent: #ff6b80;
+      --accent-soft: #3a1820;
+      --accent-ink: #ffb3bf;
+      --brand: #3fcf8e;
+      --brand-soft: #17301f;
+      --border: #2b2f26;
+      --border-strong: #3a3f33;
+      --code-bg: #20241b;
+      --sev-p0: #ff6b80;
+      --sev-p0-soft: #3a1820;
+      --sev-p1: #e0983c;
+      --sev-p1-soft: #3a2c15;
+      --sev-p2: #6fb3dd;
+      --sev-p2-soft: #16283a;
+      --sev-p3: #a3a897;
+      --sev-p3-soft: #20241b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #13160f; --bg-raised: #1b1e17; --bg-sunken: #20241b;
+    --text: #eceee6; --text-muted: #a3a897; --text-faint: #767b6c;
+    --accent: #ff6b80; --accent-soft: #3a1820; --accent-ink: #ffb3bf;
+    --brand: #3fcf8e; --brand-soft: #17301f;
+    --border: #2b2f26; --border-strong: #3a3f33; --code-bg: #20241b;
+    --sev-p0: #ff6b80; --sev-p0-soft: #3a1820;
+    --sev-p1: #e0983c; --sev-p1-soft: #3a2c15;
+    --sev-p2: #6fb3dd; --sev-p2-soft: #16283a;
+    --sev-p3: #a3a897; --sev-p3-soft: #20241b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0ea; --bg-raised: #ffffff; --bg-sunken: #e4e6dd;
+    --text: #1a1d18; --text-muted: #5b6058; --text-faint: #8a8f80;
+    --accent: #c81e3a; --accent-soft: #f6dfe2; --accent-ink: #7a1226;
+    --brand: #146b45; --brand-soft: #dcece2;
+    --border: #d7d9cf; --border-strong: #c3c6b8; --code-bg: #e4e6dd;
+    --sev-p0: #c81e3a; --sev-p0-soft: #f6dfe2;
+    --sev-p1: #b9660f; --sev-p1-soft: #f5e4cd;
+    --sev-p2: #2f6f9e; --sev-p2-soft: #dde9f0;
+    --sev-p3: #5b6058; --sev-p3-soft: #e4e6dd;
+    --shadow: 0 1px 2px rgba(20, 22, 15, 0.06), 0 8px 24px -12px rgba(20, 22, 15, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); color: var(--accent-ink); }
+
+  a { color: var(--brand); }
+  a:focus-visible, button:focus-visible, .jump a:focus-visible {
+    outline: 2px solid var(--brand); outline-offset: 2px;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+  header.cover {
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 0 2.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.9rem;
+  }
+  h1.title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.08;
+    margin: 0 0 0.75rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .dek {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 62ch;
+    margin: 0 0 1.5rem;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.75rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+  .meta-row span b { color: var(--text-muted); font-weight: 600; }
+
+  .verdict {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.75rem;
+    align-items: center;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin-top: 1.75rem;
+    box-shadow: var(--shadow);
+  }
+  .score-dial {
+    width: 108px; height: 108px; border-radius: 50%;
+    border: 6px solid var(--sev-p0-soft);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .score-dial::before {
+    content: "";
+    position: absolute; inset: -6px;
+    border-radius: 50%;
+    border: 6px solid var(--sev-p0);
+    clip-path: polygon(50% 50%, 50% 0%, 79% 4%, 96% 24%, 100% 50%, 50% 50%);
+  }
+  .score-dial b {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .score-dial span {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+    margin-top: 0.2rem;
+  }
+  .verdict p { margin: 0; font-size: 0.98rem; color: var(--text-muted); }
+  .verdict p b { color: var(--text); }
+
+  nav.jump {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 0;
+    margin: 2rem 0 3rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  nav.jump a {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.3rem 0.75rem;
+    border-right: 1px solid var(--border);
+  }
+  nav.jump a:last-child { border-right: none; }
+  nav.jump a:hover { color: var(--accent); }
+
+  section { margin: 3.5rem 0; }
+  section > .eyebrow { margin-bottom: 0.5rem; }
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.65rem;
+    margin: 0 0 0.4rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .section-intro { color: var(--text-muted); max-width: 66ch; margin: 0 0 1.75rem; }
+
+  code, .mono { font-family: var(--mono); }
+  .render-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 1rem 0;
+    overflow-x: auto;
+    white-space: pre-wrap;
+  }
+  .render-block .label {
+    display: block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .sev {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0.18rem 0.5rem;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .sev-p0 { background: var(--sev-p0-soft); color: var(--sev-p0); }
+  .sev-p1 { background: var(--sev-p1-soft); color: var(--sev-p1); }
+  .sev-p2 { background: var(--sev-p2-soft); color: var(--sev-p2); }
+  .sev-p3 { background: var(--sev-p3-soft); color: var(--sev-p3); }
+  .sev-ref { background: var(--brand-soft); color: var(--brand); }
+
+  .finding {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .finding:last-child { padding-bottom: 0; }
+  .finding h3 {
+    font-size: 1.02rem;
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+  }
+  .finding p { margin: 0.5rem 0; color: var(--text-muted); font-size: 0.95rem; }
+  .finding .file {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-faint);
+  }
+
+  .screens { display: flex; flex-direction: column; gap: 1rem; }
+  .screen-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: var(--shadow);
+  }
+  .screen-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .screen-head h3 { margin: 0; font-size: 1.1rem; font-family: var(--serif); }
+  .screen-goal { font-size: 0.85rem; color: var(--text-faint); margin: 0 0 0.85rem; font-style: italic; }
+  .screen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.5rem; }
+  .screen-grid > div dt {
+    font-family: var(--mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-faint); margin-bottom: 0.2rem;
+  }
+  .screen-grid > div dd { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+  @media (max-width: 640px) { .screen-grid { grid-template-columns: 1fr; } }
+
+  .journey-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+  .journey-table td, .journey-table th { text-align: left; padding: 0.6rem 0.5rem; vertical-align: top; }
+  .journey-table th { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); border-bottom: 1px solid var(--border-strong); }
+  .journey-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+  .journey-table .stage { font-weight: 600; white-space: nowrap; }
+  .journey-table .why { color: var(--text-muted); font-size: 0.88rem; }
+  .bar-cell { width: 140px; }
+  .bar-track { background: var(--bg-sunken); border-radius: 4px; height: 8px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .bar-num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.78rem; margin-left: 0.5rem; color: var(--text-muted); }
+  .bar-row-flex { display: flex; align-items: center; }
+  tr.overall .stage, tr.overall .bar-num { color: var(--text); font-weight: 700; }
+  tr.overall .bar-fill { background: var(--brand); }
+
+  .discovery-box {
+    background: var(--brand-soft);
+    border: 1px solid var(--brand);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    margin: 1.5rem 0;
+  }
+  .discovery-box .eyebrow { color: var(--brand); }
+  .discovery-box p { margin: 0.6rem 0 0; color: var(--text); font-size: 0.95rem; }
+
+  ol.top5 { padding-left: 0; list-style: none; counter-reset: item; margin: 0; }
+  ol.top5 li {
+    counter-increment: item;
+    display: flex; gap: 1.1rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--border);
+  }
+  ol.top5 li::before {
+    content: counter(item);
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 2rem;
+  }
+  ol.top5 li p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+  ol.top5 li b { color: var(--text); }
+
+  .score-breakdown {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+  }
+  .score-big { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem; }
+  .score-big b { font-family: var(--serif); font-size: 3rem; font-variant-numeric: tabular-nums; }
+  .score-big span { color: var(--text-faint); font-family: var(--mono); font-size: 0.9rem; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 560px) {
+    .verdict { grid-template-columns: 1fr; text-align: left; }
+    .score-dial { margin: 0 auto; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="cover">
+    <p class="eyebrow">Product Experience Audit — Live-Tested</p>
+    <h1 class="title">MOMENT, through a first-time user's eyes</h1>
+    <p class="dek">
+      An adversarial, user-side teardown of the creator-competition app — not a code review, a
+      "would I actually stay" review. Tested live: the stack was brought up locally and clicked
+      through screen by screen, not inferred from source alone.
+    </p>
+    <div class="meta-row">
+      <span><b>Date</b> 2026-08-07</span>
+      <span><b>Scope</b> apps/web, cross-checked against apps/api and docs/mockup-*.html</span>
+      <span><b>Method</b> live click-through + source verification, see footer</span>
+    </div>
+
+    <div class="verdict">
+      <div class="score-dial"><b>29</b><span>/ 100</span></div>
+      <p>
+        <b>The backend is unusually well-modeled for this stage — the UI hasn't caught up to it yet,
+        and a full visual design system already exists on disk, unused.</b>
+        This is a wiring gap, not a from-scratch design problem. One finding below caps most of the
+        score: the core interaction — voting — currently shows no content to vote on.
+      </p>
+    </div>
+  </header>
+
+  <nav class="jump">
+    <a href="#context">Context</a>
+    <a href="#top-problems">Top problems</a>
+    <a href="#screens">Screen by screen</a>
+    <a href="#journey">Journey score</a>
+    <a href="#loop">Retention loop</a>
+    <a href="#discovery">The unused design</a>
+    <a href="#mobile">Mobile</a>
+    <a href="#top5">Fix first</a>
+    <a href="#score">Final score</a>
+  </nav>
+
+  <section id="context">
+    <p class="eyebrow">00 — Before the critique</p>
+    <h2>What's fair game here, and what isn't</h2>
+    <p class="section-intro">
+      <code>apps/web/package.json</code> says, in its own words: <em>"Bare-bones UI; design comes
+      later."</em> <code>globals.css</code> opens with <em>"Deliberately minimal — functionality
+      over polish this pass."</em> That's not a discovery — it's the stated plan, and treating "it
+      looks plain" as a finding would be reviewing a foundation as if it were a finished house.
+    </p>
+    <p class="section-intro">
+      What follows instead is aimed at what a visual pass <b>won't</b> fix on its own: missing
+      information in the core interaction, sequencing that confuses a first-time user regardless of
+      paint, and copy that leaks internal implementation detail to real people. Those are flagged
+      P0/P1. Genuine polish items are included too, tagged P2/P3 — they're just not what's holding
+      the score down.
+    </p>
+  </section>
+
+  <section id="top-problems">
+    <p class="eyebrow">01 — Ranked</p>
+    <h2>The problems that would actually make someone leave</h2>
+    <p class="section-intro">Ranked by how directly each one blocks a first-time user from getting to the product's actual value.</p>
+
+    <div class="finding">
+      <span class="sev sev-p0">P0</span>
+      <div>
+        <h3>The core interaction shows no content to judge</h3>
+        <p>The whole product is "watch two pieces of content, pick the better one." The live vote deck renders that as two bare labels — nothing else:</p>
+        <div class="render-block"><span class="label">as rendered, apps/web/src/components/VoteDeck.tsx:84–89</span>Submission a3f9c210          Submission 7e1bb402</div>
+        <p>No video, thumbnail, caption, or creator name. This isn't a styling miss — the <code>Deck</code>/<code>Pair</code> API contract only ever returns submission <b>IDs</b> (<code>apps/web/src/lib/types.ts:84-97</code>), so there's nothing to render even if a <code>&lt;video&gt;</code> tag were added today. Same gap in the final public vote. This is the highest-leverage fix in the app — little else matters until it's fixed.</p>
+        <p class="file">apps/web/src/components/VoteDeck.tsx · apps/web/src/app/rounds/[id]/page.tsx · apps/web/src/lib/types.ts</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p0">P0</span>
+      <div>
+        <h3>Money-critical screens read as a jargon dump</h3>
+        <p>The moment a brand is about to fund a challenge — peak trust-sensitivity — they see, unexplained: Pool, Stipend pool, Round-2 survivor bonus pool, Crowd favourite, Take rate. Then a "Confirm funding" step crams four dollar figures into one run-on sentence. Nothing explains what escrow means before a Stripe form appears.</p>
+        <p class="file">apps/web/src/app/challenges/[id]/page.tsx:143-187</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p0">P0</span>
+      <div>
+        <h3>An internal debug message ships as user-facing copy</h3>
+        <p>Shown to a real creator right after they submit a video entry:</p>
+        <div class="render-block"><span class="label">as rendered, apps/web/src/app/challenges/[id]/submit/page.tsx:96-98</span>"Video upload/processing failed — this is expected without a real MUX_TOKEN_ID / MUX_TOKEN_SECRET configured on the API."</div>
+        <p>A note to a developer, delivered to a person, at the exact moment they did the one thing the whole funnel exists to get them to do.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p1">P1</span>
+      <div>
+        <h3>Rally links are raw database IDs</h3>
+        <p><code>/v/cmsi2tx040000kqw8kvlgcm1g</code> — the entire growth loop's shareable unit is a 25-character CUID. Nobody puts that in a TikTok bio. The mechanic underneath (stable per-creator link, rally XP, two-currency split) is well designed; it's undercut by the one thing that has to be typeable and shareable being neither.</p>
+        <p class="file">apps/web/src/app/me/page.tsx:119</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p1">P1</span>
+      <div>
+        <h3>First five seconds show nothing</h3>
+        <p><code>/</code> renders "Loading…" then redirects to a bare login form — no logo, no one-line explanation of what MOMENT is, no stakes shown, before asking a stranger for their phone number.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p1">P1</span>
+      <div>
+        <h3>A user's own display name never appears on their own profile</h3>
+        <p>"Ana" renders correctly on <code>/discovery</code>, but <code>/me</code> never renders <code>user.displayName</code> at all — only phone number, role, tier, and a raw referral code. Not a taste note: a rendering gap against data the API already returns.</p>
+        <p class="file">apps/web/src/app/me/page.tsx:85</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p1">P1</span>
+      <div>
+        <h3>Every empty state is one grey line with no next step</h3>
+        <p>"No challenges yet." / "No payouts yet." / "No rounds opened yet." / "No finalists yet." / "No active campaigns right now." — five screens, same pattern: state the absence, offer nothing. None say why, or what to do about it.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p2">P2</span>
+      <div>
+        <h3>Gamification with no visible rules</h3>
+        <p>Tier badge, taste score, streak — all bare labels, zero explanation of what they mean or how to progress. The existing design mockups (screen 20) explicitly call tiers <em>"functional not cosmetic"</em> — the shipped version is a static pill.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <span class="sev sev-p2">P2</span>
+      <div>
+        <h3>"AI-generated placeholder" avatar isn't AI-generated</h3>
+        <p>It's an honest, well-built seeded identicon per the code comments — but the user-facing copy calls it "AI-generated," which is a small credibility ding the moment someone looks closely, on a product where creator identity is the whole point.</p>
+        <p class="file">apps/api/src/modules/identity/avatar-generator.ts</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <p class="eyebrow">02 — Walkthrough</p>
+    <h2>Screen by screen</h2>
+    <p class="section-intro">Evaluated live, cold, as a first-time user — logged out where the screen allows it, logged in via a locally-minted dev token where it doesn't (Twilio isn't configured, as expected pre-launch).</p>
+
+    <div class="screens">
+      <div class="screen-card">
+        <div class="screen-head"><h3>Vote deck</h3><span class="sev sev-p0">P0</span></div>
+        <p class="screen-goal">Goal: decide which of two entries deserves to advance.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Zero media rendered; nothing to actually judge (see top finding).</dd></div>
+          <div><dt>What's good underneath</dt><dd>The 3-second minimum-view timer and repeat-pair attention check are a genuinely smart anti-low-effort-vote mechanic — rare to see this early.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Challenge funding</h3><span class="sev sev-p0">P0</span></div>
+        <p class="screen-goal">Goal: fund a challenge with confidence about where the money goes.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Unexplained pricing jargon at the highest-trust moment in the brand journey.</dd></div>
+          <div><dt>What's good underneath</dt><dd>The client-side "can I open the next round" guess is a nice affordance — server stays the real authority, UI just avoids showing a dead button.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Submit entry</h3><span class="sev sev-p1">P1</span></div>
+        <p class="screen-goal">Goal: get a video entered before the deadline.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Leaked Mux debug string; no round rules (duration/hashtag) shown before picking a file; text-only upload states, no real progress bar.</dd></div>
+          <div><dt>Emotion</dt><dd>Uncertain whether the upload actually worked.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Wallet</h3><span class="sev sev-p2">P2</span></div>
+        <p class="screen-goal">Goal: see what I've earned, get paid.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Empty state has no "go earn your first dollar" CTA; <code>/users/me</code> and <code>/users/me/wallet</code> both fetch twice on one load.</dd></div>
+          <div><dt>What's good</dt><dd>The pending-transfer copy is honest and clear: "shown as earned the moment it's won, even before Stripe settles it."</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Profile</h3><span class="sev sev-p1">P1</span></div>
+        <p class="screen-goal">Goal: see and share who I am on MOMENT.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Display name never rendered; phone number is the leading identity element; referral code is an unshareable raw ID.</dd></div>
+          <div><dt>What's good</dt><dd>The rally-link explainer paragraph is genuinely well-written — human, confident, specific. Should be the copy template for the rest of the app.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Discovery</h3><span class="sev sev-p2">P2</span></div>
+        <p class="screen-goal">Goal: browse who's winning, without an account.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>No sort/filter explanation; the two tabs' empty-state copy doesn't share a voice.</dd></div>
+          <div><dt>What's right</dt><dd>The structural instinct — public, no-login browsing — is correct for this audience.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Battle (public spectator)</h3><span class="sev sev-p1">P1</span></div>
+        <p class="screen-goal">Goal: watch a live contest and decide whether to log in and vote.</p>
+        <dl class="screen-grid">
+          <div><dt>Problems</dt><dd>Same missing-media gap as the vote deck — a spectator sees a prize pool and a status badge, never the content driving the competition.</dd></div>
+          <div><dt>What's right</dt><dd>Server-rendered, no-login, real OG unfurl metadata — structurally the correct call for shareability.</dd></div>
+        </dl>
+      </div>
+
+      <div class="screen-card">
+        <div class="screen-head"><h3>Results / share card</h3><span class="sev sev-ref">Reference standard</span></div>
+        <p class="screen-goal">Goal: share my outcome, pull more votes in.</p>
+        <dl class="screen-grid">
+          <div><dt>Verdict</dt><dd>The best-designed screen in the app — dynamic headline by outcome, a real-weight live vote counter, a rally-attributed "Vote for me" CTA, dynamic OG images for link unfurls. Bring everything else up to this bar rather than redesigning this one.</dd></div>
+          <div><dt>Priority</dt><dd>None — hold as the standard.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="journey">
+    <p class="eyebrow">03 — Scored</p>
+    <h2>User journey, stage by stage</h2>
+    <p class="section-intro">1–10 per stage, scored against what a real first-time user experiences today.</p>
+    <table class="journey-table">
+      <thead><tr><th>Stage</th><th>Score</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td class="stage">First impression</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:20%"></span></span><span class="bar-num">2</span></span></td><td class="why">Blank loading screen, then a bare form, no value prop stated anywhere.</td></tr>
+        <tr><td class="stage">Value proposition</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:30%"></span></span><span class="bar-num">3</span></span></td><td class="why">Never explicitly stated in the UI — you have to already know what MOMENT is.</td></tr>
+        <tr><td class="stage">Signup / onboarding</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:40%"></span></span><span class="bar-num">4</span></span></td><td class="why">Phone-OTP is the right shape; sequencing and missing context undercut it.</td></tr>
+        <tr><td class="stage">First value</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:10%"></span></span><span class="bar-num">1</span></span></td><td class="why">A new voter's first real interaction shows no content to evaluate.</td></tr>
+        <tr><td class="stage">Core workflow</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:10%"></span></span><span class="bar-num">1</span></span></td><td class="why">Same root cause — functionally incomplete as a media-judging task.</td></tr>
+        <tr><td class="stage">Feedback / reward</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:30%"></span></span><span class="bar-num">3</span></span></td><td class="why">Streak, tier, taste score, rally XP all exist server-side; none are celebrated client-side.</td></tr>
+        <tr><td class="stage">Navigation</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:50%"></span></span><span class="bar-num">5</span></span></td><td class="why">Simple, predictable; no active-route highlighting, no mobile-specific pattern.</td></tr>
+        <tr><td class="stage">Mobile experience</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:50%"></span></span><span class="bar-num">5</span></span></td><td class="why">Real touch-target/stacking care already in CSS — but still a shrunk desktop layout in spirit.</td></tr>
+        <tr><td class="stage">Trust</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:40%"></span></span><span class="bar-num">4</span></span></td><td class="why">The financial model is transparent in the data; presented as jargon at the moment trust matters most.</td></tr>
+        <tr><td class="stage">Conversion</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:30%"></span></span><span class="bar-num">3</span></span></td><td class="why">KYB + Stripe correctly modeled; the funding screen is a comprehension spike.</td></tr>
+        <tr><td class="stage">Retention</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:30%"></span></span><span class="bar-num">3</span></span></td><td class="why">Streak + tier are the right shape; neither is surfaced enough to pull someone back tomorrow.</td></tr>
+        <tr class="overall"><td class="stage">Overall</td><td class="bar-cell"><span class="bar-row-flex"><span class="bar-track" style="flex:1"><span class="bar-fill" style="width:31%"></span></span><span class="bar-num">3.1</span></span></td><td class="why">A well-modeled product with an informational layer that hasn't caught up to the backend.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="loop">
+    <p class="eyebrow">04 — Retention</p>
+    <h2>The habit loop is built. It isn't felt.</h2>
+    <p class="section-intro">
+      Streaks, tiers, rally XP, and taste score are all real, working server-side systems
+      (<code>streak.service.ts</code>, <code>tier.ts</code>, <code>RallyStats</code>). None of them
+      produce an on-screen moment today — no toast, no animation, no "+1 day." A number changes in
+      the database; nothing on screen tells the user it changed, or that it mattered.
+    </p>
+    <table class="journey-table">
+      <thead><tr><th>Stage</th><th>Designed for</th><th>What ships today</th></tr></thead>
+      <tbody>
+        <tr><td class="stage">Trigger</td><td class="why">Rally link, share card, streak reminder</td><td class="why">Only the share card actually creates a return trigger today</td></tr>
+        <tr><td class="stage">Action</td><td class="why">Vote on a deck / enter a challenge</td><td class="why">Voting has no content to act on</td></tr>
+        <tr><td class="stage">Reward</td><td class="why">Rally XP, streak continuation, tier progress</td><td class="why">No feedback moment for any of it</td></tr>
+        <tr><td class="stage">Progress</td><td class="why">Tier thresholds, taste-score growth</td><td class="why">Numbers change; nothing communicates that it means something</td></tr>
+        <tr><td class="stage">Return</td><td class="why">Streak anxiety, "your battle is still live"</td><td class="why">Present in copy, absent in any reminder surface (no push/SMS/email yet, by design)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="discovery">
+    <p class="eyebrow">05 — The best news in this report</p>
+    <h2>This has already been designed once</h2>
+    <p class="section-intro">
+      <code>docs/moment-prototype.html</code> is a real, wired 37-screen mockup — a warm-paper
+      surface, a restrained accent-blue, semantic color for money and status, real iconography.
+      Nine companion <code>docs/mockup-*.html</code> files break it down screen by screen with an
+      explicit rationale for every mechanic. <b>None of it made it into <code>apps/web</code>.</b>
+    </p>
+    <div class="discovery-box">
+      <p class="eyebrow">docs/mockup-09-round1-teaser-peer-vote.html</p>
+      <p>Already designed: thumbnail cards with play-icon overlays, a "vote 3 more to unlock your result" progress bar, and "You won't see who made these" reassurance copy — solving the exact P0 vote-deck problem above, on paper, before this build even started.</p>
+    </div>
+    <p class="section-intro">
+      That changes the scope of the recommendation for almost everything in this report from
+      "design something new" to "wire the frontend to the design that already exists." A materially
+      smaller lift — and the starting point should be that folder, not a blank canvas.
+    </p>
+  </section>
+
+  <section id="mobile">
+    <p class="eyebrow">06 — Mobile</p>
+    <h2>What's right, what's missing</h2>
+    <p class="section-intro">
+      <b>Already correct:</b> the 480px breakpoint stacks the vote-pair layout vertically and grows
+      every button to a 48–52px touch target — a real, deliberate pass, done properly at the CSS
+      layer.
+    </p>
+    <p class="section-intro">
+      <b>Missing:</b> a mobile-specific navigation pattern — the same top bar ships at every width,
+      where a bottom tab bar fits this five-screen core loop far better, and is the pattern every
+      reference app in this category uses for exactly this reason. Sharing the rally link only calls
+      <code>navigator.clipboard.writeText</code>, with no <code>navigator.share()</code> fallback —
+      for a growth mechanic that depends entirely on sharing, that's the difference between one tap
+      into the native share sheet and "copy a link, then go find somewhere to paste it." Every async
+      screen shows literal <code>"Loading…"</code> text rather than a skeleton state, which reads
+      worse on mobile's higher latency sensitivity.
+    </p>
+  </section>
+
+  <section id="top5">
+    <p class="eyebrow">07 — In order</p>
+    <h2>Fix these five first</h2>
+    <ol class="top5">
+      <li><p><b>Give the vote deck something to show.</b> Extend the deck/pair API to return a thumbnail, caption, and post-reveal identity per submission; render it in <code>VoteDeck.tsx</code> and <code>PublicVote</code>. Unblocks the entire core loop on its own.</p></li>
+      <li><p><b>Replace raw CUID rally/referral codes</b> with a short, human-typeable slug — everywhere one is generated, stored, or displayed.</p></li>
+      <li><p><b>Give <code>/</code> and <code>/login</code> an actual first impression</b> — one line of value prop and real branding before the phone-number ask; move the role picker ahead of phone entry.</p></li>
+      <li><p><b>Rewrite every empty state and the leaked Mux debug string</b> to answer what/why/next. Copy-only, low-risk, high-visibility — an afternoon of work across five-plus screens.</p></li>
+      <li><p><b>Progressive-disclose the funding breakdown:</b> one total number up front, the pool/stipend/take-rate itemization behind a "see breakdown" toggle, plus one plain-English line on what escrow means.</p></li>
+    </ol>
+  </section>
+
+  <section id="score">
+    <p class="eyebrow">08 — Final</p>
+    <h2>Overall UX score</h2>
+    <div class="score-breakdown">
+      <div class="score-big"><b>29</b><span>/ 100 — current shippable experience, not a verdict on the plan</span></div>
+      <p style="color:var(--text-muted); margin:0 0 1rem;">
+        The backend is unusually well-modeled for this stage: a two-currency vote split, honest
+        cents-based money, a real anti-low-effort-voting mechanic, a legitimately clever growth-loop
+        data model — and a complete visual design system already exists on disk. The gap between
+        "engineering spine" and "shippable product" is real, but it's a wiring problem, not a
+        from-scratch design problem, which is a materially better position than the raw number
+        suggests in isolation.
+      </p>
+      <p style="color:var(--text-muted); margin:0;">
+        First impression and value prop pull the floor down hardest — the P0 vote-deck gap alone
+        caps the core-loop ceiling near zero until it's fixed. Trust and conversion sit in the
+        middle, held back by unexplained jargon at money moments rather than anything structurally
+        wrong. The retention primitives (streak, tier, rally) are architecturally sound and would
+        meaningfully lift this score the moment they're given any on-screen presence at all.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Tested against a local stack — Postgres + Redis via docker compose, the NestJS API, and the
+    Next.js client — with a dev-minted JWT standing in for phone-OTP login (Twilio isn't configured
+    in this environment, as expected pre-launch). Full findings list, file-line citations, and
+    method notes: <code>UX_EXPERIENCE_AUDIT.md</code> at the repo root.
+  </footer>
+
+</div>

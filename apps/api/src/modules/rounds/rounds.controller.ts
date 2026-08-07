@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from "@nestjs/common";
 import { Round, User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { RoundsService } from "./rounds.service";
 import { CreateRoundDto } from "./dto/create-round.dto";
+import { SetFinalPickDto } from "./dto/set-final-pick.dto";
 
 @Controller()
 export class RoundsController {
@@ -36,5 +37,15 @@ export class RoundsController {
   @Get("rounds/:id")
   findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Round> {
     return this.rounds.findByIdOrThrow(id);
+  }
+
+  @Patch("rounds/:id/final-pick")
+  @UseGuards(JwtAuthGuard)
+  setFinalPick(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: SetFinalPickDto,
+    @CurrentUser() user: User,
+  ): Promise<Round> {
+    return this.rounds.setFinalPick(id, user.id, dto);
   }
 }

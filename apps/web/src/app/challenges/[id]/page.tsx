@@ -94,6 +94,35 @@ export default function ChallengeDetailPage() {
     }
   }
 
+  // "Campaign wizard" — Stripe.js confirms the charge client-side, but
+  // funded status only flips once the webhook lands (ADR: webhook-driven
+  // confirmation is the source of truth, never the client). Rather than
+  // making the seller find and click a separate "open round 1" button,
+  // poll briefly for the webhook to catch up, then open round 1 for them
+  // automatically. Falls back to the existing manual button if the webhook
+  // is slow — nothing here is authoritative, /rounds/auto still enforces
+  // every rule server-side.
+  async function afterFundingConfirmed() {
+    setFunding(null);
+    setWizardStatus("Confirming payment…");
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const fresh = await api.get<Challenge>(`/challenges/${id}`);
+      if (fresh.status === "funded") {
+        setWizardStatus("Opening round 1…");
+        try {
+          await api.post(`/challenges/${id}/rounds/auto`);
+        } catch {
+          // Someone/something already opened it, or a real rule rejected it
+          // — either way, just fall through to a normal reload below.
+        }
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    setWizardStatus(null);
+    await load();
+  }
+
   if (!challenge) return <p className="muted">Loading…</p>;
 
   // Client-side affordance only (not authoritative) — the /rounds/auto
@@ -110,6 +139,17 @@ export default function ChallengeDetailPage() {
       <h1>{challenge.title}</h1>
       <span className="badge">{challenge.status}</span>
       <p>{challenge.brief}</p>
+
+      {isOwner && (
+        <p style={{ display: "flex", gap: "0.5rem" }}>
+          <Link href={`/challenges/${challenge.id}/analytics`} className="btn">
+            View analytics
+          </Link>
+          <Link href={`/challenges/${challenge.id}/invite`} className="btn">
+            Invite creators
+          </Link>
+        </p>
+      )}
 
       <div className="card">
         <h2 style={{ marginTop: 0 }}>Prize breakdown</h2>
@@ -156,17 +196,13 @@ export default function ChallengeDetailPage() {
             {formatCents(funding.breakdown.survivorBonusPool)} + platform fee{" "}
             {formatCents(funding.breakdown.platformFee)})
           </p>
-          <StripeFundForm
-            clientSecret={funding.clientSecret}
-            onDone={() => {
-              setFunding(null);
-              void load();
-            }}
-          />
+          <StripeFundForm clientSecret={funding.clientSecret} onDone={() => void afterFundingConfirmed()} />
         </div>
       )}
 
-      {canOpenNextRound && (
+      {wizardStatus && <p className="muted">{wizardStatus}</p>}
+
+      {!wizardStatus && canOpenNextRound && (
         <button onClick={openNextRound} disabled={busy}>
           Open round {rounds.length + 1}
         </button>

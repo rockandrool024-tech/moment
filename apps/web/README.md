@@ -22,14 +22,17 @@ Needs `apps/api` running (see its README) and `CORS_ORIGIN=http://localhost:3001
 | `/login` | Phone OTP request/verify, role pick on first login, honors `?returnTo=` |
 | `/challenges` | Public list; "New challenge" for sellers |
 | `/challenges/new` | Seller: create a challenge (draft) |
-| `/challenges/[id]` | Brief, prize breakdown (incl. survivor-bonus/crowd-favourite preview), KYB gate, Stripe Elements funding, rounds list, open-next-round, post-resolution ratings + brand trust stats |
+| `/challenges/[id]` | Brief, prize breakdown (incl. survivor-bonus/crowd-favourite preview), KYB gate, Stripe Elements funding (auto-opens round 1 once the funding webhook confirms), rounds list, post-resolution ratings + brand trust stats, links to analytics/invite for the owning seller |
+| `/challenges/[id]/analytics` | Seller-only: submission funnel, votes per round, payouts by type |
+| `/challenges/[id]/invite` | Seller-only: invite a creator from the discovery feed, notifies them |
 | `/challenges/[id]/submit` | Creator: submit teaser/full-content + Mux video upload |
-| `/rounds/[id]` | Peer-vote deck (rounds 1-2) or public finalist voting (round 3); captures rally attribution on vote |
-| `/me` | Profile, rally link + stats, Stripe Connect payout onboarding |
+| `/rounds/[id]` | Peer-vote deck (rounds 1-2) or public finalist voting (round 3); seller can set a final pick before close; captures rally attribution on vote |
+| `/me` | Profile + avatar (regenerate), rally link + stats, voting streak, tier badge, Stripe Connect payout onboarding |
 | `/wallet` | Payout history, lifetime earnings, pending vs. paid |
+| `/discovery` | Public no-login: top creators / active brands tabs |
 | `/v/[code]` | Rally-link redirect to whatever battle that creator currently has live |
 | `/battle/[challengeId]` | Public, no-login SSR spectator page + Open Graph share image |
-| `/results/[submissionId]` | Public share-card page (advanced/knockout/winner tones) + OG image; shows a live vote count and "Vote for me" CTA while public voting is still open |
+| `/results/[submissionId]` | Public share-card page (advanced/knockout/winner tones) + avatar + OG image; shows a live vote count and "Vote for me" CTA while public voting is still open |
 
 ## Known rough edges (functional, not polished)
 

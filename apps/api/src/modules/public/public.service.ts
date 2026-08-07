@@ -44,6 +44,38 @@ export interface DiscoveryBrand {
   isColdStart: boolean;
 }
 
+export interface MapPin {
+  id: string;
+  kind: "creator" | "challenge";
+  displayName: string | null;
+  referralCode: string | null;
+  tier: number;
+  // 0-100, deterministic from id — a stylized layout, never a real
+  // coordinate. MOMENT has no GPS/geocoding (TODO.md's Sprint 2 note); this
+  // is presence-as-decoration, not a location claim, so it never gets
+  // labelled with a real place name.
+  x: number;
+  y: number;
+  heightScale: number; // 0.4-1.4, building/pin height driven by activity signal
+  meta: string; // short caption: win count or prize pool, already public elsewhere
+}
+
+export interface MapNearbyResponse {
+  pins: MapPin[];
+}
+
+// Deterministic 0-1 float from a string — same "seed, don't fake" posture as
+// avatar-generator.ts's identicon. No crypto needed, this only ever drives
+// decorative layout, never anything security- or money-sensitive.
+function seededUnitFloat(seed: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return ((hash >>> 0) % 10_000) / 10_000;
+}
+
 @Injectable()
 export class PublicService {
   constructor(
@@ -183,6 +215,48 @@ export class PublicService {
         })
         .sort((a, b) => b.activePrizePoolCents - a.activePrizePoolCents)
         .slice(0, DISCOVERY_LIMIT);
+    });
+  }
+
+  /**
+   * Zenly-style presence map (Sprint 2, TODO.md) — top creators and active
+   * challenges laid out on a stylized grid. Positions are a hash of each
+   * entity's id, not a real coordinate: there's no GPS/geocoding behind
+   * this (same "stub honestly, don't fake" call as the rest of the app),
+   * so the response never claims a real place, only relative activity.
+   */
+  async getMapNearby(): Promise<MapNearbyResponse> {
+    return this.cache.getOrSet("public:map:nearby", DISCOVERY_CACHE_TTL_SECONDS, async () => {
+      const [creators, brands] = await Promise.all([
+        this.getDiscoveryCreators(),
+        this.getDiscoveryBrands(),
+      ]);
+
+      const creatorPins: MapPin[] = creators.slice(0, 12).map((c) => ({
+        id: c.id,
+        kind: "creator",
+        displayName: c.displayName,
+        referralCode: c.referralCode,
+        tier: c.tier,
+        x: 8 + seededUnitFloat(`${c.id}:x`) * 84,
+        y: 12 + seededUnitFloat(`${c.id}:y`) * 68,
+        heightScale: 0.5 + (c.tier / 3) * 0.6 + seededUnitFloat(`${c.id}:h`) * 0.2,
+        meta: c.wins === 1 ? "1 win" : `${c.wins} wins`,
+      }));
+
+      const challengePins: MapPin[] = brands.slice(0, 8).map((b) => ({
+        id: b.id,
+        kind: "challenge",
+        displayName: b.displayName,
+        referralCode: null,
+        tier: 0,
+        x: 8 + seededUnitFloat(`${b.id}:x`) * 84,
+        y: 12 + seededUnitFloat(`${b.id}:y`) * 68,
+        heightScale: Math.min(1.4, 0.5 + b.activePrizePoolCents / 500_000),
+        meta: `${b.activeChallengeCount} live`,
+      }));
+
+      return { pins: [...creatorPins, ...challengePins] };
     });
   }
 }

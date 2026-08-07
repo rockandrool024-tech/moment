@@ -39,7 +39,7 @@ function ConfirmForm({ onDone }: { onDone: () => void }) {
     <form onSubmit={onSubmit}>
       <PaymentElement />
       {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={!stripe || busy} style={{ marginTop: "0.75rem" }}>
+      <button type="submit" className="btn-block" disabled={!stripe || busy} style={{ marginTop: "0.75rem" }}>
         Confirm escrow funding
       </button>
     </form>

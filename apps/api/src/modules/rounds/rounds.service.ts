@@ -8,6 +8,7 @@ import {
 import { Prisma, ChallengeStatus, Round, RoundType } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreateRoundDto } from "./dto/create-round.dto";
+import { SetFinalPickDto } from "./dto/set-final-pick.dto";
 import { RoundStateMachineService } from "./round-state-machine.service";
 
 const EXPECTED_CHALLENGE_STATUS_BY_ROUND: Record<number, ChallengeStatus> = {
@@ -123,6 +124,45 @@ export class RoundsService {
       advanceCount: ADVANCE_COUNT_FOR_ROUND[roundNumber],
       opensAt,
       closesAt,
+    });
+  }
+
+  /**
+   * Seller override for the round-3 winner (Sprint 3). Must land before the
+   * round closes: tallyPublicFinal runs synchronously inside closeRound()
+   * for public_vote_final (no participation gate to wait behind), so
+   * 'open' is the only status this can ever apply to — same deadline the
+   * vote itself is subject to, not a separate one.
+   */
+  async setFinalPick(roundId: string, sellerId: string, dto: SetFinalPickDto): Promise<Round> {
+    const round = await this.prisma.round.findUnique({
+      where: { id: roundId },
+      include: { challenge: true },
+    });
+    if (!round) throw new NotFoundException("Round not found");
+    if (round.challenge.sellerId !== sellerId) {
+      throw new ForbiddenException("Only the owning seller can set the final pick");
+    }
+    if (round.type !== "public_vote_final") {
+      throw new BadRequestException("Final pick only applies to the round-3 public vote");
+    }
+    if (round.status !== "open") {
+      throw new ConflictException(`Round is ${round.status}; too late to set the final pick`);
+    }
+
+    // Round-3 finalists carry status "advanced" — round 2's tally set that
+    // when they cleared peer_vote_narrow, and round 3 never creates a new
+    // submission row (see tallyPublicFinal's matching query).
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: dto.submissionId },
+    });
+    if (!submission || submission.challengeId !== round.challengeId || submission.status !== "advanced") {
+      throw new BadRequestException("submissionId must be a live finalist in this round");
+    }
+
+    return this.prisma.round.update({
+      where: { id: roundId },
+      data: { finalPickSubmissionId: dto.submissionId },
     });
   }
 
