@@ -19,6 +19,15 @@ export class RoundsController {
     return this.rounds.create(challengeId, user.id, dto);
   }
 
+  @Post("challenges/:challengeId/rounds/auto")
+  @UseGuards(JwtAuthGuard)
+  createNext(
+    @Param("challengeId", ParseUUIDPipe) challengeId: string,
+    @CurrentUser() user: User,
+  ): Promise<Round> {
+    return this.rounds.createNext(challengeId, user.id);
+  }
+
   @Get("challenges/:challengeId/rounds")
   findByChallenge(@Param("challengeId", ParseUUIDPipe) challengeId: string): Promise<Round[]> {
     return this.rounds.findByChallenge(challengeId);

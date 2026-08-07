@@ -15,6 +15,7 @@ import { RoundsModule } from "./modules/rounds/rounds.module";
 import { VotingModule } from "./modules/voting/voting.module";
 import { NotificationsModule } from "./modules/notifications/notifications.module";
 import { PublicModule } from "./modules/public/public.module";
+import { TrustModule } from "./modules/trust/trust.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PublicModule } from "./modules/public/public.module";
     VotingModule,
     NotificationsModule,
     PublicModule,
+    TrustModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: HttpExceptionFilter }],
 })

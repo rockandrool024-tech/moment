@@ -13,7 +13,14 @@ export interface User {
   stripeConnectAccountId: string | null;
   tier: number;
   tasteScore: number;
+  rallyXp: number;
   referralCode: string;
+  kybVerified: boolean;
+  kybRequestedAt: string | null;
+  lifetimeEarnings: number;
+  lastVoteDate: string | null;
+  streakCount: number;
+  streakPausedReason: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,6 +116,7 @@ export interface FundingResult {
 export interface SubmissionWithOutcome extends Submission {
   isWinner: boolean;
   challenge: { title: string; prizePool: number };
+  creatorReferralCode: string;
 }
 
 export interface RallyStats {
@@ -136,4 +144,42 @@ export interface PublicTally {
   roundId: string;
   visible: boolean;
   tallies: { submissionId: string; votes: number }[];
+}
+
+// ── Wallet / trust (sprint 1) ────────────────────────────────────────────
+
+export interface WalletPayoutRow {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  challengeName: string;
+  createdAt: string;
+  paidAt: string | null;
+}
+
+export interface WalletSummary {
+  currentBalanceCents: number;
+  lifetimeEarningsCents: number;
+  pendingPayoutsCents: number;
+  payoutHistory: WalletPayoutRow[];
+}
+
+// ADR-004's two distinct stat blocks — a `both`-role user can have both.
+export interface TrustStats {
+  creator: {
+    wins: number;
+    finalsRate: number;
+    brandScore: number | null;
+    brandScoreCount: number;
+  } | null;
+  brand: {
+    campaignsRun: number;
+    totalPaidOutCents: number;
+    onTimePayoutRate: number | null;
+    creatorScore: number | null;
+    creatorScoreCount: number;
+    isColdStart: boolean;
+    escrowedCents: number;
+  } | null;
 }

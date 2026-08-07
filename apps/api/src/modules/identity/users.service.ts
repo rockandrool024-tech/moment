@@ -30,4 +30,11 @@ export class UsersService {
       data: { phone, role, phoneVerifiedAt: new Date() },
     });
   }
+
+  requestKyb(userId: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { kybRequestedAt: new Date() },
+    });
+  }
 }

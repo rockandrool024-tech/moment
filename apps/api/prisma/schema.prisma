@@ -30,6 +30,26 @@ model User {
   tasteScore             Float     @default(0) @map("taste_score")
   rallyXp                Int       @default(0) @map("rally_xp") // growth-viral-mechanics.md §2: XP for votes via this creator's rally link
   referralCode           String    @unique @default(cuid()) @map("referral_code")
+
+  // Sprint 1: seller verification gate (admin-reviewed flag, not a real
+  // KYC/document-verification integration — see apps/api/README.md).
+  // kybRequestedAt turns the admin queue into "who's actually asking," not
+  // every unverified user in the table — cleared back to null on approval.
+  kybVerified    Boolean   @default(false) @map("kyb_verified")
+  kybRequestedAt DateTime? @map("kyb_requested_at")
+
+  // Sprint 1: lifetime earnings drives computeTier() (rounds/scoring.ts-style
+  // pure function) — kept denormalized here rather than summed from Payout
+  // on every read, same rationale as compositeScore on Submission.
+  lifetimeEarnings Int @default(0) @map("lifetime_earnings")
+
+  // Sprint 2: voting streaks. Paused (not broken) when no eligible deck/round
+  // exists that day (ADR-005 §5) — streakPausedReason distinguishes "paused
+  // by platform supply failure" from simply never having voted.
+  lastVoteDate       DateTime? @map("last_vote_date")
+  streakCount        Int       @default(0) @map("streak_count")
+  streakPausedReason String?   @map("streak_paused_reason")
+
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -44,6 +64,11 @@ model User {
   ratingsReceived     Rating[]           @relation("RatingsReceived")
   rallyAttributionsAsVoter   RallyAttribution[] @relation("RallyVoter")
   rallyAttributionsAsCreator RallyAttribution[] @relation("RallyCreator")
+  disputesRaised      Dispute[]
+  referralsAsReferrer ReferralReward[]   @relation("Referrer")
+  referralAsReferee   ReferralReward?    @relation("Referee")
+  slotBookings        SlotBooking[]
+  notifications       Notification[]
 
   @@map("users")
 }
@@ -72,6 +97,12 @@ model Challenge {
   takeRateBps       Int             @default(2000) @map("take_rate_bps") // 2000 = 20.00%
   status            ChallengeStatus @default(draft)
   stripePaymentIntentId String?     @map("stripe_payment_intent_id")
+
+  // Sprint 4: in-person campaigns (QR-code check-in, not GPS geofencing —
+  // see apps/api/README.md for why).
+  isInPerson      Boolean @default(false) @map("is_in_person")
+  locationAddress String? @map("location_address")
+
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   resolvedAt        DateTime?       @map("resolved_at")
@@ -81,6 +112,8 @@ model Challenge {
   payouts            Payout[]
   ratings            Rating[]
   rallyAttributions  RallyAttribution[]
+  disputes           Dispute[]
+  slots              Slot[]
 
   @@index([sellerId])
   @@index([status])
@@ -118,6 +151,7 @@ model Submission {
   peerVotesReceived PeerVote[] @relation("SubmissionVotedFor")
   votesReceived     Vote[]
   predictions       Prediction[]
+  disputes          Dispute[]
 
   @@index([challengeId, phase])
   @@index([creatorId])
@@ -227,6 +261,7 @@ model Vote {
 
   @@unique([roundId, voterId])
   @@index([submissionId, pool])
+  @@index([createdAt])
   @@map("votes")
 }
 
@@ -273,6 +308,7 @@ enum PayoutType {
   stipend
   survivor_bonus
   crowd_favourite
+  referral_bonus
 }
 
 enum PayoutStatus {
@@ -298,6 +334,7 @@ model Payout {
 
   @@index([challengeId])
   @@index([userId])
+  @@index([createdAt])
   @@map("payouts")
 }
 
@@ -323,6 +360,132 @@ model Rating {
 
   @@unique([challengeId, raterId, rateeId])
   @@map("ratings")
+}
+
+// ── Disputes ─────────────────────────────────────────────────────────────
+
+enum DisputeStatus {
+  open
+  upheld
+  denied
+}
+
+// A creator appeals an elimination (production-app-scope.md §Admin and
+// moderation). Anchored on the submission being appealed, not just the
+// challenge, so admin resolution has something concrete to act on.
+model Dispute {
+  id           String        @id @default(uuid())
+  submissionId String        @map("submission_id")
+  submission   Submission    @relation(fields: [submissionId], references: [id])
+  challengeId  String        @map("challenge_id")
+  challenge    Challenge     @relation(fields: [challengeId], references: [id])
+  raisedById   String        @map("raised_by_id")
+  raisedBy     User          @relation(fields: [raisedById], references: [id])
+  reason       String
+  status       DisputeStatus @default(open)
+  resolution   String?
+  resolvedById String?       @map("resolved_by_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  resolvedAt   DateTime?     @map("resolved_at")
+
+  @@index([status])
+  @@map("disputes")
+}
+
+// ── Referrals (growth loop 3) ────────────────────────────────────────────
+
+enum ReferralStatus {
+  pending
+  rewarded
+  expired
+}
+
+// One row per referred user (refereeId is unique — a user is referred at
+// most once, on their first-ever signup). Reward fires on the referee's
+// first *meaningful* action, never on signup alone (ADR-002: paying for
+// signups attracts bots).
+model ReferralReward {
+  id                String         @id @default(uuid())
+  referrerId        String         @map("referrer_id")
+  referrer          User           @relation("Referrer", fields: [referrerId], references: [id])
+  refereeId         String         @unique @map("referee_id")
+  referee           User           @relation("Referee", fields: [refereeId], references: [id])
+  attributedAt      DateTime       @default(now()) @map("attributed_at")
+  rewardedAt        DateTime?      @map("rewarded_at")
+  rewardAmountCents Int?           @map("reward_amount_cents")
+  status            ReferralStatus @default(pending)
+  triggeredBy       String?        @map("triggered_by") // "first_submission" | "first_vote"
+
+  @@index([referrerId])
+  @@map("referral_rewards")
+}
+
+// ── In-person campaigns ──────────────────────────────────────────────────
+
+model Slot {
+  id           String   @id @default(uuid())
+  challengeId  String   @map("challenge_id")
+  challenge    Challenge @relation(fields: [challengeId], references: [id])
+  startTime    DateTime @map("start_time")
+  endTime      DateTime @map("end_time")
+  capacity     Int
+  checkInCode  String   @unique @map("check_in_code") // short code the creator presents; QR-equivalent for web
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  bookings SlotBooking[]
+
+  @@index([challengeId])
+  @@map("slots")
+}
+
+enum SlotBookingStatus {
+  booked
+  checked_in
+  cancelled
+  no_show
+}
+
+model SlotBooking {
+  id          String            @id @default(uuid())
+  slotId      String            @map("slot_id")
+  slot        Slot              @relation(fields: [slotId], references: [id])
+  userId      String            @map("user_id")
+  user        User              @relation(fields: [userId], references: [id])
+  status      SlotBookingStatus @default(booked)
+  checkedInAt DateTime?         @map("checked_in_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  @@unique([slotId, userId])
+  @@map("slot_bookings")
+}
+
+// ── Notifications ────────────────────────────────────────────────────────
+
+enum NotificationType {
+  challenge_invite
+  payout
+  round_result
+  streak
+  mention
+  system
+}
+
+// Real in-app inbox (readAt drives "WHERE userId = ? AND readAt IS NULL") —
+// see notifications.processor.ts. No push/SMS/email delivery channel; that
+// needs real FCM/Twilio/SES credentials this project doesn't have.
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, readAt])
+  @@map("notifications")
 }
 
 // ── Infra ────────────────────────────────────────────────────────────────

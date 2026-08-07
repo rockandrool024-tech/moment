@@ -4,7 +4,8 @@ import { ConfigService } from "@nestjs/config";
 import { Queue } from "bullmq";
 import { Round } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
-import { PayoutsService } from "../payments/payouts.service";
+import { PayoutEntry, PayoutsService } from "../payments/payouts.service";
+import { computeFundingBreakdown } from "../payments/pricing";
 import { NotificationsService } from "../notifications/notifications.service";
 import {
   applyParticipationPenalty,
@@ -212,6 +213,38 @@ export class RoundStateMachineService {
         `Round ${round.id} force-tallied at reveal deadline — some creators were under the ${gateThreshold}-vote gate`,
       );
     }
+
+    // Round-2 survivors (ADR-005 §3): eliminated *here*, in peer_vote_narrow,
+    // means they made it through round 1 (earned the right to shoot full
+    // content) but didn't reach the round-3 final — the specific group the
+    // survivor bonus exists to retain. Round-1 eliminations get nothing here,
+    // matching README's "13 of 32 paid" math (round-1 cuts aren't survivors).
+    if (round.type === "peer_vote_narrow" && eliminatedSubmissionIds.length > 0) {
+      const challenge = await this.prisma.challenge.findUniqueOrThrow({
+        where: { id: round.challengeId },
+      });
+      const breakdown = computeFundingBreakdown(
+        challenge.prizePool,
+        challenge.takeRateBps,
+        challenge.stipendPool,
+      );
+      const bonusEach = Math.floor(breakdown.survivorBonusPool / eliminatedSubmissionIds.length);
+
+      if (bonusEach > 0) {
+        const eliminated = await this.prisma.submission.findMany({
+          where: { id: { in: eliminatedSubmissionIds } },
+        });
+        await this.payouts.batchCreateAndTransfer(
+          round.challengeId,
+          eliminated.map((s) => ({
+            userId: s.creatorId,
+            type: "survivor_bonus" as const,
+            amount: bonusEach,
+          })),
+          new Date(),
+        );
+      }
+    }
   }
 
   private async tallyPublicFinal(round: Round): Promise<void> {
@@ -251,23 +284,46 @@ export class RoundStateMachineService {
 
     if (winner) {
       const stipendEach = Math.floor(challenge.stipendPool / finalists.length);
+      const breakdown = computeFundingBreakdown(
+        challenge.prizePool,
+        challenge.takeRateBps,
+        challenge.stipendPool,
+      );
 
       // Every finalist gets a stipend; the winner additionally gets the
       // pool (README economics table — the winner is one of the four
       // stipend recipients, not paid outside that group).
-      const entries = finalists.flatMap((f) => {
+      const entries: PayoutEntry[] = finalists.flatMap((f) => {
         const stipend = { userId: f.creatorId, type: "stipend" as const, amount: stipendEach };
         return f.id === winner.id
           ? [stipend, { userId: f.creatorId, type: "winner" as const, amount: challenge.prizePool }]
           : [stipend];
       });
 
+      // Crowd favourite (ADR-005 §1/§3): the non-winning finalist with the
+      // most rally-pool votes — platform-funded, never the prize. Two
+      // winners per campaign, two share moments.
+      const rallyTallies = await this.prisma.vote.groupBy({
+        by: ["submissionId"],
+        where: { roundId: round.id, pool: "rally" },
+        _count: { _all: true },
+      });
+      const rallyVotesBySubmission = new Map(rallyTallies.map((t) => [t.submissionId, t._count._all]));
+      const crowdFavourite = finalists
+        .filter((f) => f.id !== winner.id)
+        .filter((f) => (rallyVotesBySubmission.get(f.id) ?? 0) > 0)
+        .sort((a, b) => (rallyVotesBySubmission.get(b.id) ?? 0) - (rallyVotesBySubmission.get(a.id) ?? 0))[0];
+
+      if (crowdFavourite) {
+        entries.push({
+          userId: crowdFavourite.creatorId,
+          type: "crowd_favourite",
+          amount: breakdown.crowdFavourite,
+        });
+      }
+
       await this.payouts.batchCreateAndTransfer(round.challengeId, entries, new Date());
     }
-
-    // Crowd favourite and round-2 survivor bonus (ADR-005) are Phase 3
-    // scope — the Payout.type values exist in the schema but aren't
-    // triggered from this tally yet; see production-app-scope.md.
 
     await this.prisma.challenge.update({
       where: { id: round.challengeId },

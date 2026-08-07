@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { UserRole } from "@/lib/types";
 
 type Step = "phone" | "code";
 
+// useSearchParams() opts the tree into client-side rendering and requires a
+// Suspense boundary above it during static export (Next.js's own rule) —
+// this wrapper is that boundary; LoginForm below has the actual logic.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<p className="muted">Loading…</p>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
@@ -17,6 +28,8 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const { loginWithToken } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo") || "/challenges";
 
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -43,7 +56,7 @@ export default function LoginPage() {
         role,
       });
       await loginWithToken(accessToken);
-      router.push("/challenges");
+      router.push(returnTo);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {

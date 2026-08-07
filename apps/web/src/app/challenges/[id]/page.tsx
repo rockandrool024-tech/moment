@@ -4,16 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
-import { Challenge, FundingResult, Round, RoundType } from "@/lib/types";
+import { Challenge, FundingResult, Round, Submission } from "@/lib/types";
 import { formatCents } from "@/lib/format";
+import { previewCrowdFavourite, previewSurvivorBonusPool } from "@/lib/pricing-preview";
 import { useAuth } from "@/lib/auth-context";
 import { StripeFundForm } from "@/components/StripeFundForm";
+import { RatingForm } from "@/components/RatingForm";
+import { TrustStatsMini } from "@/components/TrustStatsMini";
 
-const NEXT_ROUND_TYPE: Record<number, RoundType> = {
-  1: "peer_vote_teaser",
-  2: "peer_vote_narrow",
-  3: "public_vote_final",
-};
+interface RatingRow {
+  rateeId: string;
+}
 
 export default function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,8 @@ export default function ChallengeDetailPage() {
   const [funding, setFunding] = useState<FundingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [finalists, setFinalists] = useState<Submission[]>([]);
+  const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     const [c, r] = await Promise.all([
@@ -31,13 +34,22 @@ export default function ChallengeDetailPage() {
     ]);
     setChallenge(c);
     setRounds(r);
-  }, [id]);
+    if (c.status === "resolved") {
+      const [subs, mine] = await Promise.all([
+        api.get<Submission[]>(`/submissions?challengeId=${id}&phase=full_content`),
+        user ? api.get<RatingRow[]>(`/challenges/${id}/ratings/mine`) : Promise.resolve([]),
+      ]);
+      setFinalists(subs.filter((s) => s.status === "advanced"));
+      setRatedIds(new Set(mine.map((r) => r.rateeId)));
+    }
+  }, [id, user]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   const isOwner = user && challenge && user.id === challenge.sellerId;
+  const needsKyb = isOwner && !user?.kybVerified;
 
   async function fund() {
     setError(null);
@@ -52,20 +64,27 @@ export default function ChallengeDetailPage() {
     }
   }
 
-  async function createNextRound() {
+  async function requestKyb() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.post("/users/me/request-kyb");
+      setError(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openNextRound() {
     setError(null);
     setBusy(true);
     try {
-      const roundNumber = rounds.length + 1;
-      const opensAt = new Date();
-      const closesAt = new Date(opensAt.getTime() + 24 * 60 * 60 * 1000); // 24h round, adjust as needed
-      await api.post(`/challenges/${id}/rounds`, {
-        roundNumber,
-        type: NEXT_ROUND_TYPE[roundNumber],
-        advanceCount: roundNumber === 3 ? rounds.length : Math.max(2, 4 - roundNumber),
-        opensAt: opensAt.toISOString(),
-        closesAt: closesAt.toISOString(),
-      });
+      // Server derives round number/type/advanceCount/scheduling — see
+      // rounds.service.ts's createNext. The frontend just asks for "the next
+      // round" and surfaces whatever conflict message comes back.
+      await api.post(`/challenges/${id}/rounds/auto`);
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -76,6 +95,9 @@ export default function ChallengeDetailPage() {
 
   if (!challenge) return <p className="muted">Loading…</p>;
 
+  // Client-side affordance only (not authoritative) — the /rounds/auto
+  // endpoint is the real source of truth and will reject with a clear
+  // message if this guess is wrong (e.g. previous round not revealed yet).
   const canOpenNextRound =
     isOwner &&
     rounds.length < 3 &&
@@ -92,6 +114,11 @@ export default function ChallengeDetailPage() {
         <h2 style={{ marginTop: 0 }}>Prize breakdown</h2>
         <p>Pool: {formatCents(challenge.prizePool)}</p>
         <p>Stipend pool: {formatCents(challenge.stipendPool)}</p>
+        <p className="muted">
+          Round-2 survivor bonus pool: {formatCents(previewSurvivorBonusPool(challenge.prizePool))}
+          {" · "}
+          Crowd favourite: {formatCents(previewCrowdFavourite(challenge.prizePool))}
+        </p>
         <p className="muted">Take rate: {(challenge.takeRateBps / 100).toFixed(1)}%</p>
       </div>
 
@@ -101,7 +128,18 @@ export default function ChallengeDetailPage() {
         </Link>
       )}
 
-      {isOwner && challenge.status === "draft" && !funding && (
+      {needsKyb && challenge.status === "draft" && (
+        <div className="card" style={{ borderColor: "#e8b93f" }}>
+          <p style={{ margin: 0 }}>
+            🔒 KYB verification required to fund challenges.{" "}
+            <button className="secondary" onClick={requestKyb} disabled={busy}>
+              Request verification
+            </button>
+          </p>
+        </div>
+      )}
+
+      {isOwner && !needsKyb && challenge.status === "draft" && !funding && (
         <button onClick={fund} disabled={busy}>
           Fund escrow
         </button>
@@ -128,12 +166,41 @@ export default function ChallengeDetailPage() {
       )}
 
       {canOpenNextRound && (
-        <button onClick={createNextRound} disabled={busy}>
+        <button onClick={openNextRound} disabled={busy}>
           Open round {rounds.length + 1}
         </button>
       )}
 
       {error && <p className="error">{error}</p>}
+
+      {challenge.status === "resolved" && user && (
+        <div>
+          <h2>Rate</h2>
+          {isOwner &&
+            finalists.map((f) => (
+              <RatingForm
+                key={f.id}
+                challengeId={challenge.id}
+                rateeId={f.creatorId}
+                label={`creator (entry ${f.id.slice(0, 8)})`}
+                alreadyRated={ratedIds.has(f.creatorId)}
+              />
+            ))}
+          {!isOwner && (
+            <RatingForm
+              challengeId={challenge.id}
+              rateeId={challenge.sellerId}
+              label="the brand"
+              alreadyRated={ratedIds.has(challenge.sellerId)}
+            />
+          )}
+
+          <div className="card">
+            <h3 style={{ marginTop: 0 }}>Brand trust stats</h3>
+            <TrustStatsMini userId={challenge.sellerId} />
+          </div>
+        </div>
+      )}
 
       <h2>Rounds</h2>
       {rounds.length === 0 && <p className="muted">No rounds opened yet.</p>}

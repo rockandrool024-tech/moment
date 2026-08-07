@@ -68,7 +68,7 @@ export default async function BattlePage({
           )}
 
           <p style={{ marginTop: "1rem" }}>
-            <Link href="/login" className="btn">
+            <Link href={`/login?returnTo=/rounds/${summary.currentRound.id}`} className="btn">
               Log in to vote
             </Link>
           </p>

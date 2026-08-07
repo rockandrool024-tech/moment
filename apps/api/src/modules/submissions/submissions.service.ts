@@ -75,11 +75,18 @@ export class SubmissionsService {
    * finalists (see round-state-machine.service.ts's tallyPublicFinal).
    */
   async findByIdWithOutcome(submissionId: string): Promise<
-    Submission & { isWinner: boolean; challenge: { title: string; prizePool: number } }
+    Submission & {
+      isWinner: boolean;
+      challenge: { title: string; prizePool: number };
+      creatorReferralCode: string;
+    }
   > {
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
-      include: { challenge: { select: { title: true, prizePool: true } } },
+      include: {
+        challenge: { select: { title: true, prizePool: true } },
+        creator: { select: { referralCode: true } },
+      },
     });
     if (!submission) throw new NotFoundException("Submission not found");
 
@@ -87,6 +94,7 @@ export class SubmissionsService {
       where: { challengeId: submission.challengeId, userId: submission.creatorId, type: "winner" },
     });
 
-    return { ...submission, isWinner: !!winnerPayout };
+    const { creator, ...rest } = submission;
+    return { ...rest, isWinner: !!winnerPayout, creatorReferralCode: creator.referralCode };
   }
 }

@@ -25,6 +25,11 @@ export class FundingService {
       throw new BadRequestException(`Challenge is already ${challenge.status}`);
     }
 
+    const seller = await this.prisma.user.findUniqueOrThrow({ where: { id: sellerId } });
+    if (!seller.kybVerified) {
+      throw new ForbiddenException("KYB verification required to fund challenges");
+    }
+
     const breakdown = computeFundingBreakdown(
       challenge.prizePool,
       challenge.takeRateBps,
