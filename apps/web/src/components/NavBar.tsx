@@ -48,7 +48,7 @@ export function NavBar() {
 
   return (
     <nav className="nav">
-      <Link href="/challenges">PEROKIO</Link>
+      <Link href="/challenges" className="wordmark">PEROKIO</Link>
       <NavLink href="/challenges" active={isActive("/challenges")}>
         <PlayIcon width={16} height={16} aria-hidden />
         Challenges

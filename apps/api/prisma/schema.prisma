@@ -66,6 +66,12 @@ model User {
   // ExternalPost — its views/likes are display-only, never read here).
   perokioScore Float? @map("perokio_score")
 
+  // Manual, user-entered — "Brooklyn, NY", never real GPS/lat-lng. The map's
+  // pin positions stay stylized (see public.service.ts's getMapNearby);
+  // this only powers a text filter on discovery. See TODO.md for why real
+  // geolocation is deliberately out of scope.
+  location String?
+
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -87,6 +93,7 @@ model User {
   notifications       Notification[]
   storiesCreated      Story[]            @relation("StorySeller")
   storyClaims         StoryClaim[]
+  pushSubscriptions   PushSubscription[]
 
   @@map("users")
 }
@@ -506,8 +513,10 @@ enum NotificationType {
 }
 
 // Real in-app inbox (readAt drives "WHERE userId = ? AND readAt IS NULL") —
-// see notifications.processor.ts. No push/SMS/email delivery channel; that
-// needs real FCM/Twilio/SES credentials this project doesn't have.
+// see notifications.processor.ts, which also pushes to PushSubscription
+// rows below (real Web Push, VAPID-based — no FCM/Twilio/SES account
+// needed). SMS/email delivery still isn't wired up; that would need real
+// Twilio/SES credentials this project doesn't have.
 model Notification {
   id        String           @id @default(uuid())
   userId    String           @map("user_id")
@@ -521,6 +530,23 @@ model Notification {
 
   @@index([userId, readAt])
   @@map("notifications")
+}
+
+// One row per subscribed browser/device (a user can have several). Web
+// Push, not native FCM/APNs — see PushService. Deleted automatically when
+// the browser reports the subscription as expired (410 Gone).
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?  @map("user_agent") // e.g. "Mozilla/5.0 (...)" — helps debug duplicate/stale subs
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }
 
 // ── Stories (Perokio) ────────────────────────────────────────────────────

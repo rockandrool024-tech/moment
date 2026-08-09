@@ -7,6 +7,7 @@ import { DiscoveryBrand, DiscoveryCreator } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { Avatar } from "@/components/Avatar";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { PinIcon } from "@/components/icons";
 
 type Tab = "creators" | "brands";
@@ -31,13 +32,17 @@ export default function DiscoveryPage() {
   return (
     <div>
       <h1>Discover</h1>
-      <div className="nav" style={{ border: "none", padding: 0, marginBottom: "1rem" }}>
-        <button className={tab === "creators" ? "" : "secondary"} onClick={() => setTab("creators")}>
-          Top creators
-        </button>
-        <button className={tab === "brands" ? "" : "secondary"} onClick={() => setTab("brands")}>
-          Active brands
-        </button>
+      <div style={{ marginBottom: "1rem" }}>
+        <SegmentedControl
+          name="discovery-tab"
+          aria-label="Discover"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: "creators", label: "Top creators" },
+            { value: "brands", label: "Active brands" },
+          ]}
+        />
       </div>
 
       {tab === "creators" && (

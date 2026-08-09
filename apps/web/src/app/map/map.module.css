@@ -1,12 +1,16 @@
-/* Scoped to this screen only — the rest of the app stays on the light,
-   bare-bones palette (globals.css). This is a self-contained dark surface,
-   not a site-wide theme change. */
+/* Scoped to this screen structurally (its own dark "scene" layout), but
+   colors now reference the shared tokens from globals.css rather than
+   keeping a second hardcoded copy — CSS custom properties cascade through
+   CSS Modules fine, only class names get scoped. Duplicating hex values
+   here is exactly what caused the sheet background to get missed during
+   the last brand-palette swap (docs/perokio/tokens.css still had it as
+   the old color while every other value here got updated by hand). */
 
 .page {
   margin: -1.5rem -1rem -4rem;
   padding: 0;
-  background: #0c0f0a;
-  color: #eef0e8;
+  background: var(--bg);
+  color: var(--fg);
   min-height: calc(100vh - 57px);
 }
 
@@ -28,7 +32,7 @@
 .caption {
   margin: 0;
   font-size: 0.72rem;
-  color: #8a9280;
+  color: var(--text-muted);
   max-width: 30ch;
 }
 .compass {
@@ -40,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #eef0e8;
+  color: var(--fg);
   flex-shrink: 0;
   transition: transform 0.4s ease;
 }
@@ -58,11 +62,11 @@
 /* Mapbox's own controls (zoom, attribution) — restyled to match the dark
    chrome instead of Mapbox's default light control skin. */
 .mapContainer :global(.mapboxgl-ctrl-attrib) {
-  background: rgba(12, 15, 10, 0.7);
-  color: #9aa08f;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--muted);
 }
 .mapContainer :global(.mapboxgl-ctrl-attrib a) {
-  color: #d7dccb;
+  color: var(--fg);
 }
 
 .mapFallback {
@@ -73,7 +77,7 @@
   justify-content: center;
   text-align: center;
   padding: 2rem;
-  color: #9aa08f;
+  color: var(--muted);
   font-size: 0.85rem;
 }
 
@@ -82,7 +86,7 @@
   z-index: 3;
   text-align: center;
   margin-top: 2rem;
-  color: #8a9280;
+  color: var(--text-muted);
 }
 
 /* Markers are plain DOM elements handed to mapboxgl.Marker, so they're
@@ -117,7 +121,7 @@
   position: absolute;
   inset: -5px;
   border-radius: 50%;
-  border: 1.5px solid var(--pin-color, #3fcf8e);
+  border: 1.5px solid var(--pin-color, var(--accent));
   opacity: 0.55;
   animation: pulse 2.6s ease-out infinite;
 }
@@ -125,20 +129,20 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--pin-color, #3fcf8e);
-  color: #0c0f0a;
+  background: var(--pin-color, var(--accent));
+  color: var(--accent-fg);
   font-size: 0.62rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #0c0f0a;
+  border: 2px solid var(--bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 .pinLabel {
   font-size: 0.62rem;
-  color: #d7dccb;
-  background: rgba(12, 15, 10, 0.72);
+  color: var(--fg);
+  background: rgba(0, 0, 0, 0.72);
   padding: 0.08rem 0.4rem;
   border-radius: 6px;
   white-space: nowrap;
@@ -163,7 +167,7 @@
   flex-wrap: wrap;
   padding: 0 1.1rem 0.9rem;
   font-size: 0.68rem;
-  color: #9aa08f;
+  color: var(--muted);
 }
 .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .legendDot { width: 7px; height: 7px; border-radius: 50%; }
@@ -175,7 +179,7 @@
   bottom: 0.75rem;
   max-width: 480px;
   margin: 0 auto;
-  background: #171a12;
+  background: var(--card-bg);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 1.1rem 1.2rem 1.3rem;
@@ -190,19 +194,19 @@
 .sheetHead { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.4rem; }
 .sheetAvatar {
   width: 42px; height: 42px; border-radius: 50%;
-  background: var(--pin-color, #3fcf8e);
-  color: #0c0f0a;
+  background: var(--pin-color, var(--accent));
+  color: var(--accent-fg);
   display: flex; align-items: center; justify-content: center;
   font-weight: 800; font-size: 0.8rem;
   flex-shrink: 0;
 }
 .sheetName { font-weight: 700; font-size: 0.98rem; margin: 0; }
-.sheetMeta { font-size: 0.78rem; color: #9aa08f; margin: 0.15rem 0 0; }
+.sheetMeta { font-size: 0.78rem; color: var(--muted); margin: 0.15rem 0 0; }
 .sheetClose {
   margin-left: auto;
   background: rgba(255, 255, 255, 0.08);
   border: none;
-  color: #eef0e8;
+  color: var(--fg);
   width: 28px; height: 28px;
   border-radius: 50%;
   cursor: pointer;
@@ -213,8 +217,8 @@
   display: block;
   text-align: center;
   margin-top: 0.9rem;
-  background: #3fcf8e;
-  color: #0c0f0a;
+  background: var(--accent-gradient);
+  color: var(--accent-fg);
   font-weight: 700;
   padding: 0.65rem;
   border-radius: 9px;
@@ -230,7 +234,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom));
-  background: linear-gradient(0deg, #0c0f0a 55%, transparent);
+  background: linear-gradient(0deg, var(--bg) 55%, transparent);
 }
 .navPill {
   display: flex;
@@ -240,13 +244,13 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #d7dccb;
+  color: var(--fg);
   text-decoration: none;
   font-size: 0.82rem;
 }
 .navPillActive {
-  background: #3fcf8e;
-  color: #0c0f0a;
-  border-color: #3fcf8e;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
   font-weight: 700;
 }

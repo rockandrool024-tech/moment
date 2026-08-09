@@ -1,0 +1,57 @@
+/* Radio+label segmented control — native keyboard/focus behavior, not a
+   JS-driven fake. Ported from docs/perokio/component-library.html's
+   .cir-tabs (itself adapted from a Uiverse component). Active segment
+   inverts to a plain filled chip rather than the brand accent, on
+   purpose — the accent stays reserved for actual CTAs/prize moments, not
+   "which tab is on" state. */
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 220ms ease, color 220ms ease, box-shadow 220ms ease;
+}
+.tab:hover {
+  color: var(--fg);
+}
+/* The active chip's background/color/shadow is applied inline from React
+   state instead (see SegmentedControl.tsx) — kept as a class-based rule
+   here too as a no-JS/progressive-enhancement fallback, since a plain
+   :checked radio still gets this via native browser behavior even without
+   React mounted. */
+.radio:checked + .tab {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 18px -10px rgba(0, 0, 0, 0.5);
+}
+.radio:focus-visible + .tab {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-active) 35%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}

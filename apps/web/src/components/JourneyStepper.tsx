@@ -1,32 +1,33 @@
 import { JourneyMilestone } from "@/lib/types";
 import { VoteCheckIcon } from "@/components/icons";
+import styles from "./JourneyStepper.module.css";
 
 // Grounded entirely in data that already exists (submissions, votes,
-// payouts, tier) — see apps/api/src/modules/identity/journey.ts.
+// payouts, tier) — see apps/api/src/modules/identity/journey.ts. Three
+// visual states, not two: "current" (the first not-yet-achieved milestone,
+// by array order) reads as the next actionable step, distinct from the
+// ones still further out — a flat achieved/not-achieved list doesn't tell
+// a creator what to actually go do next.
 export function JourneyStepper({ milestones }: { milestones: JourneyMilestone[] }) {
+  const currentIndex = milestones.findIndex((m) => !m.achieved);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-      {milestones.map((m) => (
-        <div key={m.key} style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          {m.achieved ? (
-            <VoteCheckIcon width={18} height={18} style={{ color: "var(--accent)", flexShrink: 0 }} aria-hidden />
-          ) : (
-            <span
-              aria-hidden
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                border: "1.5px solid var(--border)",
-                flexShrink: 0,
-              }}
-            />
-          )}
-          <span className={m.achieved ? undefined : "muted"} style={{ fontSize: "0.92rem" }}>
-            {m.label}
-          </span>
-        </div>
-      ))}
+    <div className={styles.wrap}>
+      {milestones.map((m, i) => {
+        const state = m.achieved ? "done" : i === currentIndex ? "current" : "locked";
+        return (
+          <div key={m.key} className={styles.step}>
+            <div className={styles.line} />
+            <span className={`${styles.node} ${styles[state]}`} aria-hidden>
+              {state === "done" ? <VoteCheckIcon width={13} height={13} /> : i + 1}
+            </span>
+            <div className={styles.textCol}>
+              <div className={`${styles.label} ${state !== "done" ? styles[state] : ""}`}>{m.label}</div>
+              {state === "current" && <div className={styles.sub}>next up</div>}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

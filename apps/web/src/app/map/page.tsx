@@ -29,7 +29,7 @@ function pinColor(pin: MapPin): string {
 
 function pinColorResolved(pin: MapPin, root: CSSStyleDeclaration): string {
   const varName = pin.kind === "challenge" ? "--rally" : `--tier-${pin.tier}`;
-  return root.getPropertyValue(varName).trim() || "#F98404";
+  return root.getPropertyValue(varName).trim() || "#FF0B55";
 }
 
 function initials(name: string | null): string {
@@ -103,8 +103,8 @@ function MapPageInner() {
 
     map.on("load", () => {
       const root = getComputedStyle(document.documentElement);
-      const buildingBase = root.getPropertyValue("--card-bg").trim() || "#18181B";
-      const buildingGlow = root.getPropertyValue("--border-active").trim() || "#F98404";
+      const buildingBase = root.getPropertyValue("--card-bg").trim() || "#150609";
+      const buildingGlow = root.getPropertyValue("--border-active").trim() || "#FF0B55";
 
       map.addLayer({
         id: "perokio-3d-buildings",

@@ -67,6 +67,37 @@
     transform: translateY(-7px);
   }
   .btn-ignite:active { transform: translateY(-1px); }
+
+  /* --- adapted from the Uiverse/barisdogansutcu play/now button you
+     provided — same mechanic (icon zooms out, "play" slides right off,
+     "now!" slides in from the left), same fill color (their yellow,
+     hsl(49 98% 60%), is close enough to our own --sunset-gold that it
+     barely needed remapping). Two swaps: the literal soccer-ball SVG
+     becomes our own parrot-head mark instead of an unrelated novelty
+     graphic, and the white-text/grey-drop-shadow treatment (built for
+     contrast on a light yellow chip) becomes dark text with no shadow,
+     since dark-on-gold doesn't need one. */
+  .btn-watch {
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    padding: 0 20px; height: 46px; color: var(--bg-base); text-transform: uppercase;
+    cursor: pointer; border: 2px solid var(--bg-base); letter-spacing: 1px; font-weight: 700;
+    font-size: 15px; background: var(--sunset-gold); border-radius: 50px; position: relative;
+    overflow: hidden; transition: filter 0.3s ease;
+  }
+  .btn-watch:hover { filter: brightness(1.05); }
+  .btn-watch:active { transform: scale(0.96); transition: transform 100ms ease; }
+  .btn-watch svg { transition: transform 0.5s ease; z-index: 2; flex-shrink: 0; }
+  .btn-watch:hover svg { transform: scale(2.6) translate(50%); }
+  .btn-watch .word-play { transition: transform 0.5s ease 0.15s; z-index: 2; }
+  .btn-watch:hover .word-play { transform: translateX(160%); }
+  .btn-watch .word-now {
+    position: absolute; left: 20px; transform: translateX(-140%);
+    transition: transform 0.5s ease; z-index: 2;
+  }
+  .btn-watch:hover .word-now { transform: translateX(0); transition-delay: 0.15s; }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-watch, .btn-watch svg, .btn-watch .word-play, .btn-watch .word-now, .btn-watch:active { transition: none; }
+  }
   @media (prefers-reduced-motion: reduce) { .btn-ignite:hover, .btn:hover { transform: none; } }
 
   /* ===== cards ===== */
@@ -181,6 +212,42 @@
   @media (prefers-reduced-motion: reduce) {
     .live-demo, .flame-demo, .skeleton-demo, .live-dot { animation: none; }
     .check-demo path { animation: none; stroke-dashoffset: 0; }
+  }
+
+  /* --- adapted from the Uiverse/KSAplay loading bar you provided — same
+     mechanic (fill sweeps 0->100% over 4s, diagonal white glints drift
+     across it), same fill gradient in spirit (their rgba(222,74,15)->
+     rgba(249,199,79) orange-to-gold is close enough to our own sunset
+     tokens that it's now literally --sunset-orange -> --sunset-gold, not
+     an approximation). This is the direct answer to the UX audit's "every
+     async screen just shows bare 'Loading...' text" finding — an actual
+     progress bar to reach for instead. */
+  .load-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .load-text { color: var(--text-primary); font-size: 0.85rem; font-weight: 600; }
+  .load-dot { animation: loadBlink 1.5s infinite; }
+  .load-dot:nth-child(2) { animation-delay: 0.3s; }
+  .load-dot:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes loadBlink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+  .load-track {
+    --h: 26px; display: flex; align-items: center; box-sizing: border-box; padding: 4px;
+    width: 200px; height: var(--h); background: var(--bg-hover);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.4); border-radius: calc(var(--h) / 2);
+  }
+  .load-fill {
+    position: relative; display: flex; justify-content: center; flex-direction: column;
+    --h: 18px; width: 0%; height: var(--h); overflow: hidden;
+    background: linear-gradient(0deg, var(--sunset-orange) 0%, var(--sunset-gold) 100%);
+    border-radius: calc(var(--h) / 2); animation: loadFill 4s ease-out infinite;
+  }
+  .load-glints { position: absolute; display: flex; align-items: center; gap: 14px; }
+  .load-glint {
+    background: linear-gradient(-45deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 70%);
+    width: 8px; height: 34px; opacity: .3; rotate: 45deg;
+  }
+  @keyframes loadFill { 0% { width: 0; } 80% { width: 100%; } 100% { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) {
+    .load-dot { animation: none; opacity: 1; }
+    .load-fill { animation: none; width: 60%; }
   }
 
   /* ===== icons ===== */
@@ -332,6 +399,20 @@
         <div class="btn-col"><button class="btn btn-ghost">Not now</button><span class="size-tag">ghost</span></div>
         <div class="btn-col"><button class="btn btn-icon">↗</button><span class="size-tag">icon</span></div>
         <div class="btn-col"><button class="btn-ignite">Enter now</button><span class="size-tag">ignite — from your Uiverse button</span></div>
+        <div class="btn-col">
+          <button class="btn-watch" type="button" aria-label="Watch now">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4 13Q4 7 10 7Q13 7 14.5 9.5Q17 8.5 20 10.5Q18.5 12 16.5 12Q17.5 15 14 16.5Q11 18 7 17Q4 16 4 13Z" />
+              <path d="M7 7L6 3L9 6Z" />
+              <path d="M10 6.5L10 2.5L12.5 6Z" />
+              <path d="M13 7L14.5 3.5L15.5 7.5Z" />
+              <circle cx="13" cy="10.5" r="1.1" fill="var(--sunset-gold)" />
+            </svg>
+            <span class="word-play">play</span>
+            <span class="word-now">now!</span>
+          </button>
+          <span class="size-tag">watch — from your Uiverse button, parrot-head mark</span>
+        </div>
       </div>
     </div>
   </section>
@@ -476,6 +557,20 @@
       <div class="motion-box">
         <svg class="check-demo" width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3 3 7-7"/></svg>
         <span class="cap">checkDraw · 600ms</span>
+      </div>
+      <div class="motion-box">
+        <div class="load-wrap">
+          <div class="load-text">Loading<span class="load-dot">.</span><span class="load-dot">.</span><span class="load-dot">.</span></div>
+          <div class="load-track">
+            <div class="load-fill">
+              <div class="load-glints">
+                <div class="load-glint"></div><div class="load-glint"></div><div class="load-glint"></div>
+                <div class="load-glint"></div><div class="load-glint"></div><div class="load-glint"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="cap">loadFill · 4s — replaces bare "Loading…" text</span>
       </div>
     </div>
   </section>

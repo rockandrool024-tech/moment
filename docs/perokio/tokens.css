@@ -1,39 +1,45 @@
 /* PEROKIO v2 — design tokens
-   Direction: dark neutral structure (from the original "purple system" spec)
-   with the sunset gradient (#F7FD04 -> #FC5404) as the primary/CTA/prize/
-   highlight color instead of purple. See docs/perokio-v2-mockup.html for
-   the rendered reference and docs/design-system.md for MOMENT v1's current
-   (light app + dark /map only) system this would replace.
-
-   Mockup-stage only — not yet imported anywhere in apps/web. */
+   Direction: black / crimson / hot-pink / pale-pink, "neon space" mood —
+   replaces the earlier sunset (yellow-orange-red) direction. This is now
+   LIVE in apps/web/src/app/globals.css (values below match it), not just
+   a mockup reference — if you change one, change the other, or better,
+   point globals.css at generated values so this stops needing to happen
+   by hand (see the note in apps/web/src/app/map/map.module.css about the
+   sheet-background bug that exact drift caused). */
 
 :root {
-  /* Surface & text — near-black/grey scale, unchanged from spec */
-  --bg-base: #0A0A0F;
-  --bg-elevated: #18181B;
-  --bg-hover: #27272A;
-  --border-subtle: #27272A;
-  --border-active: #F98404; /* was peri-purple #7C3AED */
-  --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted: #71717A;
-  --text-disabled: #52525B;
+  /* Surface & text */
+  --bg-base: #000000;
+  --bg-elevated: #150609;
+  --bg-hover: #220D14;
+  --border-subtle: #3A1620;
+  --border-active: #FF0B55;
+  --text-primary: #FFDEDE;
+  --text-secondary: #B98A94;
+  --text-muted: #6E4A52;
+  --text-disabled: #4A3237;
 
-  /* Sunset — primary / CTA / prize / highlight (replaces peri-purple family) */
-  --sunset-yellow: #F7FD04;
-  --sunset-gold: #F9B208;
-  --sunset-orange: #F98404;
-  --sunset-red: #FC5404;
-  --accent: var(--sunset-orange);
-  --accent-gradient: linear-gradient(135deg, #F7FD04 0%, #F9B208 35%, #F98404 72%, #FC5404 100%);
+  /* Brand — primary / CTA / prize / highlight */
+  --black: #000000;
+  --crimson: #CF0F47;
+  --hot-pink: #FF0B55;
+  --pale-pink: #FFDEDE;
+  --accent: var(--hot-pink);
+  --accent-gradient: linear-gradient(135deg, #CF0F47 0%, #FF0B55 100%);
+  --accent-fg: #000000; /* black text on the bright accent */
 
-  /* Tier — unchanged from spec */
+  /* Tier — untouched by brand palette changes on purpose (semantic
+     ranking, not brand identity — see globals.css's comment on this). */
   --tier-bronze: #CD7F32;
   --tier-silver: #94A3B8;
   --tier-gold: #FBBF24;
   --tier-platinum: #E2E8F0;
 
-  /* Semantic — unchanged from spec */
+  /* Challenge/live-pin color — re-aliased to the new accent each time the
+     brand palette changes; multiple live files reference --rally directly. */
+  --rally: #FF0B55;
+
+  /* Semantic — unchanged by brand palette changes, same reasoning as tier. */
   --success: #22C55E;
   --warning: #F59E0B;
   --error: #EF4444;
