@@ -1,0 +1,423 @@
+<title>MOMENT — Design System Reference</title>
+<meta name="description" content="Live component and token reference for MOMENT's frontend, cross-checked against globals.css." />
+<style>
+  :root {
+    --page-bg: #f3f3f0;
+    --page-surface: #ffffff;
+    --page-text: #1a1a18;
+    --page-text-muted: #6b6b63;
+    --page-border: #e2e1da;
+    --page-accent: #16643f;
+    --mono: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+    /* MOMENT's own tokens — documented as-is, not adapted to viewer theme,
+       since these ARE the subject being shown, not this page's chrome. */
+    --m-fg: #1a1a1a;
+    --m-bg: #ffffff;
+    --m-muted: #6b6b6b;
+    --m-border: #d9d9d9;
+    --m-accent: #16643f;
+    --m-accent-fg: #ffffff;
+    --m-danger: #a6212e;
+    --m-card-bg: #fafafa;
+    --m-tier-0: #c9834b;
+    --m-tier-1: #b9c2c9;
+    --m-tier-2: #e6b93c;
+    --m-tier-3: #7ee0c9;
+    --m-rally: #ff6f91;
+    --m-status-good: #1f8a4c;
+    --m-status-warn: #b9660f;
+    --m-status-bad: #a6212e;
+    --m-status-good-bg: #e8f5ec;
+    --m-status-warn-bg: #faf1e2;
+    --m-status-bad-bg: #fbe9ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page-bg: #17181a;
+      --page-surface: #202225;
+      --page-text: #eeefec;
+      --page-text-muted: #9a9c96;
+      --page-border: #333532;
+      --page-accent: #4fd39b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page-bg: #17181a; --page-surface: #202225; --page-text: #eeefec;
+    --page-text-muted: #9a9c96; --page-border: #333532; --page-accent: #4fd39b;
+  }
+  :root[data-theme="light"] {
+    --page-bg: #f3f3f0; --page-surface: #ffffff; --page-text: #1a1a18;
+    --page-text-muted: #6b6b63; --page-border: #e2e1da; --page-accent: #16643f;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--page-text);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+
+  header { margin-bottom: 3rem; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--page-accent); font-weight: 700; margin: 0 0 0.6rem;
+  }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+  .dek { color: var(--page-text-muted); max-width: 60ch; margin: 0; }
+
+  nav.jump {
+    display: flex; flex-wrap: wrap; gap: 0.3rem 0; margin: 1.75rem 0 0;
+    font-family: var(--mono); font-size: 0.75rem;
+  }
+  nav.jump a { color: var(--page-text-muted); text-decoration: none; padding: 0.25rem 0.65rem; border-right: 1px solid var(--page-border); }
+  nav.jump a:last-child { border-right: none; }
+
+  section { margin: 3.25rem 0; }
+  section h2 {
+    font-size: 1.05rem; margin: 0 0 0.3rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+  section h2 .num { font-family: var(--mono); color: var(--page-accent); font-size: 0.85rem; }
+  .section-note { color: var(--page-text-muted); font-size: 0.88rem; max-width: 66ch; margin: 0 0 1.25rem; }
+
+  .panel {
+    background: var(--page-surface);
+    border: 1px solid var(--page-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  /* ---- swatches ---- */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.9rem; }
+  .swatch { border-radius: 10px; overflow: hidden; border: 1px solid var(--page-border); }
+  .swatch-color { height: 56px; }
+  .swatch-label { padding: 0.4rem 0.6rem; background: var(--page-surface); }
+  .swatch-label b { display: block; font-size: 0.78rem; }
+  .swatch-label span { display: block; font-family: var(--mono); font-size: 0.68rem; color: var(--page-text-muted); }
+
+  /* ---- type scale ---- */
+  .type-row { display: flex; align-items: baseline; gap: 1rem; padding: 0.6rem 0; border-top: 1px solid var(--page-border); }
+  .type-row:first-child { border-top: none; }
+  .type-row .tag { font-family: var(--mono); font-size: 0.68rem; color: var(--page-text-muted); width: 130px; flex-shrink: 0; }
+  .type-row .sample { color: var(--m-fg); font-weight: 700; }
+
+  /* ---- MOMENT component demo box: fixed to MOMENT's own light tokens ---- */
+  .moment-demo {
+    background: var(--m-bg);
+    color: var(--m-fg);
+    border-radius: 10px;
+    padding: 1.25rem;
+    font-family: var(--sans);
+  }
+  .m-card {
+    border: 1px solid var(--m-border); border-radius: 8px; padding: 1rem; background: var(--m-card-bg);
+  }
+  .m-card-elevated {
+    border-radius: 14px; padding: 1rem; background: var(--m-card-bg);
+    box-shadow: 0 8px 24px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  }
+  .m-card-edged { border-left: 4px solid var(--edge, var(--m-border)); }
+  .m-badge {
+    display: inline-block; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px;
+    border: 1px solid var(--m-border); color: var(--m-muted);
+  }
+  .m-badge-tier {
+    border-width: 1.5px; border-color: var(--tc, var(--m-border)); font-weight: 600;
+    background: color-mix(in srgb, var(--tc, var(--m-border)) 16%, var(--m-bg));
+    color: color-mix(in srgb, var(--tc, var(--m-muted)) 70%, black);
+  }
+  .m-avatar-wrap { position: relative; display: inline-flex; border-radius: 50%; }
+  .m-avatar-wrap::before {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    border: 1.5px solid var(--rc, var(--m-accent)); opacity: 0.55;
+  }
+  .m-avatar { border-radius: 50%; border: 1px solid var(--m-border); display: block; background: var(--m-border); }
+  .m-btn {
+    font: inherit; padding: 0.5rem 1rem; min-height: 40px; border-radius: 6px; border: 1px solid var(--m-accent);
+    background: var(--m-accent); color: var(--m-accent-fg); cursor: pointer; font-weight: 600; font-size: 0.9rem;
+  }
+  .m-btn.secondary { background: transparent; color: var(--m-accent); }
+  .m-muted { color: var(--m-muted); font-size: 0.9rem; }
+
+  .row-gap { display: flex; gap: 0.9rem; flex-wrap: wrap; align-items: center; }
+  .col-gap { display: flex; flex-direction: column; gap: 0.9rem; }
+
+  /* ---- stat card ---- */
+  .m-stat-card {
+    background: var(--m-card-bg); border-radius: 14px; padding: 1.1rem 1.25rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    display: flex; flex-direction: column; gap: 0.4rem; min-width: 180px;
+  }
+  .m-stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .m-stat-label { font-size: 0.78rem; color: var(--m-muted); }
+  .m-stat-value { font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .m-verdict { font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; }
+
+  /* ---- empty state ---- */
+  .m-empty { text-align: center; padding: 2.25rem 1.5rem; }
+  .m-empty svg { color: var(--m-muted); margin-bottom: 0.6rem; }
+  .m-empty h3 { font-size: 1.05rem; margin: 0 0 0.35rem; }
+  .m-empty p { color: var(--m-muted); font-size: 0.88rem; margin: 0 0 1rem; max-width: 32ch; margin-left: auto; margin-right: auto; }
+
+  /* ---- segmented control ---- */
+  .m-segment { display: inline-flex; background: var(--m-border); border-radius: 999px; padding: 3px; gap: 2px; }
+  .m-segment button {
+    font: inherit; border: none; background: transparent; padding: 0.4rem 0.9rem; border-radius: 999px;
+    font-size: 0.85rem; color: var(--m-muted); cursor: pointer; min-height: 0;
+  }
+  .m-segment button.active { background: var(--m-bg); color: var(--m-fg); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  /* ---- phone frame for bottom nav demo ---- */
+  .phone {
+    width: 240px; border-radius: 22px; border: 6px solid #111; background: var(--m-bg);
+    overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.18);
+  }
+  .phone-body { height: 200px; background: var(--m-card-bg); position: relative; }
+  .phone-nav {
+    display: flex; border-top: 1px solid var(--m-border); background: var(--m-bg);
+  }
+  .phone-nav a {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    padding: 0.5rem 0 0.6rem; font-size: 0.6rem; color: var(--m-muted); text-decoration: none;
+  }
+  .phone-nav a.active { color: var(--m-accent); font-weight: 700; }
+
+  /* ---- source alignment strip ---- */
+  .align-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .align-card { border: 1px solid var(--page-border); border-radius: 10px; padding: 1.1rem; }
+  .align-card b { display: block; font-size: 0.85rem; margin-bottom: 0.4rem; }
+  .align-card p { font-size: 0.82rem; color: var(--page-text-muted); margin: 0; }
+
+  /* map-only dark demo, isolated */
+  .map-demo {
+    background: #0c0f0a; color: #eef0e8; border-radius: 14px; padding: 1.25rem 1.5rem;
+    font-family: var(--sans);
+  }
+  .map-demo .label { font-size: 0.95rem; text-transform: lowercase; font-weight: 700; margin: 0 0 0.75rem; }
+  .map-pin { display: inline-flex; flex-direction: column; align-items: center; gap: 0.25rem; margin-right: 1rem; }
+  .map-ring {
+    width: 34px; height: 34px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .map-ring::before { content:""; position:absolute; inset:-5px; border-radius:50%; border: 1.5px solid var(--rc); opacity: .5; }
+  .map-avatar-fake { width: 30px; height: 30px; border-radius: 50%; background: var(--rc); border: 2px solid #0c0f0a; }
+  .map-pin-label { font-size: 0.62rem; color: #d7dccb; }
+
+  code { font-family: var(--mono); background: var(--page-border); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Frontend Reference — Live Tokens</p>
+    <h1>MOMENT design system</h1>
+    <p class="dek">
+      Every value below is pulled directly from <code>globals.css</code> and the shared components
+      — this isn't a mood board, it's what's actually implemented (plus the small set of additions
+      spec'd in <code>docs/design-system.md</code>).
+    </p>
+    <nav class="jump">
+      <a href="#alignment">Reference alignment</a>
+      <a href="#color">Color</a>
+      <a href="#type">Typography</a>
+      <a href="#cards">Cards &amp; badges</a>
+      <a href="#avatar">Avatar</a>
+      <a href="#stat">Stat card</a>
+      <a href="#empty">Empty state</a>
+      <a href="#segment">Segmented control</a>
+      <a href="#nav">Bottom nav</a>
+      <a href="#map">Map (dark)</a>
+    </nav>
+  </header>
+
+  <section id="alignment">
+    <h2><span class="num">00</span> What each reference actually gave us</h2>
+    <p class="section-note">Not a literal copy of any one — the shared instinct across all three, applied in MOMENT's own palette and copy.</p>
+    <div class="align-grid">
+      <div class="align-card">
+        <b>Fitness / social app</b>
+        <p>Big confident numbers, one per screen. Segmented pill tabs. A one-word verdict next to a stat ("Solid," "Good"). → §3.6 Stat card, §2.2 Segmented control.</p>
+      </div>
+      <div class="align-card">
+        <b>Safety / evacuation app</b>
+        <p>Tap a pin, a sheet slides up with chips and one clear primary action. → the <code>Sheet</code> component, already shipped and used on <code>/map</code> and the funding flow.</p>
+      </div>
+      <div class="align-card">
+        <b>Zenly-style 3D map</b>
+        <p>Dark "home base" map, avatar bubbles as pins, lowercase bold label. → <code>/map</code>, deliberately the only dark screen in the app.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="color">
+    <h2><span class="num">01</span> Color tokens</h2>
+    <p class="section-note">Base palette, then the tier/status scale layered on top of it.</p>
+    <div class="panel">
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-fg)"></div><div class="swatch-label"><b>fg</b><span>#1a1a1a</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-bg); border-bottom:1px solid var(--page-border)"></div><div class="swatch-label"><b>bg</b><span>#ffffff</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-muted)"></div><div class="swatch-label"><b>muted</b><span>#6b6b6b</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-border)"></div><div class="swatch-label"><b>border</b><span>#d9d9d9</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-accent)"></div><div class="swatch-label"><b>accent</b><span>#16643f</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-danger)"></div><div class="swatch-label"><b>danger</b><span>#a6212e</span></div></div>
+      </div>
+      <div style="height:1.5rem"></div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-tier-0)"></div><div class="swatch-label"><b>tier-0</b><span>bronze</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-tier-1)"></div><div class="swatch-label"><b>tier-1</b><span>silver</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-tier-2)"></div><div class="swatch-label"><b>tier-2</b><span>gold</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-tier-3)"></div><div class="swatch-label"><b>tier-3</b><span>platinum</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-rally)"></div><div class="swatch-label"><b>rally</b><span>coral</span></div></div>
+      </div>
+      <div style="height:1.5rem"></div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-status-good)"></div><div class="swatch-label"><b>status-good</b><span>new</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-status-warn)"></div><div class="swatch-label"><b>status-warn</b><span>new</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--m-status-bad)"></div><div class="swatch-label"><b>status-bad</b><span>new</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="type">
+    <h2><span class="num">02</span> Typography scale</h2>
+    <p class="section-note">Not formalized in code yet (§1.3 of the spec) — <code>--text-display</code> is the fitness-app trick: one big number per screen, everything else recedes.</p>
+    <div class="panel moment-demo">
+      <div class="type-row"><span class="tag">--text-display · 2rem</span><span class="sample" style="font-size:2rem">$5,000</span></div>
+      <div class="type-row"><span class="tag">--text-title · 1.5rem</span><span class="sample" style="font-size:1.5rem">My profile</span></div>
+      <div class="type-row"><span class="tag">--text-heading · 1.15rem</span><span class="sample" style="font-size:1.15rem">Your rally link</span></div>
+      <div class="type-row"><span class="tag">--text-body · 1rem</span><span class="sample" style="font-weight:400;font-size:1rem">Phone verified: yes</span></div>
+      <div class="type-row"><span class="tag">--text-small · 0.9rem</span><span class="sample m-muted" style="font-weight:400">Share this — it always points at whatever battle you have live.</span></div>
+      <div class="type-row"><span class="tag">--text-caption · 0.75rem</span><span class="m-badge">BRONZE</span></div>
+    </div>
+  </section>
+
+  <section id="cards">
+    <h2><span class="num">03</span> Cards &amp; badges</h2>
+    <p class="section-note">Three card variants cover every case — flat, elevated, edged+interactive. Don't add a fourth.</p>
+    <div class="panel moment-demo">
+      <div class="row-gap" style="align-items:stretch">
+        <div class="m-card" style="width:200px">
+          <b style="font-size:0.85rem">.card</b>
+          <p class="m-muted" style="margin:0.3rem 0 0">Flat, bordered. Forms &amp; groupings.</p>
+        </div>
+        <div class="m-card-elevated" style="width:200px">
+          <b style="font-size:0.85rem">.card-elevated</b>
+          <p class="m-muted" style="margin:0.3rem 0 0">Shadowed. Tappable list rows.</p>
+        </div>
+        <div class="m-card-elevated m-card-edged" style="--edge: var(--m-tier-2); width:200px">
+          <b style="font-size:0.85rem">+ .card-edged</b>
+          <p class="m-muted" style="margin:0.3rem 0 0">Status/tier color on the left edge.</p>
+        </div>
+      </div>
+      <div style="height:1.5rem"></div>
+      <div class="row-gap">
+        <span class="m-badge">draft</span>
+        <span class="m-badge-tier" style="--tc:var(--m-tier-0)">Bronze</span>
+        <span class="m-badge-tier" style="--tc:var(--m-tier-1)">Silver</span>
+        <span class="m-badge-tier" style="--tc:var(--m-tier-2)">Gold</span>
+        <span class="m-badge-tier" style="--tc:var(--m-tier-3)">Platinum</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="avatar">
+    <h2><span class="num">04</span> Avatar</h2>
+    <p class="section-note">One rendering path everywhere — <code>&lt;Avatar userId size tier? /&gt;</code>. The ring only appears when <code>tier</code> is passed.</p>
+    <div class="panel moment-demo">
+      <div class="row-gap">
+        <span class="m-avatar-wrap" style="--rc:var(--m-tier-0)"><span class="m-avatar" style="width:44px;height:44px"></span></span>
+        <span class="m-avatar-wrap" style="--rc:var(--m-tier-2)"><span class="m-avatar" style="width:44px;height:44px"></span></span>
+        <span class="m-avatar-wrap" style="--rc:var(--m-tier-3)"><span class="m-avatar" style="width:44px;height:44px"></span></span>
+        <span class="m-avatar" style="width:44px;height:44px"></span>
+        <span class="m-muted">← no tier passed, no ring (brands / non-creators)</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="stat">
+    <h2><span class="num">05</span> Stat card <span class="m-badge" style="margin-left:0.3rem">new — §3.6</span></h2>
+    <p class="section-note">The one component missing from the fitness-app reference. Replaces plain-text numbers on <code>/me</code> and <code>/wallet</code>.</p>
+    <div class="panel moment-demo">
+      <div class="row-gap">
+        <div class="m-stat-card">
+          <div class="m-stat-top">
+            <span class="m-stat-label">Voting streak</span>
+            <span class="m-verdict" style="background:var(--m-status-good-bg); color:var(--m-status-good)">Active</span>
+          </div>
+          <span class="m-stat-value">12</span>
+        </div>
+        <div class="m-stat-card">
+          <div class="m-stat-top">
+            <span class="m-stat-label">Lifetime earnings</span>
+          </div>
+          <span class="m-stat-value">$5,000</span>
+        </div>
+        <div class="m-stat-card">
+          <div class="m-stat-top">
+            <span class="m-stat-label">Streak</span>
+            <span class="m-verdict" style="background:var(--m-status-warn-bg); color:var(--m-status-warn)">Paused</span>
+          </div>
+          <span class="m-stat-value">4</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="empty">
+    <h2><span class="num">06</span> Empty state <span class="m-badge" style="margin-left:0.3rem">new — §3.7</span></h2>
+    <p class="section-note">Replaces every "No X yet." line in the app — see the full copy table in <code>design-system.md</code>.</p>
+    <div class="panel moment-demo">
+      <div class="m-empty">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h11A2.5 2.5 0 0 1 19 7.5V8H5.5A2.5 2.5 0 0 1 3 5.5"/><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M15 14.25h2.5"/></svg>
+        <h3>Nothing earned yet</h3>
+        <p>Enter a challenge to start building your wallet.</p>
+        <button class="m-btn">Browse challenges</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="segment">
+    <h2><span class="num">07</span> Segmented control <span class="m-badge" style="margin-left:0.3rem">new — §2.2</span></h2>
+    <p class="section-note">Replaces Discovery's two independent buttons with a single pill container.</p>
+    <div class="panel moment-demo">
+      <div class="m-segment">
+        <button class="active">Top creators</button>
+        <button>Active brands</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="nav">
+    <h2><span class="num">08</span> Bottom nav (mobile) <span class="m-badge" style="margin-left:0.3rem">new — §2.1</span></h2>
+    <p class="section-note">Mounted only under 480px, alongside the existing top nav on wider screens — not a replacement.</p>
+    <div class="panel moment-demo" style="display:flex; justify-content:center">
+      <div class="phone">
+        <div class="phone-body"></div>
+        <div class="phone-nav">
+          <a class="active">Challenges</a>
+          <a>Map</a>
+          <a>Discover</a>
+          <a>Wallet</a>
+          <a>Me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map">
+    <h2><span class="num">09</span> Map — the one dark screen, deliberately</h2>
+    <p class="section-note">Scoped to <code>map.module.css</code> only. These tokens never leak into <code>:root</code> or the rest of the app (§1.1).</p>
+    <div class="panel">
+      <div class="map-demo">
+        <p class="label">live map</p>
+        <div>
+          <span class="map-pin"><span class="map-ring" style="--rc:#c9834b"><span class="map-avatar-fake" style="background:#c9834b"></span></span><span class="map-pin-label">Ana</span></span>
+          <span class="map-pin"><span class="map-ring" style="--rc:#e6b93c"><span class="map-avatar-fake" style="background:#e6b93c"></span></span><span class="map-pin-label">Theo</span></span>
+          <span class="map-pin"><span class="map-ring" style="--rc:#ff6f91"><span class="map-avatar-fake" style="background:#ff6f91"></span></span><span class="map-pin-label">Glow Co</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

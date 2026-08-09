@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
-import { RallyStats, StreakSummary, User } from "@/lib/types";
-import { tierBadgeStyle, tierLabel } from "@/lib/tier";
+import { JourneyMilestone, RallyStats, ReferralStats, StreakSummary, User } from "@/lib/types";
+import { tierBadgeStyle, tierColorVar, tierLabel } from "@/lib/tier";
+import { formatCents } from "@/lib/format";
 import { Avatar } from "@/components/Avatar";
-import { FlameIcon, RallyIcon, ShareIcon, WalletIcon } from "@/components/icons";
+import { JourneyStepper } from "@/components/JourneyStepper";
+import { FlameIcon, RallyIcon, ShareIcon, TierCrownIcon, WalletIcon } from "@/components/icons";
 
 export default function MePage() {
   const { user, loading } = useAuth();
@@ -16,7 +18,10 @@ export default function MePage() {
   const [avatarVersion, setAvatarVersion] = useState(0);
   const [rallyStats, setRallyStats] = useState<RallyStats | null>(null);
   const [streak, setStreak] = useState<StreakSummary | null>(null);
+  const [referralStats, setReferralStats] = useState<ReferralStats | null>(null);
+  const [journey, setJourney] = useState<JourneyMilestone[] | null>(null);
   const [copied, setCopied] = useState(false);
+  const [refCopied, setRefCopied] = useState(false);
 
   async function regenerateAvatar() {
     setAvatarBusy(true);
@@ -34,6 +39,8 @@ export default function MePage() {
     if (user) {
       api.get<RallyStats>("/users/me/rally-stats").then(setRallyStats);
       api.get<StreakSummary>("/users/me/streak").then(setStreak);
+      api.get<ReferralStats>("/users/me/referrals").then(setReferralStats);
+      api.get<JourneyMilestone[]>("/users/me/journey").then(setJourney);
     }
   }, [user]);
 
@@ -43,6 +50,14 @@ export default function MePage() {
     navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  function copyReferralLink() {
+    if (!user) return;
+    const link = `${window.location.origin}/r/${user.referralCode}`;
+    navigator.clipboard.writeText(link);
+    setRefCopied(true);
+    setTimeout(() => setRefCopied(false), 2000);
   }
 
   async function startStripeOnboarding() {
@@ -77,15 +92,23 @@ export default function MePage() {
               {avatarBusy ? "Generating…" : "Generate new avatar"}
             </button>
             <p className="muted" style={{ margin: "0.25rem 0 0" }}>
-              AI-generated placeholder — this is your consistent reference image across MOMENT.
+              Generated placeholder — your consistent reference image across Perokio until you add
+              a real one.
             </p>
           </div>
         </div>
+        {user.displayName && <h2 style={{ margin: "0 0 0.5rem" }}>{user.displayName}</h2>}
         <p>Phone: {user.phone}</p>
         <p>Role: {user.role}</p>
         <p>Phone verified: {user.phoneVerifiedAt ? "yes" : "no"}</p>
-        <p>
-          Tier:{" "}
+        <p style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+          Tier:
+          <TierCrownIcon
+            width={16}
+            height={16}
+            style={{ color: tierColorVar(user.tier) }}
+            aria-hidden
+          />
           <span className="badge badge-tier" style={tierBadgeStyle(user.tier) as React.CSSProperties}>
             {tierLabel(user.tier)}
           </span>
@@ -132,6 +155,40 @@ export default function MePage() {
           <p>
             <strong>{rallyStats.totalVoters}</strong> voters recruited ·{" "}
             <strong>{rallyStats.rallyXp}</strong> rally XP
+          </p>
+        )}
+      </div>
+
+      {journey && (
+        <div className="card">
+          <h2 style={{ marginTop: 0 }}>Your journey</h2>
+          <JourneyStepper milestones={journey} />
+        </div>
+      )}
+
+      <div className="card">
+        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <RallyIcon width={18} height={18} aria-hidden /> Invite friends
+        </h2>
+        <p className="muted">
+          Different from your rally link above — this one&rsquo;s for inviting new people to
+          Perokio itself. You earn $5 the first time someone you invite submits an entry or casts
+          a vote.
+        </p>
+        <p>
+          <code>/r/{user.referralCode}</code>{" "}
+          <button className="secondary" onClick={copyReferralLink}>
+            <ShareIcon width={14} height={14} aria-hidden style={{ verticalAlign: "-2px" }} />{" "}
+            {refCopied ? "Copied!" : "Copy link"}
+          </button>
+        </p>
+        {referralStats && (
+          <p>
+            <strong>{referralStats.totalReferred}</strong> people referred ·{" "}
+            <strong>{formatCents(referralStats.totalRewardedCents)}</strong> earned
+            {referralStats.pendingCount > 0 && (
+              <span className="muted"> · {referralStats.pendingCount} pending</span>
+            )}
           </p>
         )}
       </div>

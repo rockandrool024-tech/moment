@@ -64,6 +64,10 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   CORS_ORIGIN?: string;
+
+  @IsString()
+  @IsOptional()
+  ADMIN_PHONE_NUMBERS?: string;
 }
 
 // Validates process.env at boot. Provider keys are optional so the app boots

@@ -1,0 +1,488 @@
+<title>MOMENT — Journey Recap</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --fg: #1c1f1a;
+    --muted: #6b6f64;
+    --border: #ddded3;
+    --accent: #16643f;
+    --accent-soft: #e4efe8;
+    --brand: #b9862f;
+    --brand-soft: #f6ecd9;
+    --spectator: #c14563;
+    --spectator-soft: #fbe8ee;
+    --code-bg: #f1f0e8;
+    --shadow: 0 1px 2px rgba(28, 31, 26, 0.06), 0 8px 24px rgba(28, 31, 26, 0.05);
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #12140f;
+    --surface: #1a1d16;
+    --fg: #eef0e6;
+    --muted: #9aa08f;
+    --border: #2c3026;
+    --accent: #5fcf9a;
+    --accent-soft: #1d2f26;
+    --brand: #e0b364;
+    --brand-soft: #302818;
+    --spectator: #ef91ac;
+    --spectator-soft: #33202a;
+    --code-bg: #20241b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12140f;
+      --surface: #1a1d16;
+      --fg: #eef0e6;
+      --muted: #9aa08f;
+      --border: #2c3026;
+      --accent: #5fcf9a;
+      --accent-soft: #1d2f26;
+      --brand: #e0b364;
+      --brand-soft: #302818;
+      --spectator: #ef91ac;
+      --spectator-soft: #33202a;
+      --code-bg: #20241b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: Charter, "Iowan Old Style", Georgia, serif;
+    line-height: 1.55;
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .kicker {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    margin: 0.4rem 0 0.5rem;
+    text-wrap: balance;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .lede {
+    font-size: 1.08rem;
+    color: var(--muted);
+    max-width: 62ch;
+    margin: 0 0 2.2rem;
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 1.1rem 1.2rem;
+  }
+
+  .stat .n {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 1.6rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .stat .l {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+
+  h2.lane-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.3rem;
+    letter-spacing: -0.01em;
+  }
+
+  .lane {
+    margin-bottom: 3.2rem;
+  }
+
+  .lane-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .lane-tag {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .lane-desc {
+    color: var(--muted);
+    font-size: 0.98rem;
+    max-width: 60ch;
+    margin: 0 0 1.4rem;
+  }
+
+  .steps {
+    position: relative;
+    padding-left: 2.4rem;
+  }
+
+  .steps::before {
+    content: "";
+    position: absolute;
+    left: 0.85rem;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .step {
+    position: relative;
+    padding: 0 0 1.5rem;
+  }
+  .step:last-child { padding-bottom: 0; }
+
+  .step .num {
+    position: absolute;
+    left: -2.4rem;
+    top: 0.05rem;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--lane-color, var(--accent));
+    color: var(--lane-color, var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .step-title {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem;
+  }
+
+  .step-body {
+    font-size: 0.96rem;
+    color: var(--muted);
+    margin: 0;
+    max-width: 64ch;
+  }
+
+  .route {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .cross {
+    margin-top: 3rem;
+    padding-top: 2.2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .cross h2 {
+    font-size: 1.3rem;
+    margin: 0 0 0.9rem;
+  }
+
+  .mesh {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.9rem;
+  }
+
+  .mesh-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .mesh-item .t {
+    font-family: system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin: 0 0 0.2rem;
+  }
+
+  .mesh-item .d {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .status-box {
+    margin-top: 3rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: var(--shadow);
+  }
+
+  .status-box h2 {
+    font-size: 1.15rem;
+    margin: 0 0 0.7rem;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.94rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .status-row:last-child { border-bottom: none; }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.done { background: var(--accent); }
+  .dot.next { background: var(--brand); }
+
+  .status-row .label { font-family: system-ui, sans-serif; font-weight: 600; }
+  .status-row .note { color: var(--muted); }
+
+  footer {
+    margin-top: 3rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-family: system-ui, sans-serif;
+  }
+
+  @media (max-width: 600px) {
+    .steps { padding-left: 2rem; }
+    .step .num { left: -2rem; }
+  }
+</style>
+
+<div class="wrap">
+  <p class="kicker">Product recap · build in progress</p>
+  <h1>MOMENT — the journey, as built</h1>
+  <p class="lede">
+    A creator-competition marketplace: brands fund cash-prize challenges, creators compete through
+    blind peer voting and public voting, and the crowd decides who gets paid. Below is every
+    persona's real path through the app today — not a plan, the actual wired screens.
+  </p>
+
+  <div class="stat-strip">
+    <div class="stat"><div class="n">16</div><div class="l">pages shipped</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">personas served</div></div>
+    <div class="stat"><div class="n">4</div><div class="l">payout types</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">voting rounds</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">growth loops live</div></div>
+  </div>
+
+  <!-- CREATOR -->
+  <div class="lane" style="--lane-color: var(--accent)">
+    <div class="lane-head">
+      <h2 class="lane-title">Creator</h2>
+      <span class="lane-tag" style="background: var(--accent-soft); color: var(--accent)">competes to get paid</span>
+    </div>
+    <p class="lane-desc">The core loop the whole product is built around — show up, get judged blind, get paid real money.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p class="step-title">Lands, signs up <span class="route">/</span> → <span class="route">/login</span></p>
+        <p class="step-body">Sees the pitch, picks "Creator," verifies by phone OTP — no password, ever.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p class="step-title">Finds a challenge <span class="route">/discovery</span> · <span class="route">/map</span></p>
+        <p class="step-body">Browses live campaigns and top creators, or explores the 3D-style presence map of who's active right now.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p class="step-title">Enters round 1 <span class="route">/challenges/[id]/submit</span></p>
+        <p class="step-body">Submits a teaser. A checklist auto-screens obvious violations before it ever reaches a human.</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p class="step-title">Judges peers blind <span class="route">/rounds/[id]</span></p>
+        <p class="step-body">Votes on paired teaser entries with no names shown. An attention-check pair guards vote quality; a participation gate keeps the round from stalling.</p>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <p class="step-title">Advances, submits full content, votes again</p>
+        <p class="step-body">Round 2 repeats the blind-vote pattern on full submissions. Composite score = peer votes + optional seller score, weighted.</p>
+      </div>
+      <div class="step">
+        <div class="num">6</div>
+        <p class="step-title">Round 3 goes public <span class="route">/rounds/[id]</span></p>
+        <p class="step-body">Finalists are named. Anyone — logged in or not — can vote. The brand may set a final pick, or the top quality-vote finalist wins by default.</p>
+      </div>
+      <div class="step">
+        <div class="num">7</div>
+        <p class="step-title">Gets a share card <span class="route">/results/[submissionId]</span></p>
+        <p class="step-body">A dynamic win/advance/knockout card with a live vote count and a rally link — recruiting spectators to vote counts toward crowd favourite, never the prize itself.</p>
+      </div>
+      <div class="step">
+        <div class="num">8</div>
+        <p class="step-title">Gets paid <span class="route">/wallet</span></p>
+        <p class="step-body">Winner pool, stipend, survivor bonus, or crowd favourite — transferred via Stripe Connect the moment it's earned, shown as earned before Stripe even settles it.</p>
+      </div>
+      <div class="step">
+        <div class="num">9</div>
+        <p class="step-title">Builds a track record <span class="route">/me</span> · <span class="route">/notifications</span></p>
+        <p class="step-body">Tier badge, voting streak, rally stats, a referral link that pays $5 the first time someone they invite acts — and a real inbox for round results and payouts.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND -->
+  <div class="lane" style="--lane-color: var(--brand)">
+    <div class="lane-head">
+      <h2 class="lane-title">Brand</h2>
+      <span class="lane-tag" style="background: var(--brand-soft); color: var(--brand)">funds the challenge</span>
+    </div>
+    <p class="lane-desc">Trust has to be earned fast here — this is where real money enters escrow.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p class="step-title">Signs up as a brand <span class="route">/login</span></p>
+        <p class="step-body">Same phone-OTP flow, role picked up front — not buried after the code's already sent.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p class="step-title">Drafts a challenge <span class="route">/challenges/new</span></p>
+        <p class="step-body">Title, brief, checklist criteria, prize pool — saved as a draft before any money moves.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p class="step-title">Verifies, then funds <span class="route">/challenges/[id]</span></p>
+        <p class="step-body">A KYB gate blocks funding (not drafting) until reviewed. Funding shows one total by default — full pool/stipend/survivor-bonus/fee itemization sits one tap behind "see breakdown."</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p class="step-title">Round 1 opens itself</p>
+        <p class="step-body">The funding wizard polls for the Stripe webhook and opens round 1 automatically — no separate "go live" step to remember.</p>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <p class="step-title">Invites specific creators <span class="route">/challenges/[id]/invite</span></p>
+        <p class="step-body">Pulls from the discovery feed, sorted by tier, and drops a real notification into their inbox.</p>
+      </div>
+      <div class="step">
+        <div class="num">6</div>
+        <p class="step-title">Watches the funnel <span class="route">/challenges/[id]/analytics</span></p>
+        <p class="step-body">Submissions → advances → votes-per-round → payouts-by-type, in one view. No view tracking yet — that's flagged, not faked.</p>
+      </div>
+      <div class="step">
+        <div class="num">7</div>
+        <p class="step-title">Rates, builds reputation</p>
+        <p class="step-body">Once resolved, rates the finalists; public trust stats (on-time payout rate, campaigns run) accrue for the next creator deciding whether to enter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECTATOR -->
+  <div class="lane" style="--lane-color: var(--spectator)">
+    <div class="lane-head">
+      <h2 class="lane-title">Spectator</h2>
+      <span class="lane-tag" style="background: var(--spectator-soft); color: var(--spectator)">no account needed</span>
+    </div>
+    <p class="lane-desc">The growth surface — every one of these pages works with zero login, on purpose.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <p class="step-title">Arrives via a shared link <span class="route">/v/[code]</span> · <span class="route">/r/[code]</span></p>
+        <p class="step-body">A creator's rally link (vote for me) or referral link (join MOMENT) — same personal code, two different jobs.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <p class="step-title">Watches the battle <span class="route">/battle/[challengeId]</span></p>
+        <p class="step-body">Server-rendered, cached, rate-limited independently of the rest of the API so a viral spike can't degrade voting or payments.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <p class="step-title">Votes, gets asked to verify</p>
+        <p class="step-body">Casting a public vote requires login, but the vote's destination is remembered (<span class="route">?returnTo=</span>) so verifying returns straight to the finish, not back to square one.</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <p class="step-title">Explores freely <span class="route">/discovery</span> · <span class="route">/map</span></p>
+        <p class="step-body">Same public feed and live map a logged-in user sees — nothing about browsing is gated.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cross">
+    <h2>What ties the three journeys together</h2>
+    <div class="mesh">
+      <div class="mesh-item">
+        <p class="t">Two-currency voting</p>
+        <p class="d">Quality votes decide the prize; rally votes (from a recruited spectator) only ever decide crowd favourite. One can't buy the other.</p>
+      </div>
+      <div class="mesh-item">
+        <p class="t">Tiers &amp; streaks</p>
+        <p class="d">Bronze → Platinum from lifetime earnings and wins. Voting streaks pause — never break — when the platform itself has nothing to vote on.</p>
+      </div>
+      <div class="mesh-item">
+        <p class="t">Installable PWA</p>
+        <p class="d">Manifest, app-shell service worker, a custom install prompt that waits for a real second visit instead of ambushing the first.</p>
+      </div>
+      <div class="mesh-item">
+        <p class="t">Presence &amp; identity</p>
+        <p class="d">A generated placeholder avatar with a tier-colored presence ring, honestly labeled as a placeholder — not oversold as AI.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-box">
+    <h2>Where this actually stands</h2>
+    <div class="status-row"><span class="dot done"></span><span class="label">Core loop</span><span class="note">— create → fund → submit → vote → vote → payout — fully wired, real Stripe escrow.</span></div>
+    <div class="status-row"><span class="dot done"></span><span class="label">Growth loops</span><span class="note">— rally links, referrals, share cards, discovery, live map — all live.</span></div>
+    <div class="status-row"><span class="dot done"></span><span class="label">Retention</span><span class="note">— tiers, streaks, notifications inbox, wallet — all live.</span></div>
+    <div class="status-row"><span class="dot next"></span><span class="label">Admin console</span><span class="note">— the one piece left: god-view, force-reveal, KYB queue, dispute resolution.</span></div>
+  </div>
+
+  <footer>MOMENT · internal build recap · not for external distribution</footer>
+</div>

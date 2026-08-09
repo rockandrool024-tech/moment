@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { UserRole } from "@/lib/types";
+import { VerifiedIcon } from "@/components/icons";
 
 type Step = "phone" | "code";
 
@@ -30,6 +31,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/challenges";
+  const referralCode = searchParams.get("ref") || undefined;
 
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +56,7 @@ function LoginForm() {
         phone,
         code,
         role,
+        referralCode,
       });
       await loginWithToken(accessToken);
       router.push(returnTo);
@@ -66,11 +69,32 @@ function LoginForm() {
 
   return (
     <div>
+      <div style={{ textAlign: "center", margin: "0.5rem 0 1.5rem" }}>
+        <p style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--accent)", margin: 0 }}>PEROKIO</p>
+        <p className="muted" style={{ margin: "0.15rem 0 0" }}>Compete. Get voted on. Get paid.</p>
+      </div>
       <h1>Log in</h1>
-      <p className="muted">Phone-OTP verification, per ADR-001 — no passwords.</p>
+      <p className="muted" style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+        <VerifiedIcon width={15} height={15} style={{ color: "var(--accent)", flexShrink: 0 }} aria-hidden />
+        Phone-OTP verification, per ADR-001 — no passwords.
+      </p>
+
+      {step === "phone" && referralCode && (
+        <p className="muted" style={{ marginTop: "-0.5rem" }}>
+          You were invited by a Perokio member — sign up to connect your accounts.
+        </p>
+      )}
 
       {step === "phone" && (
         <form onSubmit={requestOtp}>
+          <div className="field">
+            <label htmlFor="role">I am a…</label>
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)}>
+              <option value="creator">Creator — I want to compete</option>
+              <option value="seller">Brand — I want to run a challenge</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
           <div className="field">
             <label htmlFor="phone">Phone (E.164, e.g. +15551234567)</label>
             <input
@@ -101,14 +125,6 @@ function LoginForm() {
               required
               autoFocus
             />
-          </div>
-          <div className="field">
-            <label htmlFor="role">I am a… (only matters on first login)</label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)}>
-              <option value="creator">Creator</option>
-              <option value="seller">Brand / seller</option>
-              <option value="both">Both</option>
-            </select>
           </div>
           {error && <p className="error">{error}</p>}
           <button type="submit" className="btn-block" disabled={busy}>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PEROKIO v2 — component library</title>
+<style>
+  :root {
+    --bg-base: #0A0A0F; --bg-elevated: #18181B; --bg-hover: #27272A;
+    --border-subtle: #27272A; --border-active: #F98404;
+    --text-primary: #FAFAFA; --text-secondary: #A1A1AA; --text-muted: #71717A; --text-disabled: #52525B;
+    --sunset-yellow: #F7FD04; --sunset-gold: #F9B208; --sunset-orange: #F98404; --sunset-red: #FC5404;
+    --accent: var(--sunset-orange);
+    --accent-gradient: linear-gradient(135deg, #F7FD04 0%, #F9B208 35%, #F98404 72%, #FC5404 100%);
+    --tier-bronze: #CD7F32; --tier-silver: #94A3B8; --tier-gold: #FBBF24; --tier-platinum: #E2E8F0;
+    --success: #22C55E; --warning: #F59E0B; --error: #EF4444; --info: #3B82F6; --live: #EF4444;
+    --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --radius-full: 999px;
+    --sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "Geist Mono", "JetBrains Mono", "SF Mono", Consolas, monospace;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-base); color: var(--text-primary); font-family: var(--sans); line-height: 1.5; padding: 3rem 1.5rem 6rem; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { margin-bottom: 2.5rem; }
+  .eyebrow { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sunset-orange); font-weight: 700; margin: 0 0 0.6rem; }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+  .dek { color: var(--text-secondary); max-width: 68ch; margin: 0; font-size: 0.94rem; }
+
+  nav.jump { display: flex; flex-wrap: wrap; gap: 0.3rem 0; margin: 1.5rem 0 0; font-family: var(--mono); font-size: 0.74rem; }
+  nav.jump a { color: var(--text-muted); text-decoration: none; padding: 0.25rem 0.65rem; border-right: 1px solid var(--border-subtle); }
+  nav.jump a:last-child { border-right: none; }
+
+  section { margin: 3.25rem 0; }
+  section h2 { font-size: 1.2rem; font-weight: 700; margin: 0 0 0.35rem; display: flex; align-items: center; gap: 0.55rem; }
+  section h2 .n { font-family: var(--mono); color: var(--sunset-orange); font-size: 0.8rem; }
+  .section-note { color: var(--text-secondary); font-size: 0.85rem; max-width: 66ch; margin: 0 0 1.4rem; }
+  .panel { background: linear-gradient(180deg, var(--bg-elevated), #0F0F1A); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.75rem; }
+
+  /* ===== buttons ===== */
+  .btn-grid { display: flex; flex-wrap: wrap; gap: 1.1rem; align-items: flex-start; }
+  .btn-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+  .size-tag { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); }
+  .btn { font-family: var(--sans); font-weight: 700; border-radius: var(--radius-sm); border: none; cursor: pointer; padding: 12px 24px; font-size: 14px; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.15s var(--ease-out); }
+  .btn-primary { background: var(--accent-gradient); color: #1a0d00; }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-secondary { background: rgba(255,255,255,.08); color: var(--text-primary); border: 1px solid rgba(255,255,255,.12); }
+  .btn-secondary:hover { background: rgba(255,255,255,.13); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 16px; }
+  .btn-ghost:hover { color: var(--text-primary); background: rgba(255,255,255,.05); }
+  .btn-icon { width: 44px; height: 44px; border-radius: 50%; padding: 0; justify-content: center; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: var(--text-primary); }
+
+  /* --- adapted from the Uiverse/cssbuttons-io pill button you provided ---
+     same shape + hover-lift + shadow-glow physics; colors mapped onto the
+     dark surface + sunset accent instead of white/flat-green. Used as the
+     "ignite" pattern: calm on the dark card, ignites into the brand
+     gradient the moment it's actually interacted with. */
+  .btn-ignite {
+    padding: 1.1em 2.6em; font-size: 12px; text-transform: uppercase; letter-spacing: 2.5px;
+    font-weight: 700; color: var(--text-primary); background-color: var(--bg-elevated);
+    border: 1px solid var(--border-subtle); border-radius: 45px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.35);
+    transition: all 0.3s ease 0s; cursor: pointer; outline: none;
+  }
+  .btn-ignite:hover {
+    background: var(--accent-gradient); border-color: transparent; color: #1a0d00;
+    box-shadow: 0px 15px 26px rgba(249, 132, 4, 0.35);
+    transform: translateY(-7px);
+  }
+  .btn-ignite:active { transform: translateY(-1px); }
+  @media (prefers-reduced-motion: reduce) { .btn-ignite:hover, .btn:hover { transform: none; } }
+
+  /* ===== cards ===== */
+  .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1rem; }
+  .card { background: linear-gradient(180deg, var(--bg-elevated), #0F0F1A); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 0; overflow: hidden; transition: border-color 0.15s ease, transform 0.15s ease; }
+  .card:hover { border-color: rgba(249,132,4,.35); transform: translateY(-3px); }
+  @media (prefers-reduced-motion: reduce) { .card:hover { transform: none; } }
+
+  .card-thumb { height: 120px; position: relative; background: linear-gradient(135deg,#1b1420,#0f0f1a); }
+  .card-thumb.a { background: linear-gradient(135deg,#2a1500,#0f0f1a); }
+  .card-thumb.b { background: linear-gradient(135deg,#001f14,#0f0f1a); }
+  .card-thumb .play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.5); }
+  .card-body { padding: 14px 16px 16px; }
+  .card-top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .card-title { font-size: 0.92rem; font-weight: 700; margin: 0 0 2px; }
+  .card-sub { font-size: 0.74rem; color: var(--text-muted); }
+  .card-prize { font-family: var(--mono); font-weight: 800; font-size: 1.2rem; color: var(--sunset-gold); margin-top: 8px; }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .avatar-stack { display: flex; }
+  .avatar-sm { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--bg-elevated); margin-left: -7px; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1a0d00; }
+  .avatar-sm:first-child { margin-left: 0; }
+
+  .creator-card .card-body { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+  .creator-avatar { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: #1a0d00; position: relative; }
+  .creator-avatar::before { content:""; position:absolute; inset:-4px; border-radius:50%; border: 1.5px solid var(--ring, var(--sunset-gold)); opacity: .55; }
+  .trust-row { display: flex; gap: 12px; margin-top: 4px; }
+  .trust-row .t { text-align: left; }
+  .trust-row .t b { display: block; font-size: 0.85rem; }
+  .trust-row .t span { font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+  .content-card .card-thumb { height: 160px; }
+  .platform-badge { position: absolute; top: 8px; left: 8px; font-size: 0.62rem; font-weight: 700; background: rgba(0,0,0,.55); padding: 2px 8px; border-radius: 999px; }
+  .reach-overlay { position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; font-size: 0.68rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+
+  /* ===== badges / tags ===== */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+  .badge-tier { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-full); }
+  .badge-tier.bronze { background: rgba(205,127,50,.15); color: var(--tier-bronze); border: 1px solid rgba(205,127,50,.3); }
+  .badge-tier.silver { background: rgba(148,163,184,.15); color: var(--tier-silver); border: 1px solid rgba(148,163,184,.3); }
+  .badge-tier.gold { background: rgba(251,191,36,.15); color: var(--tier-gold); border: 1px solid rgba(251,191,36,.3); }
+  .badge-tier.platinum { background: rgba(226,232,240,.15); color: var(--tier-platinum); border: 1px solid rgba(226,232,240,.3); }
+  .badge-status { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 5px; }
+  .badge-status.live { background: rgba(239,68,68,.15); color: var(--live); }
+  .badge-status.pending { background: rgba(245,158,11,.15); color: var(--warning); }
+  .badge-status.completed { background: rgba(34,197,94,.15); color: var(--success); }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); animation: livePulse 2s infinite; }
+  .tag { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; background: rgba(255,255,255,.06); color: var(--text-secondary); }
+
+  /* ===== form ===== */
+  .form-row { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: flex-end; }
+  .field-col { display: flex; flex-direction: column; gap: 6px; }
+  .field-col label { font-size: 0.75rem; color: var(--text-muted); }
+  .input { background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 12px 16px; color: var(--text-primary); font-size: 14px; width: 220px; transition: border-color .15s ease; }
+  .input:focus { outline: none; border-color: var(--sunset-orange); box-shadow: 0 0 0 3px rgba(249,132,4,.15); }
+  .input::placeholder { color: var(--text-disabled); }
+  .toggle { width: 44px; height: 24px; border-radius: 12px; background: #3F3F46; position: relative; cursor: pointer; transition: background .15s ease; display: inline-block; }
+  .toggle.active { background-image: var(--accent-gradient); }
+  .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #FAFAFA; position: absolute; top: 2px; left: 2px; transition: transform .15s ease; }
+  .toggle.active .toggle-knob { transform: translateX(20px); }
+
+  /* --- adapted from the Uiverse/andrew-demchenk0 hard-shadow switch you
+     provided — same mechanic (checkbox + label + before-pseudo knob with
+     "off"/"on" text, offset hard shadow). Recolored: the near-black
+     border/shadow that read fine on a white card is invisible on our
+     near-black app bg, so it's remapped to a mid-grey that lights up
+     sunset-orange on check — the boxy/brutalist shape stays, it just now
+     "ignites" the same way the pill button does, for a consistent feel
+     across the two expressive variants. */
+  .brutal-switch { --track-off: var(--bg-elevated); --edge-off: var(--text-disabled); --edge-on: var(--sunset-orange); --track-on: var(--sunset-orange); position: relative; display: inline-block; width: 70px; height: 36px; }
+  .brutal-switch input { opacity: 0; position: absolute; }
+  .brutal-slider { box-sizing: border-box; border-radius: 100px; border: 2px solid var(--edge-off); box-shadow: 4px 4px var(--edge-off); position: absolute; inset: 0; cursor: pointer; background-color: var(--track-off); transition: 0.25s var(--ease-out); }
+  .brutal-slider::before { content: "off"; box-sizing: border-box; height: 28px; width: 28px; position: absolute; left: 2px; bottom: 2px; border: 2px solid var(--edge-off); border-radius: 100px; background-color: var(--text-primary); color: var(--bg-base); font-size: 10px; font-weight: 700; text-align: center; line-height: 24px; transition: 0.25s var(--ease-out); }
+  .brutal-switch input:checked + .brutal-slider { background-color: var(--track-on); border-color: var(--edge-on); box-shadow: 4px 4px var(--edge-on); }
+  .brutal-switch input:checked + .brutal-slider::before { content: "on"; border-color: var(--edge-on); transform: translateX(32px); }
+  @media (prefers-reduced-motion: reduce) { .brutal-slider, .brutal-slider::before { transition: none; } }
+
+  /* --- adapted from the Uiverse/0xnihilism 3D-tilt input you provided —
+     same mechanic (fixed perspective tilt, layered hard shadow, translateZ
+     depth on hover, floating label tag). The original's gold accent
+     (#e9b50b) is close enough to our own --sunset-gold that it barely
+     needed remapping; #000 borders/shadows (invisible on our near-black bg)
+     become --text-primary edges over a --border-subtle "back" shadow layer
+     instead of pure black, so the layering still reads against a dark
+     backdrop instead of vanishing into it. */
+  .tilt-field { position: relative; background: var(--bg-elevated); padding: 20px; display: flex; align-items: center; gap: 14px; border: 3px solid var(--text-primary); max-width: 340px; transition: all 400ms cubic-bezier(0.23,1,0.32,1); transform-style: preserve-3d; transform: rotateX(8deg) rotateY(-8deg); perspective: 1000px; box-shadow: 9px 9px 0 var(--border-subtle); }
+  .tilt-field:hover { transform: rotateX(4deg) rotateY(1deg) scale(1.03); box-shadow: 20px 20px 0 -4px var(--sunset-gold), 20px 20px 0 0 var(--border-subtle); }
+  .tilt-field__glow { content: ""; position: absolute; inset: 0; z-index: -1; transform: translateZ(-50px); background: linear-gradient(45deg, rgba(249,132,4,.35) 0%, rgba(249,132,4,.06) 100%); filter: blur(20px); }
+  .tilt-field__btn { cursor: pointer; border: 3px solid var(--bg-base); background: var(--sunset-gold); transition: all 400ms cubic-bezier(0.23,1,0.32,1); display: flex; align-items: center; justify-content: center; padding: 9px; transform: translateZ(20px); position: relative; z-index: 3; color: var(--bg-base); flex-shrink: 0; }
+  .tilt-field__btn:hover { transform: translateZ(10px) translateX(-4px) translateY(-4px); box-shadow: 4px 4px 0 0 var(--bg-base); }
+  .tilt-field__input { width: 100%; outline: none; border: 3px solid var(--text-primary); padding: 13px; font-size: 15px; background: var(--bg-base); color: var(--text-primary); transform: translateZ(10px); transition: all 400ms cubic-bezier(0.23,1,0.32,1); position: relative; z-index: 3; font-family: var(--sans); }
+  .tilt-field__input::placeholder { color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: .03em; }
+  .tilt-field__input:hover, .tilt-field__input:focus { background: var(--bg-hover); transform: translateZ(20px) translateX(-4px) translateY(-4px); box-shadow: 4px 4px 0 0 var(--text-primary); }
+  .tilt-field__tag { position: absolute; top: -14px; left: 18px; background: var(--sunset-gold); color: var(--bg-base); font-weight: 800; padding: 4px 9px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; transform: translateZ(50px); z-index: 4; border: 2px solid var(--bg-base); }
+  @media (prefers-reduced-motion: reduce) { .tilt-field, .tilt-field:hover, .tilt-field__btn, .tilt-field__input { transition: none; transform: none; } }
+
+  /* ===== motion ===== */
+  .motion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; }
+  .motion-box { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; align-items: center; gap: 0.8rem; text-align: center; }
+  .motion-box .cap { font-size: 0.75rem; color: var(--text-muted); }
+  @keyframes livePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5);} 50% { box-shadow: 0 0 0 7px rgba(239,68,68,0);} }
+  .live-demo { width: 14px; height: 14px; border-radius: 50%; background: var(--live); animation: livePulse 2s infinite; }
+  @keyframes flameFlicker { 0%,100% { transform: scale(1) rotate(-2deg);} 25%{transform:scale(1.05) rotate(2deg);} 50%{transform:scale(.95) rotate(-1deg);} 75%{transform:scale(1.02) rotate(1deg);} }
+  .flame-demo { font-size: 34px; display: inline-block; animation: flameFlicker 1.5s infinite; filter: drop-shadow(0 0 10px rgba(249,132,4,.5)); }
+  @keyframes shimmer { 0%{background-position:-200% 0;} 100%{background-position:200% 0;} }
+  .skeleton-demo { width: 100%; height: 14px; border-radius: 6px; background: linear-gradient(90deg,#27272A 25%,#3F3F46 50%,#27272A 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  .skeleton-demo.w60 { width: 60%; }
+  @keyframes cardEnter { from{opacity:0; transform: translateY(12px);} to{opacity:1; transform:translateY(0);} }
+  .stagger-item { width: 100%; height: 16px; border-radius: 6px; background: rgba(255,255,255,.08); animation: cardEnter .2s var(--ease-out) both; }
+  @keyframes checkDraw { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+  .check-demo circle { fill: none; stroke: var(--success); stroke-width: 2; }
+  .check-demo path { fill: none; stroke: var(--success); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; animation: checkDraw 0.6s var(--ease-out) forwards; animation-delay: .3s; stroke-dashoffset: 24; }
+  @media (prefers-reduced-motion: reduce) {
+    .live-demo, .flame-demo, .skeleton-demo, .live-dot { animation: none; }
+    .check-demo path { animation: none; stroke-dashoffset: 0; }
+  }
+
+  /* ===== icons ===== */
+  .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 0.8rem; }
+  .icon-item { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.9rem 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+  .icon-item svg { color: var(--sunset-gold); }
+  .icon-item .nm { font-size: 0.68rem; color: var(--text-secondary); text-align: center; }
+  .icon-item .lucide { font-family: var(--mono); font-size: 0.6rem; color: var(--text-disabled); }
+
+  /* --- adapted from the Uiverse/uiverse-astronaut segmented-tabs you
+     provided — same radio+label mechanic (native, keyboard-accessible, no
+     JS), recolored for the dark surface. Active segment inverts to a light
+     filled chip rather than the sunset gradient, on purpose: the accent
+     stays reserved for actual CTAs/prize moments, not "which tab is on"
+     state (same discipline as the rest of this system). */
+  .cir-tabs { display: inline-flex; align-items: center; gap: 4px; padding: 5px; background: var(--bg-hover); border: 1px solid var(--border-subtle); border-radius: 999px; font-family: var(--sans); }
+  .cir-tabs__r { position: absolute; opacity: 0; pointer-events: none; }
+  .cir-tabs__t { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: background-color 220ms var(--ease-out), color 220ms var(--ease-out), box-shadow 220ms var(--ease-out); }
+  .cir-tabs__t:hover { color: var(--text-primary); }
+  .cir-tabs__r:checked + .cir-tabs__t { background: var(--text-primary); color: var(--bg-base); box-shadow: 0 1px 1px rgba(0,0,0,.2), 0 8px 18px -10px rgba(0,0,0,.5); }
+  .cir-tabs__r:focus-visible + .cir-tabs__t { box-shadow: 0 0 0 3px rgba(249,132,4,.35); }
+
+  /* --- adapted from the Uiverse/srinivasaiml mystery-reveal ticket you
+     provided — full mechanic kept (entrance, hover-reveal, orbs, barcode,
+     QR, corners, holographic sweep). Repurposed as PEROKIO's outcome
+     ticket for /results: the hidden "?" that reveals on hover maps almost
+     exactly onto that page's existing data (creator, outcome, tier,
+     payout). Violet (#8b5cf6 family) -> the sunset gradient throughout;
+     the barcode/QR patches stay a light physical-paper color on purpose —
+     that's a real-world print convention, not a brand color, so forcing
+     it dark would read as broken rather than themed. The holographic
+     sweep keeps its literal rainbow stops for the same reason: a hologram
+     that only uses your brand color isn't a hologram. */
+  .tk-container { perspective: 1500px; position: relative; font-family: var(--sans); }
+  .tk-ticket { width: 320px; background: linear-gradient(145deg, var(--bg-elevated) 0%, #0F0F1A 100%); border-radius: 20px; position: relative; cursor: pointer; box-shadow: 0 20px 40px rgba(0,0,0,.5), 0 8px 20px rgba(249,132,4,.15), inset 0 1px 0 rgba(255,255,255,.06); transition: all .8s cubic-bezier(.23,1,.32,1); animation: tkEntrance 1.2s cubic-bezier(.34,1.56,.64,1) forwards; transform-style: preserve-3d; overflow: hidden; display: flex; flex-direction: column; }
+  @keyframes tkEntrance { 0%{opacity:0; transform: translateY(60px) rotateX(-20deg) rotateY(15deg) scale(.7); filter: blur(8px);} 60%{opacity:.9; transform: translateY(-6px) rotateX(3deg) rotateY(-3deg) scale(1.02); filter: blur(1px);} 100%{opacity:1; transform: translateY(0) rotateX(0) rotateY(0) scale(1); filter: blur(0);} }
+  .tk-ticket::before { content: ""; position: absolute; z-index: 10; inset: 0; background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.08) 45%, rgba(255,255,255,.18) 50%, rgba(255,255,255,.08) 55%, transparent 70%); transform: translateX(-150%) skewX(-15deg); transition: transform 1.2s cubic-bezier(.23,1,.32,1); pointer-events: none; border-radius: 20px; }
+  .tk-ticket:hover::before { transform: translateX(150%) skewX(-15deg); }
+  .tk-glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(249,132,4,.35) 0%, transparent 70%); pointer-events: none; opacity: 0; transition: opacity .8s ease; z-index: 0; }
+  .tk-ticket:hover .tk-glow { opacity: 1; }
+  .tk-glow-1 { top:-50px; left:-50px; width:160px; height:160px; animation: tkGlow1 4s ease-in-out infinite; }
+  .tk-glow-2 { bottom:-50px; right:-50px; width:130px; height:130px; animation: tkGlow2 3s ease-in-out infinite reverse; }
+  @keyframes tkGlow1 { 0%,100%{transform:scale(1) rotate(0);opacity:.3;} 50%{transform:scale(1.3) rotate(180deg);opacity:.55;} }
+  @keyframes tkGlow2 { 0%,100%{transform:scale(1) rotate(0);opacity:.2;} 50%{transform:scale(1.2) rotate(-90deg);opacity:.45;} }
+  .tk-orb { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(249,178,8,.9) 0%, rgba(249,132,4,.4) 50%, transparent 100%); pointer-events: none; opacity: 0; transition: opacity .6s ease; }
+  .tk-ticket:hover .tk-orb { opacity: 1; }
+  .tk-orb-1 { top:18px; right:26px; width:10px; height:10px; animation: tkOrb1 3s ease-in-out infinite; }
+  .tk-orb-2 { bottom:70px; left:34px; width:7px; height:7px; animation: tkOrb2 4s ease-in-out infinite; }
+  @keyframes tkOrb1 { 0%,100%{transform:translate(0,0);} 33%{transform:translate(8px,-12px);} 66%{transform:translate(-6px,4px);} }
+  @keyframes tkOrb2 { 0%,100%{transform:translate(0,0);} 50%{transform:translate(12px,-16px);} }
+
+  .tk-main { transform: translateZ(20px); padding: 18px 22px; position: relative; z-index: 2; flex-grow: 1; display: flex; flex-direction: column; }
+  .tk-header { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+  .tk-logo { width: 44px; height: 44px; background: linear-gradient(135deg, var(--sunset-orange), var(--sunset-red)); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 5px 14px rgba(249,84,4,.35), inset 0 2px 8px rgba(255,255,255,.25); position: relative; animation: tkLogoFloat 3s ease-in-out infinite; }
+  @keyframes tkLogoFloat { 0%,100%{transform:translateY(0) rotate(0);} 50%{transform:translateY(-6px) rotate(4deg);} }
+  .tk-logo span { font-size: 15px; font-weight: 900; color: var(--bg-base); z-index: 2; }
+  .tk-ring { position: absolute; border: 2px solid rgba(249,178,8,.6); border-radius: 50%; animation: tkRing 4s linear infinite; opacity: 0; }
+  .tk-ticket:hover .tk-ring { opacity: 1; }
+  .tk-ring-1 { top:-5px; left:-5px; width:54px; height:54px; }
+  .tk-ring-2 { top:-9px; left:-9px; width:62px; height:62px; animation-delay: 2s; border-color: rgba(252,84,4,.4); }
+  @keyframes tkRing { 0%{transform:rotate(0) scale(1);opacity:0;} 50%{opacity:1;} 100%{transform:rotate(360deg) scale(1.1);opacity:0;} }
+  .tk-title { font-size: 1.35rem; font-weight: 900; letter-spacing: -1px; line-height: 1.1; margin-bottom: 3px; }
+  .tk-letter { display: inline-block; background: linear-gradient(135deg, var(--sunset-red), var(--sunset-orange), var(--sunset-gold)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: tkLetterWave 2s ease-in-out infinite; }
+  .tk-letter:nth-child(1){animation-delay:.1s}.tk-letter:nth-child(2){animation-delay:.2s}.tk-letter:nth-child(3){animation-delay:.3s}.tk-letter:nth-child(4){animation-delay:.4s}.tk-letter:nth-child(5){animation-delay:.5s}.tk-letter:nth-child(6){animation-delay:.6s}.tk-letter:nth-child(7){animation-delay:.7s}
+  @keyframes tkLetterWave { 0%,100%{transform:translateY(0) rotateZ(0) scale(1);} 50%{transform:translateY(-4px) rotateZ(2deg) scale(1.08);} }
+  .tk-subtitle { font-size: .68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.2px; position: relative; }
+  .tk-subtitle-underline { position: absolute; bottom:-2px; left:0; width:0; height:2px; background: linear-gradient(90deg, var(--sunset-orange), var(--sunset-gold)); transition: width .8s cubic-bezier(.23,1,.32,1); }
+  .tk-ticket:hover .tk-subtitle-underline { width: 100%; }
+
+  .tk-content { flex-grow: 1; position: relative; min-height: 130px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; }
+  .tk-content-wrap { width: 100%; height: 100%; position: absolute; }
+  .tk-initial { position: absolute; top:50%; left:50%; transform: translate(-50%,-50%) translateZ(0); text-align: center; transition: all .8s cubic-bezier(.25,.46,.45,.94); z-index: 3; }
+  .tk-ticket:hover .tk-initial { opacity: 0; transform: translate(-50%,-50%) translateZ(-80px) scale(.3) rotate(-15deg); }
+  .tk-mystery { font-size: 2.6rem; font-weight: 900; background: linear-gradient(135deg, var(--sunset-orange), var(--sunset-gold), var(--sunset-yellow)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: tkQPulse 2s ease-in-out infinite; filter: drop-shadow(0 8px 24px rgba(249,132,4,.4)); display: block; margin-bottom: 4px; }
+  @keyframes tkQPulse { 0%,100%{transform:scale(1) rotate(-5deg);} 50%{transform:scale(1.18) rotate(5deg);} }
+  .tk-pulse-ring { position: absolute; top:50%; left:50%; border: 3px solid rgba(249,178,8,.6); border-radius: 50%; transform: translate(-50%,-50%); animation: tkPulseRing 2s ease-out infinite; opacity: 0; }
+  .tk-pulse-ring.r1 { width:66px; height:66px; }
+  .tk-pulse-ring.r2 { width:100px; height:100px; animation-delay:.7s; border-color: rgba(252,84,4,.4); }
+  .tk-pulse-ring.r3 { width:134px; height:134px; animation-delay:1.4s; border-color: rgba(247,253,4,.3); }
+  @keyframes tkPulseRing { 0%{transform:translate(-50%,-50%) scale(.5);opacity:1;} 100%{transform:translate(-50%,-50%) scale(1.5);opacity:0;} }
+  .tk-hover-text { font-size: .68rem; color: var(--text-muted); }
+
+  .tk-revealed { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; align-items: center; padding: 8px; gap: 8px; }
+  .tk-detail { text-align: center; opacity: 0; transform: translateY(24px) translateZ(-80px) scale(.8) rotateX(-20deg); transition: all .8s cubic-bezier(.34,1.56,.64,1); position: relative; padding: 7px; border-radius: 8px; background: rgba(255,255,255,.04); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.08); }
+  .tk-ticket:hover .tk-detail { opacity: 1; transform: translateY(0) translateZ(30px) scale(1) rotateX(0); }
+  .tk-ticket:hover .tk-detail:nth-child(1){transition-delay:.15s} .tk-ticket:hover .tk-detail:nth-child(2){transition-delay:.3s} .tk-ticket:hover .tk-detail:nth-child(3){transition-delay:.45s} .tk-ticket:hover .tk-detail:nth-child(4){transition-delay:.6s}
+  .tk-detail .lbl { display: block; font-size: .58rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+  .tk-detail .val { display: block; font-size: .84rem; font-weight: 800; color: var(--text-primary); }
+
+  .tk-perf { position: relative; height: 18px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tk-perf-line { display: flex; align-items: center; justify-content: space-between; width: 80%; }
+  .tk-perf-dot { width: 5px; height: 5px; background: linear-gradient(135deg, var(--sunset-orange), var(--sunset-gold)); border-radius: 50%; animation: tkPerfDot 3s ease-in-out infinite; }
+  @keyframes tkPerfDot { 0%,100%{transform:scale(1);opacity:.6;} 50%{transform:scale(1.3);opacity:1;} }
+
+  .tk-stub { padding: 13px 22px; background: linear-gradient(145deg, var(--bg-hover) 0%, var(--bg-elevated) 100%); border-radius: 0 0 20px 20px; }
+  .tk-stub-row { display: flex; align-items: center; justify-content: space-between; gap: 13px; }
+  .tk-barcode-sec { flex-grow: 1; text-align: center; }
+  .tk-barcode { width: 100%; height: 26px; border-radius: 4px; margin-bottom: 4px; position: relative; overflow: hidden; background: linear-gradient(to bottom, #f5f5f0, #e8e8e0); box-shadow: inset 0 2px 6px rgba(0,0,0,.15); }
+  .tk-barcode-lines { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, #17181b 0px, #17181b 2px, transparent 2px, transparent 4px); }
+  .tk-barcode-num { font-family: var(--mono); font-size: .58rem; color: var(--text-secondary); letter-spacing: 1px; }
+  .tk-stub-info { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .tk-qr { width: 36px; height: 36px; background: #f5f5f0; border: 1px solid #d8d0c8; border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .tk-qr-pattern { width: 78%; height: 78%; background: linear-gradient(90deg, var(--sunset-orange) 50%, transparent 50%), linear-gradient(var(--sunset-orange) 50%, transparent 50%); background-size: 4px 4px; opacity: .7; animation: tkQrPattern 3s ease-in-out infinite; }
+  @keyframes tkQrPattern { 0%,100%{opacity:.7;transform:scale(1);} 50%{opacity:1;transform:scale(1.08);} }
+  .tk-stub-text { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .tk-stub-text .top { font-size: .48rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+  .tk-stub-text .id { font-size: .48rem; color: var(--text-disabled); font-family: var(--mono); }
+
+  .tk-corner { position: absolute; width: 18px; height: 18px; border: 2px solid rgba(249,132,4,.3); opacity: 0; transition: all .6s ease; }
+  .tk-ticket:hover .tk-corner { opacity: 1; border-color: rgba(249,132,4,.8); }
+  .tk-corner.tl { top:13px; left:13px; border-right:none; border-bottom:none; border-radius:0 0 0 8px; }
+  .tk-corner.tr { top:13px; right:13px; border-left:none; border-bottom:none; border-radius:0 0 8px 0; }
+  .tk-corner.bl { bottom:13px; left:13px; border-right:none; border-top:none; border-radius:8px 0 0 0; }
+  .tk-corner.br { bottom:13px; right:13px; border-left:none; border-top:none; border-radius:0 8px 0 0; }
+
+  .tk-holo { position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(255,0,150,.1) 40%, rgba(0,255,255,.1) 50%, rgba(255,255,0,.1) 60%, transparent 70%); opacity: 0; transition: opacity .8s ease; pointer-events: none; border-radius: 20px; animation: tkHoloShift 8s linear infinite; }
+  .tk-ticket:hover .tk-holo { opacity: .3; }
+  @keyframes tkHoloShift { 0%{filter:hue-rotate(0);} 100%{filter:hue-rotate(360deg);} }
+  .tk-ticket:focus { outline: 3px solid var(--sunset-gold); outline-offset: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tk-ticket, .tk-ticket::before, .tk-glow, .tk-orb, .tk-logo, .tk-ring, .tk-letter, .tk-mystery, .tk-pulse-ring,
+    .tk-detail, .tk-perf-dot, .tk-qr-pattern, .tk-holo { animation: none !important; transition: none !important; }
+    .tk-ticket { opacity: 1; filter: none; transform: none; }
+    .tk-ticket:hover .tk-initial { opacity: 0; }
+    .tk-ticket:hover .tk-detail { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Component Library — v2</p>
+    <h1>PEROKIO v2 components</h1>
+    <p class="dek">The remaining checklist items: cards, badges, form elements, motion, and the icon reference — built on <code>docs/perokio/tokens.css</code>. Your Uiverse pill button is folded in as the "ignite" pattern below (§01).</p>
+    <nav class="jump">
+      <a href="#buttons">Buttons</a><a href="#cards">Cards</a><a href="#badges">Badges &amp; tags</a>
+      <a href="#forms">Forms</a><a href="#segmented">Segmented control</a><a href="#motion">Motion</a><a href="#icons">Icons</a><a href="#ticket">Outcome ticket</a>
+    </nav>
+  </header>
+
+  <section id="buttons">
+    <h2><span class="n">01</span> Buttons</h2>
+    <p class="section-note">Added your pill button as a fourth pattern — same shape/lift/glow physics, recolored onto the dark card + sunset accent. Use it where a CTA should feel dormant until touched (secondary confirm actions), not for the primary "do the core thing" button.</p>
+    <div class="panel">
+      <div class="btn-grid">
+        <div class="btn-col"><button class="btn btn-primary">Tell your story</button><span class="size-tag">primary</span></div>
+        <div class="btn-col"><button class="btn btn-secondary">View details</button><span class="size-tag">secondary</span></div>
+        <div class="btn-col"><button class="btn btn-ghost">Not now</button><span class="size-tag">ghost</span></div>
+        <div class="btn-col"><button class="btn btn-icon">↗</button><span class="size-tag">icon</span></div>
+        <div class="btn-col"><button class="btn-ignite">Enter now</button><span class="size-tag">ignite — from your Uiverse button</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cards">
+    <h2><span class="n">02</span> Cards</h2>
+    <p class="section-note">Three variants — story/challenge, creator, content. Same base <code>.card</code> shell (border-glow + lift on hover), different bodies.</p>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-thumb a"><span class="play">▶</span><span class="platform-badge">Live · 2h left</span></div>
+        <div class="card-body">
+          <div class="card-top-row"><div><p class="card-title">Summer Glow Drop</p><p class="card-sub">Glow Co · Round 2</p></div></div>
+          <p class="card-prize">$5,000</p>
+          <div class="card-foot">
+            <div class="avatar-stack">
+              <span class="avatar-sm" style="background:var(--tier-gold)">A</span>
+              <span class="avatar-sm" style="background:var(--tier-silver)">T</span>
+              <span class="avatar-sm" style="background:var(--sunset-orange)">M</span>
+            </div>
+            <span class="badge-status live"><span class="live-dot"></span>340 voting</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card creator-card">
+        <div class="card-body">
+          <div class="creator-avatar" style="--ring:var(--tier-gold); background:linear-gradient(135deg,var(--tier-gold),var(--sunset-orange))">AN</div>
+          <div>
+            <p class="card-title" style="margin-bottom:2px">Ana <span class="badge-tier bronze" style="margin-left:4px">Bronze</span></p>
+            <div class="trust-row">
+              <div class="t"><b>3</b><span>Wins</span></div>
+              <div class="t"><b>78%</b><span>Finals</span></div>
+              <div class="t"><b>4.9</b><span>Score</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card content-card">
+        <div class="card-thumb b">
+          <span class="platform-badge">TikTok</span>
+          <div class="reach-overlay"><span>👁 12.4k</span><span>@ana</span></div>
+        </div>
+        <div class="card-body">
+          <p class="card-sub">Posted 2 days ago · attributed to Glow Co</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="badges">
+    <h2><span class="n">03</span> Badges &amp; tags</h2>
+    <div class="panel">
+      <div class="badge-row" style="margin-bottom:1rem">
+        <span class="badge-tier bronze">Bronze</span>
+        <span class="badge-tier silver">Silver</span>
+        <span class="badge-tier gold">Gold</span>
+        <span class="badge-tier platinum">Platinum</span>
+      </div>
+      <div class="badge-row" style="margin-bottom:1rem">
+        <span class="badge-status live"><span class="live-dot"></span>Live</span>
+        <span class="badge-status pending">Pending</span>
+        <span class="badge-status completed">Completed</span>
+      </div>
+      <div class="badge-row">
+        <span class="tag">Challenge</span>
+        <span class="tag">Free</span>
+        <span class="tag">Paid</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="forms">
+    <h2><span class="n">04</span> Form elements</h2>
+    <div class="panel">
+      <div class="form-row">
+        <div class="field-col"><label>Phone number</label><input class="input" placeholder="+1 555 123 4567" /></div>
+        <div class="field-col"><label>Notify me</label><span class="toggle active"><span class="toggle-knob"></span></span></div>
+        <div class="field-col"><label>Auto-renew</label><span class="toggle"><span class="toggle-knob"></span></span></div>
+      </div>
+      <div class="form-row" style="margin-top:1.4rem">
+        <div class="field-col">
+          <label>Push notifications — expressive variant</label>
+          <label class="brutal-switch">
+            <input type="checkbox" checked />
+            <span class="brutal-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:1.6rem">
+        <div class="field-col">
+          <label>Claim a username — expressive variant</label>
+          <div class="tilt-field">
+            <div class="tilt-field__glow"></div>
+            <span class="tilt-field__tag">Username</span>
+            <button class="tilt-field__btn" type="button" aria-label="Confirm username">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </button>
+            <input class="tilt-field__input" type="text" name="username" placeholder="Enter username" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="segmented">
+    <h2><span class="n">07</span> Segmented control</h2>
+    <p class="section-note">Radio-input tabs — real keyboard/focus behavior, not a JS-driven fake. Two applications: an analytics time range, and the creators/brands discovery toggle from the design-system spec (§2.2).</p>
+    <div class="panel" style="display:flex; flex-direction:column; gap:1.5rem; align-items:flex-start">
+      <div class="cir-tabs" role="tablist" aria-label="Range">
+        <input class="cir-tabs__r" type="radio" name="cir-range" id="cir-r-day" />
+        <label class="cir-tabs__t" for="cir-r-day" role="tab">Day</label>
+        <input class="cir-tabs__r" type="radio" name="cir-range" id="cir-r-week" checked />
+        <label class="cir-tabs__t" for="cir-r-week" role="tab">Week</label>
+        <input class="cir-tabs__r" type="radio" name="cir-range" id="cir-r-month" />
+        <label class="cir-tabs__t" for="cir-r-month" role="tab">Month</label>
+        <input class="cir-tabs__r" type="radio" name="cir-range" id="cir-r-year" />
+        <label class="cir-tabs__t" for="cir-r-year" role="tab">Year</label>
+      </div>
+      <div class="cir-tabs" role="tablist" aria-label="Discover">
+        <input class="cir-tabs__r" type="radio" name="cir-discover" id="cir-d-creators" checked />
+        <label class="cir-tabs__t" for="cir-d-creators" role="tab">Top creators</label>
+        <input class="cir-tabs__r" type="radio" name="cir-discover" id="cir-d-brands" />
+        <label class="cir-tabs__t" for="cir-d-brands" role="tab">Active brands</label>
+      </div>
+    </div>
+  </section>
+
+  <section id="motion">
+    <h2><span class="n">05</span> Motion &amp; effects</h2>
+    <p class="section-note">All playing live — this is what they actually look like, not a description of them.</p>
+    <div class="motion-grid">
+      <div class="motion-box"><span class="live-demo"></span><span class="cap">livePulse · 2s</span></div>
+      <div class="motion-box"><span class="flame-demo">🔥</span><span class="cap">flameFlicker · 1.5s</span></div>
+      <div class="motion-box" style="align-items:stretch"><div class="skeleton-demo"></div><div class="skeleton-demo w60"></div><span class="cap">shimmer · 1.5s</span></div>
+      <div class="motion-box" style="align-items:stretch">
+        <div class="stagger-item" style="animation-delay:0ms"></div>
+        <div class="stagger-item" style="animation-delay:50ms"></div>
+        <div class="stagger-item" style="animation-delay:100ms"></div>
+        <span class="cap">cardEnter · 50ms stagger</span>
+      </div>
+      <div class="motion-box">
+        <svg class="check-demo" width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3 3 7-7"/></svg>
+        <span class="cap">checkDraw · 600ms</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="icons">
+    <h2><span class="n">06</span> Icon reference</h2>
+    <p class="section-note">Shown in this system's line style (24px grid, 1.75 stroke) for layout reference — implementation swaps to real <code>lucide-react</code> imports at the name shown under each.</p>
+    <div class="icon-grid">
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c1 3-3.5 4.5-3.5 8.5a3.5 3.5 0 0 0 7 0c0-1.2-.6-2-1.2-2.7.9.2 2.2 1.6 2.2 4a5.5 5.5 0 0 1-11 0c0-5 3.5-6 3-9.8Z"/></svg><span class="nm">Streak</span><span class="lucide">flame</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 3.5 3L12 5l5.5 6L21 8l-1.5 10h-15Z"/><path d="M6.5 21h11"/></svg><span class="nm">Wins, tiers</span><span class="lucide">trophy</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h11A2.5 2.5 0 0 1 19 7.5V8H5.5A2.5 2.5 0 0 1 3 5.5"/><rect x="3" y="8" width="18" height="12" rx="2.5"/></svg><span class="nm">Earnings</span><span class="lucide">wallet</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 17.3-6.2 3.3 1.2-6.9L2 8.6l6.9-1L12 1.4l3.1 6.2 6.9 1-5 5.1 1.2 6.9Z"/></svg><span class="nm">Ratings</span><span class="lucide">star</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg><span class="nm">Story discovery</span><span class="lucide">book-open</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M7 4.5v15l13-7.5Z" fill="currentColor"/></svg><span class="nm">Play / video</span><span class="lucide">play</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span class="nm">Views</span><span class="lucide">eye</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V10M9 20V4M15 20v-7M21 20v-4"/></svg><span class="nm">Analytics</span><span class="lucide">bar-chart-3</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 6-6 2 2-6Z"/></svg><span class="nm">Goals / journey</span><span class="lucide">compass</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg><span class="nm">Momentum</span><span class="lucide">zap</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span class="nm">KYB / private</span><span class="lucide">lock</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.5 2.5L16 9"/></svg><span class="nm">Verified</span><span class="lucide">check-circle</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg><span class="nm">Warning</span><span class="lucide">alert-triangle</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.25"/></svg><span class="nm">Discovery / map</span><span class="lucide">map-pin</span></div>
+      <div class="icon-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.5" r="2.25"/><circle cx="6" cy="12" r="2.25"/><circle cx="18" cy="18.5" r="2.25"/><path d="m8 10.8 8-4.2M8 13.2l8 4.2"/></svg><span class="nm">Rally / share</span><span class="lucide">share-2</span></div>
+    </div>
+  </section>
+
+  <section id="ticket">
+    <h2><span class="n">08</span> Outcome ticket</h2>
+    <p class="section-note">Repurposed for <code>/results</code> — a mystery "?" that reveals the actual outcome on hover, instead of a share card that dumps everything at once. All the numbers in the revealed grid are real fields already on that page's data (creator, outcome, tier, payout).</p>
+    <div class="panel" style="display:flex; justify-content:center">
+      <div class="tk-container">
+        <div class="tk-ticket" tabindex="0" aria-label="Outcome ticket — Ana, Glow Co, winner">
+          <div class="tk-glow tk-glow-1"></div>
+          <div class="tk-glow tk-glow-2"></div>
+          <div class="tk-orb tk-orb-1"></div>
+          <div class="tk-orb tk-orb-2"></div>
+
+          <div class="tk-main">
+            <div class="tk-header">
+              <div class="tk-logo">
+                <span>PK</span>
+                <div class="tk-ring tk-ring-1"></div>
+                <div class="tk-ring tk-ring-2"></div>
+              </div>
+              <div>
+                <div class="tk-title">
+                  <span class="tk-letter">P</span><span class="tk-letter">E</span><span class="tk-letter">R</span><span class="tk-letter">O</span><span class="tk-letter">K</span><span class="tk-letter">I</span><span class="tk-letter">O</span>
+                </div>
+                <p class="tk-subtitle">Glow Co · resolved</p>
+                <div class="tk-subtitle-underline"></div>
+              </div>
+            </div>
+
+            <div class="tk-content">
+              <div class="tk-content-wrap">
+                <div class="tk-initial">
+                  <span class="tk-mystery">?</span>
+                  <div class="tk-pulse-ring r1"></div>
+                  <div class="tk-pulse-ring r2"></div>
+                  <div class="tk-pulse-ring r3"></div>
+                  <p class="tk-hover-text">Hover to reveal</p>
+                </div>
+                <div class="tk-revealed">
+                  <div class="tk-detail"><span class="lbl">Creator</span><span class="val">Ana</span></div>
+                  <div class="tk-detail"><span class="lbl">Outcome</span><span class="val">Winner</span></div>
+                  <div class="tk-detail"><span class="lbl">Tier</span><span class="val">Gold</span></div>
+                  <div class="tk-detail"><span class="lbl">Payout</span><span class="val">$5,000</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tk-perf">
+            <div class="tk-perf-line">
+              <div class="tk-perf-dot"></div><div class="tk-perf-dot"></div><div class="tk-perf-dot"></div>
+              <div class="tk-perf-dot"></div><div class="tk-perf-dot"></div><div class="tk-perf-dot"></div>
+              <div class="tk-perf-dot"></div><div class="tk-perf-dot"></div>
+            </div>
+          </div>
+
+          <div class="tk-stub">
+            <div class="tk-stub-row">
+              <div class="tk-barcode-sec">
+                <div class="tk-barcode"><div class="tk-barcode-lines"></div></div>
+                <div class="tk-barcode-num">*PK-WIN-GC02*</div>
+              </div>
+              <div class="tk-stub-info">
+                <div class="tk-qr"><div class="tk-qr-pattern"></div></div>
+                <div class="tk-stub-text"><span class="top">Outcome verified</span><span class="id">#PK-0142</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tk-corner tl"></div>
+          <div class="tk-corner tr"></div>
+          <div class="tk-corner bl"></div>
+          <div class="tk-corner br"></div>
+          <div class="tk-holo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

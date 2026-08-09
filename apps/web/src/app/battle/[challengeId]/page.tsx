@@ -16,7 +16,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const summary = await loadSummary(params.challengeId);
   return {
-    title: `${summary.title} — ${formatCents(summary.prizePool)} on the line | MOMENT`,
+    title: `${summary.title} — ${formatCents(summary.prizePool)} on the line | Perokio`,
     description: summary.brief,
   };
 }

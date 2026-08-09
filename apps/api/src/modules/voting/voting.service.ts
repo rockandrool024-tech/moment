@@ -2,12 +2,14 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { RallyAttribution, Vote, VotePool } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StreakService } from "./streak.service";
+import { ReferralsService } from "../referrals/referrals.service";
 
 @Injectable()
 export class VotingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly streakService: StreakService,
+    private readonly referrals: ReferralsService,
   ) {}
 
   /**
@@ -69,8 +71,9 @@ export class VotingService {
     }
 
     // Runs after the vote is durably committed, outside the try/catch, so a
-    // streak-update failure never gets misreported as "already voted."
+    // streak/referral-reward failure never gets misreported as "already voted."
     await this.streakService.applyVoteForUser(userId);
+    await this.referrals.rewardIfPending(userId, round.challengeId, "first_vote");
     return vote;
   }
 

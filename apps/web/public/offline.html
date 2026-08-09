@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MOMENT — offline</title>
+    <title>Perokio — offline</title>
     <style>
       body {
         margin: 0;
@@ -13,16 +13,35 @@
         min-height: 100vh;
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
         color: #1a1a1a;
-        background: #ffffff;
+        background: #fafafa;
         text-align: center;
         padding: 1.5rem;
+      }
+      /* Same elevated-card treatment as the rest of the app's PWA chrome
+         (install prompt) — a shadowed card, not a flat page. */
+      .card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 2rem 1.75rem;
+        max-width: 360px;
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.08),
+          0 1px 2px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.3rem;
+      }
+      p {
+        margin: 0;
+        color: #6b6b6b;
       }
     </style>
   </head>
   <body>
-    <div>
+    <div class="card">
       <h1>You&rsquo;re offline</h1>
-      <p>MOMENT needs a connection to load challenges, votes, and payouts. Reconnect and reload.</p>
+      <p>Perokio needs a connection to load challenges, votes, and payouts. Reconnect and reload.</p>
     </div>
   </body>
 </html>

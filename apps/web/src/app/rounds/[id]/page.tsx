@@ -8,6 +8,7 @@ import { Challenge, Round, Submission } from "@/lib/types";
 import { VoteDeck } from "@/components/VoteDeck";
 import { getRallyCode } from "@/lib/rally";
 import { useAuth } from "@/lib/auth-context";
+import { ShareIcon } from "@/components/icons";
 
 function ShareResultLink({ challengeId }: { challengeId: string }) {
   const { user } = useAuth();
@@ -24,8 +25,12 @@ function ShareResultLink({ challengeId }: { challengeId: string }) {
 
   return (
     <p style={{ marginTop: "1rem" }}>
-      <Link href={`/results/${submission.id}`} className="btn">
-        Share your result
+      <Link
+        href={`/results/${submission.id}`}
+        className="btn"
+        style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+      >
+        <ShareIcon width={16} height={16} aria-hidden /> Share your result
       </Link>
     </p>
   );

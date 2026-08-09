@@ -3,6 +3,7 @@ import { User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { UsersService } from "./users.service";
+import { JourneyMilestone } from "./journey";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard)
@@ -27,5 +28,10 @@ export class UsersController {
   @Post("me/avatar/generate")
   generateAvatar(@CurrentUser() user: User): Promise<User> {
     return this.users.generateAvatar(user.id);
+  }
+
+  @Get("me/journey")
+  getJourney(@CurrentUser() user: User): Promise<JourneyMilestone[]> {
+    return this.users.getJourney(user.id);
   }
 }

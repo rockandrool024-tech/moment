@@ -3,6 +3,7 @@ import { PayoutType } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { StripeService } from "./stripe.service";
 import { computeTier } from "./tier";
+import { NotificationsService } from "../notifications/notifications.service";
 
 export interface PayoutEntry {
   userId: string;
@@ -24,6 +25,7 @@ export class PayoutsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly stripe: StripeService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async batchCreateAndTransfer(
@@ -53,6 +55,14 @@ export class PayoutsService {
     for (const payout of payouts) {
       await this.transferOne(payout.id);
     }
+
+    // Notified at creation, not at the markPaid webhook — same "earned the
+    // moment it's owed" posture as the wallet page (wallet.service.ts).
+    await Promise.all(
+      payouts.map((payout) =>
+        this.notifications.enqueue({ type: "payout_paid", userId: payout.userId, payoutId: payout.id }),
+      ),
+    );
 
     const recipientIds = [...new Set(payouts.map((p) => p.userId))];
     await Promise.all(recipientIds.map((userId) => this.recomputeEarningsAndTier(userId)));
@@ -95,12 +105,18 @@ export class PayoutsService {
     });
 
     try {
-      const transfer = await this.stripe.get().transfers.create({
-        amount: payout.amount,
-        currency: "usd",
-        destination: payout.user.stripeConnectAccountId,
-        metadata: { payoutId: payout.id, challengeId: payout.challengeId },
-      });
+      // idempotencyKey keyed on the Payout row's own (stable, pre-created)
+      // id — a retry of this exact payout after a crash/timeout replays the
+      // same Stripe request instead of sending a second real transfer.
+      const transfer = await this.stripe.get().transfers.create(
+        {
+          amount: payout.amount,
+          currency: "usd",
+          destination: payout.user.stripeConnectAccountId,
+          metadata: { payoutId: payout.id, challengeId: payout.challengeId },
+        },
+        { idempotencyKey: `payout:${payout.id}` },
+      );
 
       await this.prisma.payout.update({
         where: { id: payoutId },

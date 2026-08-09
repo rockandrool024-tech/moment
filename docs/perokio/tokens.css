@@ -1,0 +1,75 @@
+/* PEROKIO v2 — design tokens
+   Direction: dark neutral structure (from the original "purple system" spec)
+   with the sunset gradient (#F7FD04 -> #FC5404) as the primary/CTA/prize/
+   highlight color instead of purple. See docs/perokio-v2-mockup.html for
+   the rendered reference and docs/design-system.md for MOMENT v1's current
+   (light app + dark /map only) system this would replace.
+
+   Mockup-stage only — not yet imported anywhere in apps/web. */
+
+:root {
+  /* Surface & text — near-black/grey scale, unchanged from spec */
+  --bg-base: #0A0A0F;
+  --bg-elevated: #18181B;
+  --bg-hover: #27272A;
+  --border-subtle: #27272A;
+  --border-active: #F98404; /* was peri-purple #7C3AED */
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --text-disabled: #52525B;
+
+  /* Sunset — primary / CTA / prize / highlight (replaces peri-purple family) */
+  --sunset-yellow: #F7FD04;
+  --sunset-gold: #F9B208;
+  --sunset-orange: #F98404;
+  --sunset-red: #FC5404;
+  --accent: var(--sunset-orange);
+  --accent-gradient: linear-gradient(135deg, #F7FD04 0%, #F9B208 35%, #F98404 72%, #FC5404 100%);
+
+  /* Tier — unchanged from spec */
+  --tier-bronze: #CD7F32;
+  --tier-silver: #94A3B8;
+  --tier-gold: #FBBF24;
+  --tier-platinum: #E2E8F0;
+
+  /* Semantic — unchanged from spec */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #3B82F6;
+  --live: #EF4444;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* Type */
+  --font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  --text-hero: 48px;
+  --text-h1: 32px;
+  --text-h2: 24px;
+  --text-h3: 20px;
+  --text-h4: 16px;
+  --text-body: 14px;
+  --text-body-sm: 13px;
+  --text-caption: 12px;
+  --text-micro: 11px;
+  --text-stat: 28px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Spacing */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px; --space-16: 64px;
+}

@@ -1,22 +1,46 @@
-/* Deliberately minimal — functionality over polish this pass. */
+/* PEROKIO v2 — dark theme, sunset accent. Migrated from MOMENT's light
+   system per docs/perokio/HANDOFF.md §2. Variable NAMES are kept stable
+   on purpose (8 files already reference --tier-0..3/--rally/--accent/etc.
+   directly) — only the values change, plus new tokens are added
+   alongside for anything the old system had no equivalent for. This is a
+   full light->dark inversion, not a search-and-replace: --fg/--bg and
+   --accent/--accent-fg swap which end of the contrast scale they're on. */
 
 :root {
-  --fg: #1a1a1a;
-  --bg: #ffffff;
-  --muted: #6b6b6b;
-  --border: #d9d9d9;
-  --accent: #16643f;
-  --accent-fg: #ffffff;
-  --danger: #a6212e;
-  --card-bg: #fafafa;
+  --fg: #FAFAFA;
+  --bg: #0A0A0F;
+  --muted: #A1A1AA;
+  --text-muted: #71717A; /* third, dimmer tier — timestamps/captions, not body-adjacent text */
+  --border: #27272A;
+  --border-active: #F98404;
+  --accent: #F98404;
+  --accent-gradient: linear-gradient(135deg, #F7FD04 0%, #F9B208 35%, #F98404 72%, #FC5404 100%);
+  --accent-fg: #0A0A0F; /* inverted: the old dark-green accent needed white text, this bright one needs dark text */
+  --danger: #EF4444;
+  --card-bg: #18181B;
+  --bg-hover: #27272A;
 
-  /* Design tokens introduced by /map — shared here so every screen
-     references the same values instead of re-deriving them per file. */
-  --tier-0: #c9834b; /* bronze */
-  --tier-1: #b9c2c9; /* silver */
-  --tier-2: #e6b93c; /* gold */
-  --tier-3: #7ee0c9; /* platinum */
-  --rally: #ff6f91; /* challenge/rally coral */
+  /* Tier scale — same 4 tiers, new hex values (not a straight recolor of
+     the old ones). */
+  --tier-0: #CD7F32; /* bronze */
+  --tier-1: #94A3B8; /* silver */
+  --tier-2: #FBBF24; /* gold */
+  --tier-3: #E2E8F0; /* platinum */
+
+  /* Kept as an alias rather than dropped — /map and 7 other files
+     reference --rally directly for challenge/live-pin color. */
+  --rally: #FC5404;
+
+  /* Semantic — separate from --accent/--tier/--rally, which are brand
+     colors, not state. Use these for verdicts, not decoration. */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+  --live: #EF4444;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
 }
 
 * {
@@ -25,7 +49,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: "Geist", "Inter", -apple-system, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--fg);
   background: var(--bg);
   line-height: 1.5;
@@ -55,6 +79,11 @@ a {
   font-weight: 500;
 }
 
+.nav a.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .nav .spacer {
   flex: 1;
 }
@@ -77,16 +106,20 @@ h2 {
 
 /* Elevated variant — shadow instead of a flat border, matching /map's plot
    and sheet treatment. Used where a card should read as "raised," not just
-   grouped (challenges list, PWA install/offline chrome). */
+   grouped (challenges list, PWA install/offline chrome). Shadow is now a
+   dark ambient shadow plus a faint sunset glow rather than the old flat
+   rgba(0,0,0,.08) — that read as a lift against a white page, but is
+   invisible against a near-black one on its own. */
 .card-elevated {
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 1rem;
   margin-bottom: 1rem;
-  background: var(--card-bg);
+  background: linear-gradient(180deg, var(--card-bg), #0F0F1A);
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    0 8px 20px rgba(249, 132, 4, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* Left edge colored by tier/status — set --edge-color inline. */
@@ -97,13 +130,15 @@ h2 {
 .card-interactive {
   transition:
     transform 0.15s ease-out,
-    box-shadow 0.15s ease-out;
+    box-shadow 0.15s ease-out,
+    border-color 0.15s ease-out;
 }
 .card-interactive:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.07);
+    0 14px 32px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(249, 132, 4, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 @media (prefers-reduced-motion: reduce) {
   .card-interactive:hover {
@@ -129,9 +164,21 @@ select {
   font: inherit;
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.35);
   color: var(--fg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 3px rgba(249, 132, 4, 0.15);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }
 
 button,
@@ -139,11 +186,20 @@ button,
   font: inherit;
   padding: 0.5rem 1rem;
   min-height: 48px;
-  border-radius: 6px;
-  border: 1px solid var(--accent);
-  background: var(--accent);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent-gradient);
   color: var(--accent-fg);
+  font-weight: 700;
   cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+button:hover:not(:disabled),
+.btn:hover {
+  filter: brightness(1.08);
+}
+@media (prefers-reduced-motion: reduce) {
+  button, .btn { transition: filter 0.15s ease; }
 }
 
 button:disabled {
@@ -152,8 +208,10 @@ button:disabled {
 }
 
 button.secondary {
-  background: transparent;
-  color: var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--fg);
+  font-weight: 600;
 }
 
 .error {
@@ -177,11 +235,13 @@ button.secondary {
 
 /* Tier badges get the color scale instead of the flat grey every other
    badge uses — set style={{ "--tier-color": "var(--tier-N)" }} on the
-   element (see tier.ts's tierColorVar()). */
+   element (see tier.ts's tierColorVar()). Text stays at full tier-color
+   brightness now (no longer darkened toward black) since it needs to pop
+   against a dark tinted background, not a light one. */
 .badge-tier {
   border-width: 1.5px;
   border-color: var(--tier-color, var(--border));
-  color: color-mix(in srgb, var(--tier-color, var(--muted)) 70%, black);
+  color: var(--tier-color, var(--muted));
   background: color-mix(in srgb, var(--tier-color, var(--border)) 16%, var(--bg));
   font-weight: 600;
 }
@@ -200,6 +260,7 @@ button.secondary {
   text-align: center;
   cursor: pointer;
   background: var(--card-bg);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 .pair-option:hover {

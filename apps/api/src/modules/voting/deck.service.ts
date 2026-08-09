@@ -5,6 +5,7 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { RoundStateMachineService } from "../rounds/round-state-machine.service";
 import { generatePairs, insertAttentionCheck, Pair } from "./deck-generation";
 import { StreakService } from "./streak.service";
+import { ReferralsService } from "../referrals/referrals.service";
 
 const MIN_VIEW_DURATION_MS = 3000; // ADR-005 §4 vote-gate hardening
 
@@ -20,6 +21,7 @@ export class DeckService {
     private readonly config: ConfigService,
     private readonly stateMachine: RoundStateMachineService,
     private readonly streakService: StreakService,
+    private readonly referrals: ReferralsService,
   ) {}
 
   async generateDeck(userId: string, roundId: string): Promise<Deck> {
@@ -124,10 +126,12 @@ export class DeckService {
       throw new BadRequestException("This pair was already answered");
     }
 
-    // A cast vote resumes/extends the streak regardless of the later
-    // attention-check outcome — the streak measures showing up to vote,
-    // the attention check is a separate data-quality gate.
+    // A cast vote resumes/extends the streak (and can trigger a pending
+    // referral reward) regardless of the later attention-check outcome —
+    // both measure showing up to vote, the attention check is a separate
+    // data-quality gate.
     await this.streakService.applyVoteForUser(userId);
+    await this.referrals.rewardIfPending(userId, round.challengeId, "first_vote");
 
     let discarded = false;
     if (pairIndex === deck.checkPairIndex) {

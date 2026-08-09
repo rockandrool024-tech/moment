@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>MOMENT — visual direction mockup (fitness-feed / safety-map / Zenly references)</title>
+<style>
+  :root {
+    --fg: #131313; --bg: #ffffff; --muted: #6b6b6b; --border: #e4e4de;
+    --accent: #16643f; --card: #f6f6f1;
+    --tier-0: #c9834b; --tier-1: #b9c2c9; --tier-2: #e6b93c; --tier-3: #7ee0c9;
+    --rally: #ff6f91;
+    --sans: -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "SF Mono", SFMono-Regular, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: linear-gradient(160deg, #dfe3f2, #f4f2ea 55%, #eef4ea);
+    font-family: var(--sans); padding: 3rem 1.5rem 5rem;
+  }
+  .heading { max-width: 900px; margin: 0 auto 2.5rem; }
+  .heading .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 0.5rem;
+  }
+  .heading h1 { font-size: 1.6rem; margin: 0 0 0.4rem; color: var(--fg); }
+  .heading p { color: #4b4b46; max-width: 62ch; margin: 0; font-size: 0.95rem; }
+
+  .row { display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+  .phone-col { display: flex; flex-direction: column; align-items: center; gap: 0.9rem; }
+  .phone-col .cap { font-family: var(--mono); font-size: 0.72rem; color: #55554f; text-align: center; max-width: 240px; }
+  .phone-col .cap b { color: var(--fg); display: block; font-size: 0.8rem; margin-bottom: 0.15rem; }
+
+  .device {
+    width: 300px; height: 630px; border-radius: 46px; background: #0c0c0c; padding: 12px;
+    box-shadow: 0 30px 60px -20px rgba(20,20,10,.35), 0 2px 8px rgba(0,0,0,.12);
+    position: relative;
+  }
+  .screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; position: relative; background: var(--bg); }
+  .notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 22px; background: #0c0c0c; border-radius: 12px; z-index: 20;
+  }
+  .statusbar {
+    display: flex; justify-content: space-between; padding: 16px 20px 4px; font-size: 12px; font-weight: 600;
+  }
+
+  /* ============ PHONE 1 — home feed ============ */
+  .p1 .screen { background: #fdfdfb; }
+  .p1-body { padding: 2px 16px 16px; }
+  .today-badge {
+    display: inline-block; font-weight: 900; font-size: 1.4rem; letter-spacing: -0.02em;
+    background: #fff2a8; padding: 0 6px; transform: rotate(-1deg); border-radius: 4px;
+  }
+  .p1-head-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 12px; }
+  .icon-btn {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--card); display: flex;
+    align-items: center; justify-content: center; color: #333; flex-shrink: 0;
+  }
+  .segment {
+    display: inline-flex; background: #ececE4; border-radius: 999px; padding: 3px; gap: 2px; margin-bottom: 14px;
+  }
+  .segment span { padding: 6px 14px; border-radius: 999px; font-size: 12.5px; color: #7a7a72; font-weight: 600; }
+  .segment span.on { background: #fff; color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .feed-card {
+    background: var(--card); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display:flex;align-items:center;justify-content:center;
+    color: #fff; font-weight: 700; font-size: 12px; background: linear-gradient(135deg, var(--tier-2), #c9834b);
+  }
+  .feed-card .name { font-size: 13px; font-weight: 700; }
+  .feed-card .sub { font-size: 11px; color: var(--muted); }
+
+  .challenge-card {
+    background: linear-gradient(160deg, #1b2a22, #0f1712); border-radius: 20px; padding: 14px;
+    color: #fff; margin-bottom: 10px; position: relative; overflow: hidden;
+  }
+  .challenge-card .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 34px; }
+  .challenge-card .pill {
+    background: rgba(255,255,255,.14); backdrop-filter: blur(2px); font-size: 10.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px;
+  }
+  .challenge-card .thumb-fake {
+    position: absolute; inset: 0; opacity: .35;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(126,224,201,.5), transparent 45%),
+      radial-gradient(circle at 20% 80%, rgba(255,111,145,.4), transparent 50%);
+  }
+  .challenge-card .title { font-size: 15px; font-weight: 800; margin: 0 0 2px; position: relative; }
+  .challenge-card .loc { font-size: 11px; color: #cfd6cf; position: relative; }
+  .challenge-card .prize { position: relative; font-size: 26px; font-weight: 900; margin-top: 8px; }
+  .challenge-card .prize span { font-size: 11px; font-weight: 600; color: #b9c2b9; margin-left: 4px; }
+
+  .stack { display: flex; margin-top: 10px; position: relative; }
+  .stack .avatar { width: 26px; height: 26px; font-size: 10px; border: 2px solid var(--card); margin-left: -8px; }
+  .stack .avatar:first-child { margin-left: 0; }
+  .stack .count { align-self: center; margin-left: 6px; font-size: 11px; color: var(--muted); }
+
+  /* ============ PHONE 2 — live map ============ */
+  .p2 .screen { background: #05070a; color: #eef0e8; }
+  .p2 .statusbar { color: #eef0e8; }
+  .city-label { padding: 6px 18px 0; font-weight: 800; font-size: 24px; letter-spacing: -0.01em; line-height: 1.05; text-transform: lowercase; }
+  .city-sub { padding: 2px 18px 0; font-size: 11px; color: #8a9280; }
+  .p2-actions { position: absolute; top: 58px; right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 15; }
+  .p2-actions .square {
+    width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; color: #eef0e8;
+  }
+
+  .isoscene { position: relative; height: 420px; margin-top: 14px; perspective: 900px; }
+  .isoground {
+    position: absolute; inset: -20% -10%; transform: rotateX(56deg) rotateZ(-4deg); transform-style: preserve-3d;
+    background-image: radial-gradient(ellipse at 50% 35%, rgba(126,224,201,.14), transparent 60%),
+      linear-gradient(0deg, rgba(126,224,201,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126,224,201,.07) 1px, transparent 1px);
+    background-size: 100% 100%, 8% 8%, 8% 8%;
+  }
+  .bldg {
+    position: absolute; transform: translate(-50%, -100%); border-radius: 5px 5px 2px 2px;
+  }
+  .bpin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 5; }
+  .bpin .ring {
+    width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .bpin .ring::before {
+    content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 1.5px solid var(--rc); opacity: .55;
+  }
+  .bpin .av { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #05070a; }
+  .bpin .lbl { font-size: 10.5px; background: rgba(5,7,10,.7); padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+
+  .p2-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: center; gap: 22px;
+    padding: 14px 0 22px; background: linear-gradient(0deg, #05070a 60%, transparent);
+  }
+  .p2-bottom .circ {
+    width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+    display: flex; align-items: center; justify-content: center; color: #eef0e8; position: relative;
+  }
+  .p2-bottom .circ.on { background: #7ee0c9; color: #05070a; border-color: #7ee0c9; }
+  .p2-bottom .badge {
+    position: absolute; top: -4px; right: -4px; background: var(--rally); color: #05070a; font-size: 9px; font-weight: 800;
+    width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ============ PHONE 3 — profile + sheet ============ */
+  .p3 .screen { background: #fdfdfb; }
+  .p3-body { padding: 2px 16px 0; }
+  .p3-head { display: flex; align-items: center; gap: 10px; margin: 8px 0 14px; }
+  .p3-head .avatar { width: 46px; height: 46px; font-size: 15px; background: linear-gradient(135deg, var(--tier-0), #7ee0c9); }
+  .p3-head .nm { font-size: 15px; font-weight: 800; }
+  .p3-head .tag { font-size: 11.5px; color: var(--muted); }
+  .p3-head .share { margin-left: auto; }
+
+  .p3-segment { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .p3-segment span { font-size: 12.5px; font-weight: 700; color: var(--muted); padding-bottom: 8px; }
+  .p3-segment span.on { color: var(--fg); border-bottom: 2px solid var(--accent); }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { background: var(--card); border-radius: 14px; padding: 10px 12px; }
+  .stat-card .lbl { font-size: 10.5px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+  .stat-card .val { font-size: 22px; font-weight: 900; margin-top: 4px; letter-spacing: -0.02em; }
+  .verdict { font-size: 9.5px; font-weight: 800; padding: 1px 7px; border-radius: 999px; }
+  .verdict.good { background: #e8f5ec; color: #1f8a4c; }
+  .verdict.warn { background: #faf1e2; color: #b9660f; }
+
+  /* bottom sheet overlay on phone 3, mirroring the safety-app reference */
+  .p3-sheet {
+    position: absolute; left: 8px; right: 8px; bottom: 8px; background: #fff; border-radius: 20px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,.14); padding: 14px 16px 18px; z-index: 10;
+  }
+  .p3-sheet .handle { width: 34px; height: 4px; border-radius: 4px; background: var(--border); margin: 0 auto 10px; }
+  .p3-sheet .row1 { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .p3-sheet .row1 .thumb { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg,#1b2a22,#0f1712); }
+  .p3-sheet .row1 .t { font-size: 13.5px; font-weight: 800; }
+  .p3-sheet .row1 .s { font-size: 11px; color: var(--muted); }
+  .chip-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .chip { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .chip.gold { background: #fbf1d6; color: #9c7412; }
+  .chip.rally { background: #ffe3ea; color: #b8324f; }
+  .countdown { font-family: var(--mono); font-size: 20px; font-weight: 700; text-align: center; margin: 4px 0 12px; letter-spacing: 0.04em; }
+  .cta { display: block; width: 100%; text-align: center; background: var(--accent); color: #fff; font-weight: 700;
+    font-size: 13.5px; padding: 12px; border-radius: 12px; }
+</style>
+</head>
+<body>
+
+  <div class="heading">
+    <p class="eyebrow">Visual Direction — Round 2</p>
+    <h1>MOMENT, redesigned against the three references</h1>
+    <p>
+      Same composition as the reference set — a home feed, a dark presence map, a profile screen
+      with a bottom-sheet moment — rebuilt with MOMENT's own screens, data, and copy instead of a
+      literal reskin. Static mockup for direction review; not the live app.
+    </p>
+  </div>
+
+  <div class="row">
+
+    <div class="phone-col">
+      <div class="device p1">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●● 5G 🔋</span></div>
+          <div class="p1-body">
+            <div class="p1-head-row">
+              <span class="today-badge">TODAY</span>
+              <div style="display:flex; gap:8px;">
+                <span class="icon-btn">🔔</span>
+                <span class="icon-btn">›</span>
+              </div>
+            </div>
+            <div class="segment"><span class="on">For you</span><span>Following</span></div>
+
+            <div class="feed-card">
+              <span class="avatar">TH</span>
+              <div>
+                <div class="name">Theo rallied 12 voters</div>
+                <div class="sub">30 min ago</div>
+              </div>
+            </div>
+
+            <div class="challenge-card">
+              <div class="thumb-fake"></div>
+              <div class="top-row">
+                <span class="pill">▶ Round 2 · closes 2h</span>
+              </div>
+              <div class="title">Glow Co — Summer Drop Reel</div>
+              <div class="loc">📍 Live now · 340 voters</div>
+              <div class="prize">$5,000<span>pool</span></div>
+            </div>
+
+            <div class="feed-card">
+              <span class="avatar" style="background:linear-gradient(135deg,var(--tier-3),#3fcf8e)">AN</span>
+              <div>
+                <div class="name">Ana hit a 12-day streak</div>
+                <div class="sub">🔥 Bronze → Silver at 15</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin:4px 0 6px">VOTERS TODAY</div>
+            <div class="stack">
+              <span class="avatar">M</span><span class="avatar" style="background:linear-gradient(135deg,#b9c2c9,#8f97a3)">S</span>
+              <span class="avatar" style="background:linear-gradient(135deg,var(--rally),#c94a6a)">R</span>
+              <span class="count">+128 today</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>Home feed</b>segmented tabs, avatar check-ins, prize-first challenge card — replaces the plain challenges list</div>
+    </div>
+
+    <div class="phone-col">
+      <div class="device p2">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●● 5G 🔋</span></div>
+          <div class="p2-actions">
+            <span class="square">⟳</span>
+            <span class="square">⚲</span>
+          </div>
+          <div class="city-label">live now</div>
+          <div class="city-sub">who's active — stylized, not GPS</div>
+
+          <div class="isoscene">
+            <div class="isoground">
+              <div class="bldg" style="left:22%; top:38%; width:26px; height:120px; background:linear-gradient(180deg,#3a4a5c,#22303e)"></div>
+              <div class="bldg" style="left:40%; top:52%; width:30px; height:80px; background:linear-gradient(180deg,#4a5a6e,#2c3a48)"></div>
+              <div class="bldg" style="left:58%; top:30%; width:24px; height:150px; background:linear-gradient(180deg,#526074,#2f3d4b)"></div>
+              <div class="bldg" style="left:70%; top:60%; width:22px; height:60px; background:linear-gradient(180deg,#3a4a5c,#22303e)"></div>
+              <div class="bldg" style="left:32%; top:66%; width:20px; height:50px; background:linear-gradient(180deg,#465666,#28353f)"></div>
+              <div class="bldg" style="left:80%; top:44%; width:26px; height:100px; background:linear-gradient(180deg,#4a5a6e,#2c3a48)"></div>
+            </div>
+
+            <div class="bpin" style="left:22%; top:22%">
+              <span class="ring" style="--rc:var(--tier-2)"><span class="av" style="background:var(--tier-2)"></span></span>
+              <span class="lbl">Theo</span>
+            </div>
+            <div class="bpin" style="left:58%; top:14%">
+              <span class="ring" style="--rc:var(--tier-3)"><span class="av" style="background:var(--tier-3)"></span></span>
+              <span class="lbl">Ana</span>
+            </div>
+            <div class="bpin" style="left:80%; top:28%">
+              <span class="ring" style="--rc:var(--rally)"><span class="av" style="background:var(--rally)"></span></span>
+              <span class="lbl">Glow Co</span>
+            </div>
+            <div class="bpin" style="left:40%; top:34%">
+              <span class="ring" style="--rc:var(--tier-0)"><span class="av" style="background:var(--tier-0)"></span></span>
+              <span class="lbl">Mia</span>
+            </div>
+          </div>
+
+          <div class="p2-bottom">
+            <span class="circ">🔍</span>
+            <span class="circ on">⛰</span>
+            <span class="circ">💬</span>
+            <span class="circ">🏆<span class="badge">3</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>Live map</b>dark isometric scene, tier-colored avatar pins, lowercase bold label — this is /map, closest to the shipped build already</div>
+    </div>
+
+    <div class="phone-col">
+      <div class="device p3">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="statusbar"><span>9:41</span><span>●●●● 5G 🔋</span></div>
+          <div class="p3-body">
+            <div class="p3-head">
+              <span class="avatar">AN</span>
+              <div>
+                <div class="nm">Ana</div>
+                <div class="tag">Bronze creator · 12-day streak</div>
+              </div>
+              <span class="icon-btn share">↗</span>
+            </div>
+            <div class="p3-segment">
+              <span class="on">Stats</span><span>Challenges</span><span>History</span>
+            </div>
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="lbl">Streak <span class="verdict good">Active</span></div>
+                <div class="val">12</div>
+              </div>
+              <div class="stat-card">
+                <div class="lbl">Taste score</div>
+                <div class="val">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="lbl">Lifetime</div>
+                <div class="val">$0</div>
+              </div>
+              <div class="stat-card">
+                <div class="lbl">Wins <span class="verdict warn">None yet</span></div>
+                <div class="val">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p3-sheet">
+            <div class="handle"></div>
+            <div class="row1">
+              <span class="thumb"></span>
+              <div>
+                <div class="t">Glow Co — Round 2</div>
+                <div class="s">Summer glow drop reel</div>
+              </div>
+            </div>
+            <div class="chip-row">
+              <span class="chip gold">Gold tier +bonus</span>
+              <span class="chip rally">Rally counts double</span>
+            </div>
+            <div class="countdown">02:20:21</div>
+            <span class="cta">Vote now</span>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>Profile + vote sheet</b>stat-card grid from the fitness reference, bottom-sheet-with-countdown pattern from the safety-app reference</div>
+    </div>
+
+  </div>
+</body>
+</html>

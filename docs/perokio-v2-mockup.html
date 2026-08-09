@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PEROKIO v2 — brand &amp; component mockup (Start-With deliverables)</title>
+<style>
+  :root {
+    /* ---- structure (kept from the "purple system," hue removed — these
+       were always near-black/grey neutrals, not literally violet) ---- */
+    --bg-base: #0A0A0F;
+    --bg-elevated: #18181B;
+    --bg-hover: #27272A;
+    --border-subtle: #27272A;
+    --border-active: #F98404; /* was peri-purple — now the sunset accent, per direction */
+    --text-primary: #FAFAFA;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --text-disabled: #52525B;
+
+    /* ---- sunset accent — now the primary/CTA/prize/highlight color ---- */
+    --sunset-yellow: #F7FD04;
+    --sunset-gold: #F9B208;
+    --sunset-orange: #F98404;
+    --sunset-red: #FC5404;
+    --accent: var(--sunset-orange);
+    --accent-gradient: linear-gradient(135deg, #F7FD04 0%, #F9B208 35%, #F98404 72%, #FC5404 100%);
+
+    /* ---- tiers (unchanged from spec — already cohere with the sunset gold) ---- */
+    --tier-bronze: #CD7F32;
+    --tier-silver: #94A3B8;
+    --tier-gold: #FBBF24;
+    --tier-platinum: #E2E8F0;
+
+    /* ---- semantic (unchanged) ---- */
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --info: #3B82F6;
+    --live: #EF4444;
+
+    --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --radius-full: 999px;
+    --sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "Geist Mono", "JetBrains Mono", "SF Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg-base); color: var(--text-primary); font-family: var(--sans);
+    line-height: 1.5; padding: 3rem 1.5rem 6rem;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { margin-bottom: 3rem; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--sunset-orange); font-weight: 700; margin: 0 0 0.6rem;
+  }
+  h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+  .dek { color: var(--text-secondary); max-width: 68ch; margin: 0; font-size: 0.95rem; }
+  .note {
+    margin-top: 1.25rem; font-size: 0.82rem; color: var(--text-muted); border-left: 2px solid var(--border-subtle);
+    padding-left: 0.9rem; max-width: 68ch;
+  }
+
+  section { margin: 3.5rem 0; }
+  section h2 {
+    font-size: 1.3rem; font-weight: 700; margin: 0 0 0.35rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  section h2 .n { font-family: var(--mono); color: var(--sunset-orange); font-size: 0.85rem; }
+  .section-note { color: var(--text-secondary); font-size: 0.85rem; max-width: 66ch; margin: 0 0 1.5rem; }
+
+  .panel {
+    background: linear-gradient(180deg, var(--bg-elevated), #0F0F1A);
+    border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.75rem;
+  }
+
+  /* ===== 1. Logo ===== */
+  .logo-row { display: flex; gap: 2rem; flex-wrap: wrap; align-items: center; }
+  .logo-block { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+  .logo-block .cap { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); }
+  .icon-mark {
+    width: 84px; height: 84px; border-radius: 22%; background: var(--bg-base);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .wordmark {
+    font-weight: 800; font-size: 1.9rem; letter-spacing: 0.05em; display: inline-flex; align-items: baseline;
+  }
+  .wordmark .dot-o { position: relative; }
+  .wordmark .dot-o::after {
+    content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--sunset-yellow);
+    top: 45%; left: 50%; transform: translate(-50%,-50%); box-shadow: 0 0 6px var(--sunset-yellow);
+  }
+
+  /* ===== 2. Color tokens ===== */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 0.9rem; }
+  .swatch { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-subtle); }
+  .swatch-color { height: 54px; }
+  .swatch-label { padding: 0.45rem 0.6rem; background: var(--bg-elevated); }
+  .swatch-label b { display: block; font-size: 0.76rem; }
+  .swatch-label span { display: block; font-family: var(--mono); font-size: 0.66rem; color: var(--text-muted); }
+  .group-label { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 1.5rem 0 0.7rem; }
+  .group-label:first-child { margin-top: 0; }
+
+  /* ===== 3. Buttons ===== */
+  .btn-grid { display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; }
+  .btn {
+    font-family: var(--sans); font-weight: 700; border-radius: var(--radius-sm); border: none; cursor: pointer;
+    padding: 12px 24px; font-size: 14px; display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .btn-primary { background: var(--accent-gradient); color: #1a0d00; }
+  .btn-secondary { background: rgba(255,255,255,.08); color: var(--text-primary); border: 1px solid rgba(255,255,255,.12); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 16px; }
+  .btn-sunset { background: var(--accent-gradient); color: #1a0d00; font-weight: 800; }
+  .btn-icon {
+    width: 44px; height: 44px; border-radius: 50%; padding: 0; justify-content: center;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); color: var(--text-primary);
+  }
+  .btn-disabled { opacity: 0.45; cursor: not-allowed; }
+  .size-tag { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem; }
+  .btn-col { display: flex; flex-direction: column; align-items: flex-start; }
+
+  /* ===== 4. /me mockup ===== */
+  .device { width: 320px; border-radius: 44px; background: #000; padding: 12px; box-shadow: 0 30px 70px -20px rgba(0,0,0,.6); }
+  .screen { border-radius: 34px; overflow: hidden; background: var(--bg-base); min-height: 660px; position: relative; }
+  .statusbar { display: flex; justify-content: space-between; padding: 16px 20px 6px; font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .me-body { padding: 4px 18px 24px; }
+
+  .me-head { display: flex; align-items: center; gap: 12px; margin: 10px 0 18px; }
+  .avatar-ring {
+    width: 64px; height: 64px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--tier-gold), var(--sunset-orange)); font-weight: 800; font-size: 18px; color: #1a0d00;
+  }
+  .avatar-ring::before {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--sunset-gold); opacity: .6;
+  }
+  .me-head .nm { font-weight: 800; font-size: 1.05rem; }
+  .me-head .sub { font-size: 0.78rem; color: var(--text-muted); }
+  .tier-pill {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; padding: 2px 9px;
+    border-radius: var(--radius-full); background: rgba(251,191,36,.15); color: var(--tier-gold); border: 1px solid rgba(251,191,36,.3);
+    margin-top: 3px;
+  }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat-card .lbl { font-size: 0.7rem; color: var(--text-muted); }
+  .stat-card .val { font-family: var(--mono); font-size: 1.5rem; font-weight: 800; margin-top: 2px; }
+  .stat-card .val.gold { color: var(--sunset-gold); }
+
+  .journey-title { font-size: 0.95rem; font-weight: 700; margin: 0 0 12px; }
+  .journey { display: flex; flex-direction: column; }
+  .j-step { display: flex; gap: 12px; position: relative; padding-bottom: 20px; }
+  .j-step:last-child { padding-bottom: 0; }
+  .j-step .line {
+    position: absolute; left: 13px; top: 28px; bottom: 0; width: 2px; background: var(--border-subtle);
+  }
+  .j-step:last-child .line { display: none; }
+  .j-node {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; z-index: 1; font-weight: 800;
+  }
+  .j-node.done { background: var(--accent-gradient); color: #1a0d00; }
+  .j-node.current { background: var(--bg-elevated); border: 2px solid var(--sunset-orange); color: var(--sunset-orange); }
+  .j-node.todo { background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--text-disabled); }
+  .j-label { font-size: 0.85rem; font-weight: 600; padding-top: 2px; }
+  .j-label.todo, .j-label.current { color: var(--text-muted); }
+  .j-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+
+  .rally-card { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-top: 20px; }
+  .rally-card .t { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+  .rally-card .s { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px; }
+  .rally-code { font-family: var(--mono); font-size: 0.78rem; background: var(--bg-base); padding: 6px 10px; border-radius: 8px; display: inline-block; }
+
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: var(--live);
+    background: rgba(239,68,68,.14); padding: 2px 9px; border-radius: var(--radius-full);
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 0 rgba(239,68,68,.5); }
+
+  .caption-col { text-align: center; margin-top: 0.9rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); max-width: 300px; }
+
+  .checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 0.6rem; }
+  .checklist .item { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.85rem; color: var(--text-secondary); }
+  .checklist .item b { color: var(--text-primary); }
+  .tick { color: var(--success); }
+  .pending { color: var(--text-disabled); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Brand Mockup — "Start With" deliverables, review before code</p>
+    <h1>PEROKIO v2</h1>
+    <p class="dek">
+      The four items from the spec's own priority list: logo, color system, button component, and
+      the <code>/me</code> page mockup with the JourneyStepper. Direction confirmed: the dark
+      neutral structure from the purple system, with the sunset gradient (#F7FD04 → #FC5404)
+      replacing purple as the primary/CTA/prize/highlight color.
+    </p>
+    <p class="note">
+      This is a static mockup, not wired to the live app or database — nothing in
+      <code>apps/web</code> or the Prisma schema has changed. If this direction lands, the next
+      conversation is scoping how much of "Story"/"storyteller" is copy-only vs. an actual rename
+      of the Challenge/Submission/seller data model, before any of it gets built for real.
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="n">01</span> Logo</h2>
+    <p class="section-note">Icon: abstract "P" from a play-triangle + story arc, sunset gradient, 22% corner radius. Wordmark: 800 weight, 0.05em tracking, pulse dot in the O.</p>
+    <div class="panel">
+      <div class="logo-row">
+        <div class="logo-block">
+          <div class="icon-mark">
+            <svg width="46" height="46" viewBox="0 0 46 46" fill="none">
+              <path d="M14 10v26l14-7-14-7" fill="url(#g1)"/>
+              <path d="M28 12a17 17 0 0 1 6 22" stroke="url(#g1)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <defs><linearGradient id="g1" x1="0" y1="0" x2="46" y2="46"><stop offset="0" stop-color="#F7FD04"/><stop offset=".4" stop-color="#F9B208"/><stop offset="1" stop-color="#FC5404"/></linearGradient></defs>
+            </svg>
+          </div>
+          <span class="cap">icon mark — app icon / favicon</span>
+        </div>
+        <div class="logo-block">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="icon-mark" style="width:52px;height:52px">
+              <svg width="28" height="28" viewBox="0 0 46 46" fill="none">
+                <path d="M14 10v26l14-7-14-7" fill="url(#g2)"/>
+                <path d="M28 12a17 17 0 0 1 6 22" stroke="url(#g2)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                <defs><linearGradient id="g2" x1="0" y1="0" x2="46" y2="46"><stop offset="0" stop-color="#F7FD04"/><stop offset=".4" stop-color="#F9B208"/><stop offset="1" stop-color="#FC5404"/></linearGradient></defs>
+              </svg>
+            </div>
+            <span class="wordmark">PEROKIO</span>
+          </div>
+          <span class="cap">horizontal lockup — nav bars, headers</span>
+        </div>
+        <div class="logo-block">
+          <span class="wordmark" style="font-size:2.2rem">PER<span class="dot-o">O</span>KIO</span>
+          <span class="cap">wordmark — splash, marketing</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">02</span> Color tokens</h2>
+    <p class="section-note">Structure kept from the spec's neutral scale; primary/CTA/prize hue swapped to the sunset gradient per your direction.</p>
+    <div class="panel">
+      <div class="group-label">Surface &amp; text</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--bg-base)"></div><div class="swatch-label"><b>bg-base</b><span>#0A0A0F</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--bg-elevated)"></div><div class="swatch-label"><b>bg-elevated</b><span>#18181B</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--bg-hover)"></div><div class="swatch-label"><b>bg-hover</b><span>#27272A</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--text-primary)"></div><div class="swatch-label"><b>text-primary</b><span>#FAFAFA</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--text-secondary)"></div><div class="swatch-label"><b>text-secondary</b><span>#A1A1AA</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--text-muted)"></div><div class="swatch-label"><b>text-muted</b><span>#71717A</span></div></div>
+      </div>
+
+      <div class="group-label">Sunset — primary / CTA / prize / highlight</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--sunset-yellow)"></div><div class="swatch-label"><b>sunset-yellow</b><span>#F7FD04</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--sunset-gold)"></div><div class="swatch-label"><b>sunset-gold</b><span>#F9B208</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--sunset-orange)"></div><div class="swatch-label"><b>sunset-orange</b><span>#F98404</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--sunset-red)"></div><div class="swatch-label"><b>sunset-red</b><span>#FC5404</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--accent-gradient)"></div><div class="swatch-label"><b>gradient</b><span>135deg</span></div></div>
+      </div>
+
+      <div class="group-label">Tier</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--tier-bronze)"></div><div class="swatch-label"><b>bronze</b><span>#CD7F32</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--tier-silver)"></div><div class="swatch-label"><b>silver</b><span>#94A3B8</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--tier-gold)"></div><div class="swatch-label"><b>gold</b><span>#FBBF24</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--tier-platinum)"></div><div class="swatch-label"><b>platinum</b><span>#E2E8F0</span></div></div>
+      </div>
+
+      <div class="group-label">Semantic</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:var(--success)"></div><div class="swatch-label"><b>success</b><span>#22C55E</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--warning)"></div><div class="swatch-label"><b>warning</b><span>#F59E0B</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--error)"></div><div class="swatch-label"><b>error</b><span>#EF4444</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:var(--info)"></div><div class="swatch-label"><b>info</b><span>#3B82F6</span></div></div>
+      </div>
+    </div>
+    <p class="note">Full token file: <code>docs/perokio/tokens.css</code> (companion file, same values as above, ready to paste into a real stylesheet).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">03</span> Buttons</h2>
+    <p class="section-note">Primary and the dedicated prize/CTA variant now share the sunset gradient — per spec they were already meant to feel related ("gold button" ≈ prize moments); combining the palettes makes that literal instead of using two different hues.</p>
+    <div class="panel">
+      <div class="btn-grid">
+        <div class="btn-col"><button class="btn btn-primary">Claim this story</button><span class="size-tag">primary · lg</span></div>
+        <div class="btn-col"><button class="btn btn-secondary">View details</button><span class="size-tag">secondary</span></div>
+        <div class="btn-col"><button class="btn btn-ghost">Not now</button><span class="size-tag">ghost</span></div>
+        <div class="btn-col"><button class="btn btn-sunset">Earn $5,000</button><span class="size-tag">sunset / prize</span></div>
+        <div class="btn-col"><button class="btn btn-icon">↗</button><span class="size-tag">icon · 44px</span></div>
+        <div class="btn-col"><button class="btn btn-primary btn-disabled" disabled>Send code</button><span class="size-tag">disabled</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">04</span> <code>/me</code> mockup — with JourneyStepper</h2>
+    <p class="section-note">The component we spec'd last turn, in the new dark/sunset system. Six milestones, all backed by real fields (createdAt, avatarGeneratedAt, Submission existence, advanced status, Payout existence, tier) — nothing here is placeholder data shape, just placeholder values.</p>
+    <div style="display:flex; justify-content:center">
+      <div>
+        <div class="device">
+          <div class="screen">
+            <div class="statusbar"><span>9:41</span><span>●●●● 5G 🔋</span></div>
+            <div class="me-body">
+              <div class="me-head">
+                <div class="avatar-ring">AN</div>
+                <div>
+                  <div class="nm">Ana</div>
+                  <div class="sub">@ana · joined 14 days ago</div>
+                  <span class="tier-pill">★ Bronze</span>
+                </div>
+              </div>
+
+              <div class="stat-grid">
+                <div class="stat-card"><div class="lbl">Streak</div><div class="val gold">12</div></div>
+                <div class="stat-card"><div class="lbl">Momentum score</div><div class="val">0</div></div>
+              </div>
+
+              <div class="journey-title">Your journey</div>
+              <div class="journey">
+                <div class="j-step">
+                  <div class="line"></div>
+                  <div class="j-node done">✓</div>
+                  <div><div class="j-label">Joined PEROKIO</div><div class="j-time">14 days ago</div></div>
+                </div>
+                <div class="j-step">
+                  <div class="line"></div>
+                  <div class="j-node done">✓</div>
+                  <div><div class="j-label">Personalized your avatar</div><div class="j-time">13 days ago</div></div>
+                </div>
+                <div class="j-step">
+                  <div class="line"></div>
+                  <div class="j-node current">3</div>
+                  <div><div class="j-label current">Tell your first story</div><div class="j-time">next up</div></div>
+                </div>
+                <div class="j-step">
+                  <div class="line"></div>
+                  <div class="j-node todo">4</div>
+                  <div><div class="j-label todo">Advance past round 1</div></div>
+                </div>
+                <div class="j-step">
+                  <div class="line"></div>
+                  <div class="j-node todo">5</div>
+                  <div><div class="j-label todo">Earn your first payout</div></div>
+                </div>
+                <div class="j-step">
+                  <div class="j-node todo">6</div>
+                  <div><div class="j-label todo">Reach Silver</div></div>
+                </div>
+              </div>
+
+              <div class="rally-card">
+                <div class="t">Your rally link <span class="live-badge"><span class="live-dot"></span>0 live</span></div>
+                <div class="s">Points at whatever story you have live right now.</div>
+                <span class="rally-code">perokio.app/r/ana</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="caption-col">Prize/momentum numbers use the sunset gold, matching the spec's tabular-nums "stat" style</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">—</span> What's next, per your own priority tiers</h2>
+    <div class="panel">
+      <div class="checklist">
+        <div class="item"><span class="tick">✓</span> Logo (3 variants)</div>
+        <div class="item"><span class="tick">✓</span> Color palette CSS</div>
+        <div class="item"><span class="tick">✓</span> Button component</div>
+        <div class="item"><span class="tick">✓</span> /me mockup + JourneyStepper</div>
+        <div class="item"><span class="pending">○</span> Card system (Challenge/Story/Creator/Content)</div>
+        <div class="item"><span class="pending">○</span> Badge/tag component sheet</div>
+        <div class="item"><span class="pending">○</span> /stories feed + /stories/:id mockups</div>
+        <div class="item"><span class="pending">○</span> Landing page mockup</div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

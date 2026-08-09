@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { User, UserRole } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import { computeJourney, JourneyMilestone } from "./journey";
 
 @Injectable()
 export class UsersService {
@@ -52,6 +53,24 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id: userId },
       data: { avatarGeneratedAt: new Date(), avatarUrl: null },
+    });
+  }
+
+  async getJourney(userId: string): Promise<JourneyMilestone[]> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const [submissionCount, advancedCount, payoutCount] = await Promise.all([
+      this.prisma.submission.count({ where: { creatorId: userId } }),
+      this.prisma.submission.count({ where: { creatorId: userId, status: "advanced" } }),
+      this.prisma.payout.count({ where: { userId } }),
+    ]);
+
+    return computeJourney({
+      phoneVerified: user.phoneVerifiedAt !== null,
+      hasSubmission: submissionCount > 0,
+      hasAdvanced: advancedCount > 0,
+      hasVoted: user.lastVoteDate !== null,
+      hasPayout: payoutCount > 0,
+      tier: user.tier,
     });
   }
 }

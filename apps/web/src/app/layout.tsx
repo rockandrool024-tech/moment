@@ -5,7 +5,7 @@ import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MOMENT",
+  title: "Perokio",
   description: "Creator-competition marketplace — Phase 1 client",
   manifest: "/manifest.json",
   icons: {

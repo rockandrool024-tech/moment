@@ -1,12 +1,16 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Submission, SubmissionPhase } from "@prisma/client";
+import { Dispute, Submission, SubmissionPhase } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { CreateSubmissionDto } from "./dto/create-submission.dto";
 import { ChecklistCriteria, evaluateChecklist } from "./checklist";
+import { ReferralsService } from "../referrals/referrals.service";
 
 @Injectable()
 export class SubmissionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly referrals: ReferralsService,
+  ) {}
 
   async create(creatorId: string, dto: CreateSubmissionDto): Promise<Submission> {
     const challenge = await this.prisma.challenge.findUnique({
@@ -29,7 +33,7 @@ export class SubmissionsService {
       caption: dto.caption,
     });
 
-    return this.prisma.submission.create({
+    const submission = await this.prisma.submission.create({
       data: {
         creatorId,
         challengeId: dto.challengeId,
@@ -37,6 +41,13 @@ export class SubmissionsService {
         status: passed ? "pending" : "eliminated",
       },
     });
+
+    // Referral loop 3 — a submission counts as "doing something," even an
+    // auto-eliminated one; showing up and trying is the action being
+    // rewarded, not making it past the checklist.
+    await this.referrals.rewardIfPending(creatorId, dto.challengeId, "first_submission");
+
+    return submission;
   }
 
   async scoreBySeller(submissionId: string, sellerId: string, score: number): Promise<Submission> {
@@ -102,5 +113,27 @@ export class SubmissionsService {
       creatorReferralCode: creator.referralCode,
       creatorTier: creator.tier,
     };
+  }
+
+  /** A creator appealing their own elimination — admin.service.ts owns
+   * listing/resolving, this owns the one thing only the creator can do. */
+  async raiseDispute(submissionId: string, creatorId: string, reason: string): Promise<Dispute> {
+    const submission = await this.prisma.submission.findUnique({ where: { id: submissionId } });
+    if (!submission) throw new NotFoundException("Submission not found");
+    if (submission.creatorId !== creatorId) {
+      throw new ForbiddenException("You can only dispute your own submission");
+    }
+    if (submission.status !== "eliminated") {
+      throw new BadRequestException("Only an eliminated submission can be disputed");
+    }
+
+    const openExisting = await this.prisma.dispute.findFirst({
+      where: { submissionId, status: "open" },
+    });
+    if (openExisting) throw new BadRequestException("This submission already has an open dispute");
+
+    return this.prisma.dispute.create({
+      data: { submissionId, challengeId: submission.challengeId, raisedById: creatorId, reason },
+    });
   }
 }

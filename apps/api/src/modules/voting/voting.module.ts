@@ -6,9 +6,10 @@ import { VotingController } from "./voting.controller";
 import { RallyController } from "./rally.controller";
 import { RoundsModule } from "../rounds/rounds.module";
 import { IdentityModule } from "../identity/identity.module";
+import { ReferralsModule } from "../referrals/referrals.module";
 
 @Module({
-  imports: [RoundsModule, IdentityModule],
+  imports: [RoundsModule, IdentityModule, ReferralsModule],
   controllers: [VotingController, RallyController],
   providers: [DeckService, VotingService, StreakService],
   exports: [DeckService, VotingService, StreakService],

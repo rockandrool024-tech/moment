@@ -1,4 +1,4 @@
-# MOMENT — build status
+# Perokio — build status (formerly MOMENT)
 
 Living tracker, updated as work lands. See `docs/` for the product spec/ADRs (locked — see
 [README.md](README.md)) and `apps/api/README.md` / `apps/web/README.md` for module-level notes.
@@ -43,30 +43,83 @@ the winner/stipend/crowd-favourite payout block silently never ran. Caught while
 final-pick; fixed and covered by `apps/api/scripts/verify-round3-payout.ts` (seeds real DB state,
 runs the actual state machine, asserts the winner payout exists, cleans up after itself).
 
+**UI alignment pass** — extended `/map`'s design system (tier color scale, icon set, presence
+rings, elevated cards, sheet motion) app-wide: shared CSS tokens (`--tier-0..3`, `--rally`) in
+`globals.css`, `.badge-tier` colored tier badges everywhere one renders, icon rollout replacing
+emoji/text across nav/streak/KYB/wallet/rally/share, a shared `Avatar` component (presence ring)
+and `Sheet` component (bottom-sheet with the map's rise animation, reused for the funding
+breakdown and rating confirm), elevated/interactive cards on challenges + discovery, a styled
+video dropzone on submit, NavBar active-route highlighting, and a `/map?pin=` deep link from
+Discovery. Also fixed a real regression the pass caught: the mobile `button, .btn { width: 100% }`
+rule was stretching `/map`'s small icon buttons — scoped to an opt-in `.btn-block` instead.
+
+**Production-readiness fixes** (from a full audit — see `PRODUCTION_READINESS_AUDIT.md`) —
+fixed a real double-payout race (`RoundStateMachineService.tallyAndReveal` now atomically claims
+the round via a conditional `status: "closed" → "tallied"` update before running payout logic,
+closing the window where a vote-triggered tally and a scheduled-job tally could both fire), added
+a DB-level `@@unique([challengeId, userId, type])` on `Payout` as a backstop, added a Stripe
+`idempotencyKey` on every transfer (keyed on the Payout row's own id) so a retried request can't
+double-transfer, added `GET /health` (DB-checking, unauthenticated, wired into
+`docker-compose.prod.yml`'s healthcheck so `web`/`caddy` wait for a real-ready `api`), and bound
+`@nestjs/throttler` globally (previously only `PublicController` was rate-limited — auth/OTP and
+everything else had none).
+
+**UX fixes** (from a full audit — see `UX_EXPERIENCE_AUDIT.md`) — replaced an internal debug
+message ("expected without a real MUX_TOKEN_ID…") that was shipping as user-facing copy on a
+failed video upload, added the missing `displayName` render on `/me` (previously led with phone
+number), gave `/` a real landing page instead of a blank redirect flash, moved the login role
+picker to the phone step (was appearing after the OTP was already sent), and corrected the avatar
+copy from "AI-generated" to "generated placeholder" (it's a seeded identicon, not AI).
+
 **Deploy stack** (prepared, not live) — Dockerfiles for both apps, `docker-compose.prod.yml`
 (Postgres, Redis, api, web, Caddy for automatic TLS), `deploy/DEPLOY.md` + `deploy.sh`.
 
-## Next — Sprint 2.5 (Zenly-style discovery map)
+**Sprint 2.5 (Zenly-style discovery map)** — CSS-generated 3D city map, avatar presence rings,
+challenge pins, `GET /public/map/nearby`, `/map` page with a pin-detail sheet; real map
+tiles/geocoding/live-presence explicitly stubbed (laid out for feel, not GPS).
 
-- [ ] CSS-generated 3D city map, avatar presence rings, challenge pins, `GET /map/nearby`; real map
-      tiles/geocoding/live-presence explicitly stubbed
+**Sprint 4 (growth & ops)** — Referrals (loop 3): `ReferralReward` ledger, signup attribution via
+`/r/[code]` → `?ref=` on login (distinct from the rally link, which needs a live battle to resolve
+to), reward fires on the referred user's first submission *or* first vote — whichever comes first,
+atomically claimed so it only ever fires once — `$5` platform-funded `referral_bonus` payout,
+`GET /users/me/referrals` + stats on `/me`. Notifications as a real in-app inbox (`readAt`-driven,
+`GET /notifications`, bell + unread badge in the nav) — the processor now writes real copy per
+event (payout amount/type, round number, invite) instead of just logging; still no push/SMS/email
+channel. Admin module: `ADMIN_PHONE_NUMBERS` allowlist guard (`AdminGuard`, composed on
+`JwtAuthGuard`), god-view (`GET /admin/challenges` + detail), stuck-round list + force-reveal
+(reuses `RoundStateMachineService.forceRevealDeadline`), manual submission elimination, KYB
+approve/reject queue, dispute raise (`POST /submissions/:id/dispute`, creator-side) + resolve
+(admin-side — upholding reinstates the submission to `pending`), growth dashboard (vote-deck
+completion rate, entries/campaign, brand repeat rate, time-to-first-payout, rally k-proxy —
+D1/D7/D30 explicitly returns "needs a cohort table," not faked), `/admin` page (unlinked from nav,
+reached directly, still fully guarded server-side).
 
-## Sprint 4 (growth & ops)
+**Perokio rebrand + Story/Claim data model** — renamed MOMENT → Perokio across every user-facing
+string (nav, login, landing page, share cards, manifest, offline page); internal package names
+(`@moment/api`/`@moment/web`) deliberately left as-is for now. Added `Story`/`StoryClaim`/`Content`/
+`ExternalPost` as new, additive models — `Story` generalizes `Challenge` (a funded, competitive
+brief is a Story with `mode: CHALLENGE`, linked via an optional `Story.challengeId`; a free brief
+is `mode: OPEN` and has no Challenge at all, so it skips the escrow/round machinery entirely).
+Nothing existing was renamed or removed, and a backfill script
+([backfill-stories.ts](apps/api/scripts/backfill-stories.ts)) links every pre-existing Challenge to
+a generated Story row. New `StoriesModule`: create/list a Story, claim it, attach content plus
+optional external post links. Also shipped a Creator Journey feature
+([journey.ts](apps/api/src/modules/identity/journey.ts), `GET /users/me/journey`, a `JourneyStepper`
+on `/me`) — six milestones, all derived from data that already existed.
 
-- [ ] Referrals (loop 3): `ReferralReward` ledger, attribution on signup, reward on first
-      submission/vote (never on signup alone), leaderboard
-- [ ] Notifications as a real in-app inbox (`readAt`-driven, `GET /notifications`) — still no
-      push/SMS/email delivery channel, needs real FCM/Twilio/SES credentials
-- [ ] Admin module: `ADMIN_PHONE_NUMBERS` allowlist guard, god-view, force-reveal a stuck round,
-      manual submission elimination, KYB approve/reject, dispute resolution, growth dashboard
-      (vote-deck completion rate, entries/campaign, brand repeat rate, time-to-first-payout,
-      k-proxy — D1/D7/D30 explicitly flagged "needs a cohort table," not faked)
+**Important, deliberate boundary:** this pivot was checked against prior art before being built —
+`docs/prompt-v2-journey-and-3d-map.md` and this README's own "Explicitly rejected" section already
+rejected CPM/external-view-based rewards and off-platform-only distribution, for documented reasons
+(follower count buying outcomes, unverifiable self-reported view counts, an emptied spectator
+feed). That rejection stands. `ExternalPost.views`/`.likes` are creator-entered and shown only on
+the creator's own dashboard — no scoring, tallying, or payout code path reads them, and none should
+be added without first revisiting that decision explicitly. `User.perokioScore` exists as a
+nullable column for a future analytical companion to `tier`; nothing computes it yet.
 
 ## Sprint 5 (lower priority — depth)
 
 - [ ] Predictions (`Prediction` table exists, unused) — locked-until-close picks for non-entrants,
       scored into `tasteScore`
-- [ ] Disputes — creator appeals an elimination, admin resolves
 - [ ] In-person campaigns — `Slot`/`SlotBooking`, QR-code check-in (not GPS), no-show handling
 - [ ] AI creative-studio — real credit ledger + moderation gate + async job queue, generation
       client inert without a Fal.ai/Replicate key (same posture as Stripe/Mux/Twilio)
@@ -90,8 +143,8 @@ runs the actual state machine, asserts the winner payout exists, cleans up after
 - No load/concurrency testing on the round state machine yet — the docs call it "the crux," and a
   bug here shows up as *the contest result being wrong*, not a UI glitch.
 - `scheduleRoundJobs` isn't transactional with the round insert — a Redis outage right after a
-  commit leaves a round with no scheduled close/reveal job. The Sprint 4 admin god-view is meant to
-  catch "stuck rounds" (past `closesAt`/`revealDeadlineAt` in the wrong status).
+  commit leaves a round with no scheduled close/reveal job. The admin god-view's stuck-round list
+  (`GET /admin/rounds/stuck` + force-reveal) now catches this, but it's a manual check, not an alert.
 - No e2e tests — unit tests cover the pure-function logic (scoring, pricing, deck generation) only.
 - Windows dev note: `next build`'s `output: "standalone"` fails locally with an `EPERM` symlink
   error (pnpm + Windows without Developer Mode) — harmless, doesn't occur in the Linux Docker build.

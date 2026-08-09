@@ -5,6 +5,13 @@ export default () => ({
   // links (never called from the browser, so no CORS implications).
   appUrl: process.env.APP_URL ?? "http://localhost:3001",
   corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3001",
+  // Admin allowlist by phone number (E.164) — see admin.guard.ts. No admin
+  // role in the User model on purpose: this is reviewed manually via env,
+  // not self-service, since it's the one gate with no downstream check.
+  adminPhoneNumbers: (process.env.ADMIN_PHONE_NUMBERS ?? "")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean),
   database: {
     url: process.env.DATABASE_URL,
   },

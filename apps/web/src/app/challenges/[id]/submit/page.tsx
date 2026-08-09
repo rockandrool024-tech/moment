@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
 import { Submission, SubmissionPhase } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
+import { PlayIcon, VoteCheckIcon } from "@/components/icons";
 
 type UploadState = "idle" | "uploading" | "processing" | "ready" | "errored";
 
@@ -19,6 +20,7 @@ export default function SubmitPage() {
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -90,11 +92,15 @@ export default function SubmitPage() {
         {uploadState === "idle" && <p>No video attached.</p>}
         {uploadState === "uploading" && <p>Uploading to Mux…</p>}
         {uploadState === "processing" && <p>Processing (Mux is transcoding)…</p>}
-        {uploadState === "ready" && <p>Video ready ✓</p>}
+        {uploadState === "ready" && (
+          <p style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--accent)" }}>
+            <VoteCheckIcon width={18} height={18} aria-hidden /> Video ready
+          </p>
+        )}
         {uploadState === "errored" && (
           <p className="error">
-            Video upload/processing failed — this is expected without a real MUX_TOKEN_ID /
-            MUX_TOKEN_SECRET configured on the API.
+            Your video didn&rsquo;t process — your entry is still submitted and counts toward the
+            round, but try re-uploading the video, or contact support if it keeps failing.
           </p>
         )}
       </div>
@@ -128,12 +134,42 @@ export default function SubmitPage() {
         </div>
         <div className="field">
           <label htmlFor="video">Video file (optional — uploads to Mux)</label>
-          <input
-            id="video"
-            type="file"
-            accept="video/*"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
+          <label
+            htmlFor="video"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "1.75rem 1rem",
+              border: `2px dashed ${dragging ? "var(--accent)" : "var(--border)"}`,
+              borderRadius: 10,
+              background: dragging ? "var(--card-bg)" : "transparent",
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              const dropped = e.dataTransfer.files?.[0];
+              if (dropped) setFile(dropped);
+            }}
+          >
+            <PlayIcon width={28} height={28} style={{ color: "var(--muted)" }} aria-hidden />
+            <span>{file ? file.name : "Drop a video, or click to browse"}</span>
+            <input
+              id="video"
+              type="file"
+              accept="video/*"
+              style={{ display: "none" }}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
         </div>
         {error && <p className="error">{error}</p>}
         <button type="submit" className="btn-block" disabled={busy}>

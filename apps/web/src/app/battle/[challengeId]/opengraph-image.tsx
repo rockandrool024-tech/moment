@@ -27,7 +27,7 @@ export default async function Image({ params }: { params: { challengeId: string 
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        <div style={{ fontSize: 32, color: "#7fd9a6", display: "flex" }}>MOMENT · LIVE BATTLE</div>
+        <div style={{ fontSize: 32, color: "#7fd9a6", display: "flex" }}>PEROKIO · LIVE BATTLE</div>
         <div style={{ fontSize: 90, fontWeight: 700, marginTop: 20, display: "flex" }}>
           {formatCents(summary.prizePool)}
         </div>

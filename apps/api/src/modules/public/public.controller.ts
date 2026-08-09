@@ -1,5 +1,5 @@
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from "@nestjs/common";
-import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
+import { Controller, Get, Param, ParseUUIDPipe } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   DiscoveryBrand,
   DiscoveryCreator,
@@ -10,10 +10,12 @@ import {
 } from "./public.service";
 
 // The one surface designed to take anonymous, potentially viral traffic
-// (ADR-002) — rate-limited independently of the rest of the API so a spike
-// here can't be used to degrade account/payment/voting endpoints.
+// (ADR-002) — tighter-throttled than the app-wide default (bound globally
+// in AppModule) so a spike here can't be used to degrade account/payment/
+// voting endpoints. No local @UseGuards(ThrottlerGuard) needed — the global
+// guard already applies everywhere; @Throttle() below just overrides its
+// limit for this controller.
 @Controller("public")
-@UseGuards(ThrottlerGuard)
 @Throttle({ default: { limit: 30, ttl: 60_000 } })
 export class PublicController {
   constructor(private readonly publicService: PublicService) {}

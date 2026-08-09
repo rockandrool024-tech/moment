@@ -11,6 +11,8 @@ import { useAuth } from "@/lib/auth-context";
 import { StripeFundForm } from "@/components/StripeFundForm";
 import { RatingForm } from "@/components/RatingForm";
 import { TrustStatsMini } from "@/components/TrustStatsMini";
+import { Sheet } from "@/components/Sheet";
+import { VerifiedIcon } from "@/components/icons";
 
 interface RatingRow {
   rateeId: string;
@@ -27,6 +29,8 @@ export default function ChallengeDetailPage() {
   const [finalists, setFinalists] = useState<Submission[]>([]);
   const [ratedIds, setRatedIds] = useState<Set<string>>(new Set());
   const [wizardStatus, setWizardStatus] = useState<string | null>(null);
+  const [showPreviewBreakdown, setShowPreviewBreakdown] = useState(false);
+  const [showConfirmBreakdown, setShowConfirmBreakdown] = useState(false);
 
   const load = useCallback(async () => {
     const [c, r] = await Promise.all([
@@ -153,15 +157,25 @@ export default function ChallengeDetailPage() {
 
       <div className="card">
         <h2 style={{ marginTop: 0 }}>Prize breakdown</h2>
-        <p>Pool: {formatCents(challenge.prizePool)}</p>
-        <p>Stipend pool: {formatCents(challenge.stipendPool)}</p>
-        <p className="muted">
-          Round-2 survivor bonus pool: {formatCents(previewSurvivorBonusPool(challenge.prizePool))}
-          {" · "}
-          Crowd favourite: {formatCents(previewCrowdFavourite(challenge.prizePool))}
+        <p style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0 0 0.5rem" }}>
+          {formatCents(challenge.prizePool)} <span className="muted" style={{ fontSize: "0.95rem", fontWeight: 500 }}>pool</span>
         </p>
-        <p className="muted">Take rate: {(challenge.takeRateBps / 100).toFixed(1)}%</p>
+        <button className="secondary" onClick={() => setShowPreviewBreakdown(true)}>
+          See breakdown
+        </button>
       </div>
+
+      {showPreviewBreakdown && (
+        <Sheet title="Prize breakdown" onClose={() => setShowPreviewBreakdown(false)}>
+          <p>Pool: {formatCents(challenge.prizePool)}</p>
+          <p>Stipend pool: {formatCents(challenge.stipendPool)}</p>
+          <p className="muted">
+            Round-2 survivor bonus pool: {formatCents(previewSurvivorBonusPool(challenge.prizePool))}
+          </p>
+          <p className="muted">Crowd favourite: {formatCents(previewCrowdFavourite(challenge.prizePool))}</p>
+          <p className="muted">Take rate: {(challenge.takeRateBps / 100).toFixed(1)}%</p>
+        </Sheet>
+      )}
 
       {!isOwner && (
         <Link href={`/challenges/${challenge.id}/submit`} className="btn">
@@ -171,8 +185,9 @@ export default function ChallengeDetailPage() {
 
       {needsKyb && challenge.status === "draft" && (
         <div className="card" style={{ borderColor: "#e8b93f" }}>
-          <p style={{ margin: 0 }}>
-            🔒 KYB verification required to fund challenges.{" "}
+          <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <VerifiedIcon width={18} height={18} style={{ color: "#e8b93f", flexShrink: 0 }} aria-hidden />
+            KYB verification required to fund challenges.{" "}
             <button className="secondary" onClick={requestKyb} disabled={busy}>
               Request verification
             </button>
@@ -189,15 +204,30 @@ export default function ChallengeDetailPage() {
       {funding && (
         <div className="card">
           <h2 style={{ marginTop: 0 }}>Confirm funding</h2>
-          <p className="muted">
-            Total charge: {formatCents(funding.breakdown.totalCharge)} (pool{" "}
-            {formatCents(funding.breakdown.prizePool)} + stipend{" "}
-            {formatCents(funding.breakdown.stipendPool)} + survivor bonus{" "}
-            {formatCents(funding.breakdown.survivorBonusPool)} + platform fee{" "}
-            {formatCents(funding.breakdown.platformFee)})
+          <p style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0 0 0.25rem" }}>
+            {formatCents(funding.breakdown.totalCharge)}{" "}
+            <span className="muted" style={{ fontSize: "0.95rem", fontWeight: 500 }}>total charge</span>
           </p>
+          <button
+            type="button"
+            className="secondary"
+            style={{ marginBottom: "0.75rem" }}
+            onClick={() => setShowConfirmBreakdown(true)}
+          >
+            See breakdown
+          </button>
           <StripeFundForm clientSecret={funding.clientSecret} onDone={() => void afterFundingConfirmed()} />
         </div>
+      )}
+
+      {funding && showConfirmBreakdown && (
+        <Sheet title="Charge breakdown" onClose={() => setShowConfirmBreakdown(false)}>
+          <p>Pool: {formatCents(funding.breakdown.prizePool)}</p>
+          <p>Stipend: {formatCents(funding.breakdown.stipendPool)}</p>
+          <p>Survivor bonus: {formatCents(funding.breakdown.survivorBonusPool)}</p>
+          <p>Platform fee: {formatCents(funding.breakdown.platformFee)}</p>
+          <p style={{ fontWeight: 700 }}>Total: {formatCents(funding.breakdown.totalCharge)}</p>
+        </Sheet>
       )}
 
       {wizardStatus && <p className="muted">{wizardStatus}</p>}

@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from "@nestjs/common";
-import { Submission, SubmissionPhase, User } from "@prisma/client";
+import { Dispute, Submission, SubmissionPhase, User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { SubmissionsService } from "./submissions.service";
 import { CreateSubmissionDto } from "./dto/create-submission.dto";
 import { ScoreSubmissionDto } from "./dto/score-submission.dto";
+import { RaiseDisputeDto } from "./dto/raise-dispute.dto";
 
 @Controller("submissions")
 export class SubmissionsController {
@@ -33,6 +34,16 @@ export class SubmissionsController {
     @Query("creatorId") creatorId?: string,
   ): Promise<Submission[]> {
     return this.submissions.findMany({ challengeId, phase, creatorId });
+  }
+
+  @Post(":id/dispute")
+  @UseGuards(JwtAuthGuard)
+  raiseDispute(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: RaiseDisputeDto,
+    @CurrentUser() user: User,
+  ): Promise<Dispute> {
+    return this.submissions.raiseDispute(id, user.id, dto.reason);
   }
 
   // Public — no guard. Powers the shareable /results/[submissionId] page and

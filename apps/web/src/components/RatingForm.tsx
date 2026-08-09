@@ -35,7 +35,7 @@ export function RatingForm({
   if (submitted) return <p className="muted">✓ Rated {label}.</p>;
 
   return (
-    <div className="card">
+    <div className="card sheet-rise">
       <p style={{ marginTop: 0 }}>Rate {label}</p>
       <StarRating value={0} onRate={submit} />
       {busy && <p className="muted">Submitting…</p>}

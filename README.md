@@ -1,4 +1,8 @@
-# MOMENT
+# Perokio
+
+*(formerly MOMENT — renamed 8 August 2026. Same product, same locked decisions below; a `Story`
+model was added as an additive generalization of `Challenge` — see `TODO.md` — without reopening
+any of them, including the explicitly rejected CPM/off-platform-distribution mechanics.)*
 
 **Status: v1 LOCKED — 5 August 2026**
 Scope below is frozen. Changes require a new ADR, not an edit to an existing one.

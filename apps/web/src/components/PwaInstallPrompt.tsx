@@ -24,7 +24,7 @@ export function PwaInstallPrompt() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {
         // Registration failing shouldn't break the app — PWA install is a
-        // progressive enhancement, not a requirement to use MOMENT.
+        // progressive enhancement, not a requirement to use Perokio.
       });
     }
 
@@ -57,7 +57,7 @@ export function PwaInstallPrompt() {
 
   return (
     <div
-      className="card"
+      className="card card-elevated sheet-rise"
       style={{
         position: "fixed",
         bottom: "1rem",
@@ -72,7 +72,7 @@ export function PwaInstallPrompt() {
         gap: "0.75rem",
       }}
     >
-      <span>Install MOMENT for quicker access to votes and payouts.</span>
+      <span>Install Perokio for quicker access to votes and payouts.</span>
       <span style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
         <button onClick={install}>Install</button>
         <button className="secondary" onClick={dismiss}>

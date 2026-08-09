@@ -19,7 +19,7 @@ export async function generateMetadata({
   const submission = await load(params.submissionId);
   const { headline, tagline } = OUTCOME_COPY[outcomeTone(submission)];
   return {
-    title: `${headline} — ${submission.challenge.title} | MOMENT`,
+    title: `${headline} — ${submission.challenge.title} | Perokio`,
     description: tagline,
   };
 }

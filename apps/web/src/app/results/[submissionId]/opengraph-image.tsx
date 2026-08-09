@@ -50,7 +50,7 @@ export default async function Image({ params }: { params: { submissionId: string
           }}
         >
           <div style={{ fontSize: 34, color: TONE_COLOR[tone], fontWeight: 700, display: "flex" }}>
-            MOMENT
+            PEROKIO
           </div>
           <div
             style={{

@@ -59,6 +59,13 @@ model User {
   avatarUrl         String?   @map("avatar_url")
   avatarGeneratedAt DateTime? @map("avatar_generated_at")
 
+  // Perokio: analytical companion to `tier` (which stays — tiers are the
+  // emotional/social-signal badge, this is the comparable analytical number
+  // brands see). Nullable and unpopulated: no computation exists yet, and
+  // none is built until real performance data does (see schema comment on
+  // ExternalPost — its views/likes are display-only, never read here).
+  perokioScore Float? @map("perokio_score")
+
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -78,6 +85,8 @@ model User {
   referralAsReferee   ReferralReward?    @relation("Referee")
   slotBookings        SlotBooking[]
   notifications       Notification[]
+  storiesCreated      Story[]            @relation("StorySeller")
+  storyClaims         StoryClaim[]
 
   @@map("users")
 }
@@ -123,6 +132,10 @@ model Challenge {
   rallyAttributions  RallyAttribution[]
   disputes           Dispute[]
   slots              Slot[]
+  // Perokio: the inverse side of Story.challengeId — present only when a
+  // Story's mode is CHALLENGE. A FREE/OPEN Story never has one; it doesn't
+  // need the escrow/round machinery this model drives.
+  story              Story?
 
   @@index([sellerId])
   @@index([status])
@@ -349,6 +362,11 @@ model Payout {
   payoutDueAt       DateTime?    @map("payout_due_at")
   createdAt         DateTime     @default(now()) @map("created_at")
 
+  // DB-level backstop against a duplicate real-money transfer — even if a
+  // race/retry/admin-tool bug slips past the application layer, Postgres
+  // itself refuses a second winner/stipend/survivor_bonus/crowd_favourite
+  // row for the same (challenge, user, type).
+  @@unique([challengeId, userId, type])
   @@index([challengeId])
   @@index([userId])
   @@index([createdAt])
@@ -503,6 +521,84 @@ model Notification {
 
   @@index([userId, readAt])
   @@map("notifications")
+}
+
+// ── Stories (Perokio) ────────────────────────────────────────────────────
+// `Story` generalizes `Challenge` — a brief a brand offers, freely or for
+// pay, that a creator can claim. A Challenge is the specific realization of
+// a Story in `mode: CHALLENGE` (funded, escrowed, run through the round
+// state machine); a FREE/OPEN Story has no Challenge at all, since it
+// doesn't need any of that machinery. Existing Challenge/Submission/Round/
+// Payout code is untouched — this is purely additive.
+
+enum StoryAccess {
+  FREE
+  PAID
+}
+
+enum StoryMode {
+  OPEN
+  CHALLENGE
+}
+
+model Story {
+  id          String       @id @default(uuid())
+  sellerId    String       @map("seller_id")
+  seller      User         @relation("StorySeller", fields: [sellerId], references: [id])
+  title       String
+  brief       String
+  access      StoryAccess  @default(FREE)
+  mode        StoryMode    @default(OPEN)
+  challengeId String?      @unique @map("challenge_id")
+  challenge   Challenge?   @relation(fields: [challengeId], references: [id])
+  claims      StoryClaim[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@index([sellerId])
+  @@map("stories")
+}
+
+model StoryClaim {
+  id        String   @id @default(uuid())
+  storyId   String   @map("story_id")
+  story     Story    @relation(fields: [storyId], references: [id])
+  creatorId String   @map("creator_id")
+  creator   User     @relation(fields: [creatorId], references: [id])
+  claimedAt DateTime @default(now()) @map("claimed_at")
+  content   Content?
+
+  @@unique([storyId, creatorId])
+  @@map("story_claims")
+}
+
+model Content {
+  id            String         @id @default(uuid())
+  storyClaimId  String         @unique @map("story_claim_id")
+  storyClaim    StoryClaim     @relation(fields: [storyClaimId], references: [id])
+  mediaUrl      String?        @map("media_url")
+  caption       String?
+  externalPosts ExternalPost[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@map("content")
+}
+
+// Creator-entered, no oEmbed/platform-API verification yet — views/likes
+// are shown on the creator's own dashboard as social proof and are never
+// read by any scoring, tallying, or payout code path (explicitly rejected,
+// see README.md's "Explicitly rejected" section on CPM/external-view
+// rewards — this table exists for display only).
+model ExternalPost {
+  id        String   @id @default(uuid())
+  contentId String   @map("content_id")
+  content   Content  @relation(fields: [contentId], references: [id])
+  platform  String // tiktok | instagram | youtube | facebook — free text, no enum yet
+  url       String
+  views     Int? // Creator-entered, DISPLAY ONLY — never read by scoring/tally/payout
+  likes     Int? // Creator-entered, DISPLAY ONLY — never read by scoring/tally/payout
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  @@map("external_posts")
 }
 
 // ── Infra ────────────────────────────────────────────────────────────────

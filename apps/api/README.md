@@ -94,7 +94,7 @@ Unit tests focus on the highest-risk pure logic: round state machine scoring/gat
 
 - `RoundStateMachineService.scheduleRoundJobs` isn't transactional with the round-insert — if
   Redis is down right after a successful commit, the round exists with no scheduled close/reveal
-  jobs. A "stuck round" detector (past `closesAt` still `open`, or past `revealDeadlineAt` still
-  not `revealed`) belongs in the admin god-view (Sprint 4/5) to catch this.
+  jobs. `GET /admin/rounds/stuck` (past `closesAt` still `open`, or past `revealDeadlineAt` still
+  not `revealed`) + `POST /admin/rounds/:id/force-reveal` catch this — manually, not via an alert.
 - No load testing yet on the round state machine under concurrent voting — see the root
   [TODO.md](../../TODO.md).

@@ -237,6 +237,70 @@ export interface WalletSummary {
   payoutHistory: WalletPayoutRow[];
 }
 
+// ── Referrals / notifications (Sprint 4) ─────────────────────────────────
+
+export interface ReferralStats {
+  totalReferred: number;
+  totalRewardedCents: number;
+  pendingCount: number;
+}
+
+export type NotificationType =
+  | "challenge_invite"
+  | "payout"
+  | "round_result"
+  | "streak"
+  | "mention"
+  | "system";
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  data: Record<string, unknown> | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+// ── Admin (Sprint 4) ──────────────────────────────────────────────────────
+
+export interface AdminChallengeDetail extends Challenge {
+  rounds: Round[];
+  submissions: { id: string; creatorId: string; phase: SubmissionPhase; status: SubmissionStatus }[];
+  payouts: { id: string; userId: string; type: PayoutType; amount: number; status: string }[];
+}
+
+export interface StuckRound extends Round {
+  challenge: { title: string };
+}
+
+export type DisputeStatus = "open" | "upheld" | "denied";
+
+export interface Dispute {
+  id: string;
+  submissionId: string;
+  challengeId: string;
+  raisedById: string;
+  reason: string;
+  status: DisputeStatus;
+  resolution: string | null;
+  resolvedById: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+  submission: { id: string; creatorId: string; status: SubmissionStatus };
+}
+
+export interface GrowthDashboard {
+  voteDeckCompletionRate: number;
+  avgEntriesPerCampaign: number;
+  brandRepeatRate: number;
+  avgTimeToFirstPayoutHours: number | null;
+  rallyKProxy: number;
+  retentionD1D7D30: string;
+}
+
 // ADR-004's two distinct stat blocks — a `both`-role user can have both.
 export interface TrustStats {
   creator: {
@@ -254,4 +318,58 @@ export interface TrustStats {
     isColdStart: boolean;
     escrowedCents: number;
   } | null;
+}
+
+// ── Stories (Perokio) — Story generalizes Challenge; a FREE/OPEN Story has
+// no Challenge at all. ExternalPost views/likes are creator-entered display
+// data only, never fed into any score/tally/payout. ──────────────────────
+
+export type StoryAccess = "FREE" | "PAID";
+export type StoryMode = "OPEN" | "CHALLENGE";
+
+export interface Story {
+  id: string;
+  sellerId: string;
+  title: string;
+  brief: string;
+  access: StoryAccess;
+  mode: StoryMode;
+  challengeId: string | null;
+  createdAt: string;
+}
+
+export interface ExternalPost {
+  id: string;
+  contentId: string;
+  platform: string;
+  url: string;
+  views: number | null;
+  likes: number | null;
+  addedAt: string;
+}
+
+export interface Content {
+  id: string;
+  storyClaimId: string;
+  mediaUrl: string | null;
+  caption: string | null;
+  externalPosts: ExternalPost[];
+  createdAt: string;
+}
+
+export interface StoryClaim {
+  id: string;
+  storyId: string;
+  creatorId: string;
+  claimedAt: string;
+  story?: Story;
+  content?: Content | null;
+}
+
+// ── Creator journey ───────────────────────────────────────────────────────
+
+export interface JourneyMilestone {
+  key: string;
+  label: string;
+  achieved: boolean;
 }

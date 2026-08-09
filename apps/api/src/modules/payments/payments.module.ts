@@ -8,9 +8,10 @@ import { WebhooksController } from "./webhooks.controller";
 import { ConnectOnboardingController } from "./connect-onboarding.controller";
 import { WalletController } from "./wallet.controller";
 import { IdentityModule } from "../identity/identity.module";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 @Module({
-  imports: [IdentityModule],
+  imports: [IdentityModule, NotificationsModule],
   controllers: [WebhooksController, ConnectOnboardingController, WalletController],
   providers: [StripeService, FundingService, PayoutsService, ConnectOnboardingService, WalletService],
   exports: [StripeService, FundingService, PayoutsService, WalletService],

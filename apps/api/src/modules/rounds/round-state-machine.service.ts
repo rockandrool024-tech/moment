@@ -124,13 +124,24 @@ export class RoundStateMachineService {
     const round = await this.prisma.round.findUniqueOrThrow({ where: { id: roundId } });
     if (round.status === "revealed" || round.status === "tallied") return; // idempotent
 
+    // Atomic claim, not a plain status write: onPeerVoteCast fires on every
+    // vote and can race closeRound/forceRevealDeadline, so more than one
+    // caller can observe status === "closed" concurrently. Whoever's
+    // conditional UPDATE actually matches a row is the one that runs the
+    // tally + payout logic below; everyone else backs off. Without this,
+    // the same round can be tallied (and its payouts sent) more than once.
+    const claim = await this.prisma.round.updateMany({
+      where: { id: roundId, status: "closed" },
+      data: { status: "tallied" },
+    });
+    if (claim.count === 0) return; // another caller already claimed this round
+
     if (round.type === "public_vote_final") {
       await this.tallyPublicFinal(round);
     } else {
       await this.tallyPeerVoteRound(round, forced);
     }
 
-    await this.prisma.round.update({ where: { id: roundId }, data: { status: "tallied" } });
     await this.reveal(roundId);
   }
 
