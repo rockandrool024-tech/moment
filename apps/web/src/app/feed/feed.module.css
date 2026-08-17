@@ -1,0 +1,142 @@
+/* Full-bleed like /map's .page — cancels .container's padding so the feed
+   reaches the screen edges instead of sitting in a padded column. */
+.page {
+  margin: -1.5rem -1rem -4rem;
+  padding: 0;
+  background: #000;
+  /* Subtracts BottomNav's height on mobile too (see globals.css's
+     --bottom-nav-clearance) — without it, each slide ran full-viewport
+     tall and its bottom ~64px (caption + part of the action rail) sat
+     underneath the fixed nav bar. */
+  min-height: calc(100vh - 57px - var(--bottom-nav-clearance, 0px));
+  position: relative;
+}
+
+.scroller {
+  height: calc(100vh - 57px - var(--bottom-nav-clearance, 0px));
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  position: relative;
+  height: calc(100vh - 57px - var(--bottom-nav-clearance, 0px));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: #000;
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Bottom gradient so white caption text stays legible over any frame. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+  pointer-events: none;
+}
+
+.caption {
+  position: relative;
+  z-index: 2;
+  /* Belt-and-suspenders on top of .slide's height already subtracting
+     --bottom-nav-clearance: guarantees the caption itself is never
+     underneath BottomNav even if the 57px NavBar-height estimate above is
+     slightly off on a given device. */
+  padding: 1.2rem 4.2rem calc(1.6rem + var(--bottom-nav-clearance, 0px)) 1.1rem;
+  color: #fff;
+}
+.creatorName {
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin: 0 0 0.3rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.challengeLink {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.82rem;
+  text-decoration: none;
+  display: inline-block;
+  max-width: 70vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.challengeLink:hover {
+  text-decoration: underline;
+}
+
+.actionRail {
+  position: absolute;
+  z-index: 2;
+  right: 0.75rem;
+  bottom: calc(1.6rem + var(--bottom-nav-clearance, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+.railAvatar {
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: block;
+  line-height: 0;
+}
+.railStat,
+.railButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+.railCount {
+  font-weight: 800;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.railLabel {
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.muteToggle {
+  position: absolute;
+  z-index: 3;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+}
+.muteToggle:hover {
+  filter: none;
+  background: rgba(0, 0, 0, 0.65);
+}

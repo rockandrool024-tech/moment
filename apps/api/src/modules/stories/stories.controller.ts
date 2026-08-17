@@ -27,6 +27,12 @@ export class StoriesController {
     return this.stories.myClaims(user.id);
   }
 
+  @Get("me/mine")
+  @UseGuards(JwtAuthGuard)
+  mine(@CurrentUser() user: User) {
+    return this.stories.myStories(user.id);
+  }
+
   @Get(":id")
   findOne(@Param("id", ParseUUIDPipe) id: string): Promise<Story> {
     return this.stories.findByIdOrThrow(id);

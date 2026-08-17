@@ -5,6 +5,10 @@ import { api } from "@/lib/api-client";
 import { WalletSummary } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { WalletIcon } from "@/components/icons";
+import { StatCard } from "@/components/StatCard";
+import { EmptyState } from "@/components/EmptyState";
+import { Loading } from "@/components/Loading";
+import { CountUp } from "@/components/CountUp";
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Earned — transfer pending",
@@ -31,7 +35,7 @@ export default function WalletPage() {
     api.get<WalletSummary>("/users/me/wallet").then(setWallet);
   }, []);
 
-  if (!wallet) return <p className="muted">Loading…</p>;
+  if (!wallet) return <Loading label="Loading wallet" />;
 
   return (
     <div>
@@ -39,16 +43,12 @@ export default function WalletPage() {
         <WalletIcon width={24} height={24} aria-hidden /> Wallet
       </h1>
 
-      <div className="card">
-        <p style={{ fontSize: "2rem", margin: "0 0 0.25rem", fontWeight: 700 }}>
-          {formatCents(wallet.lifetimeEarningsCents)}
-        </p>
-        <p className="muted" style={{ margin: 0 }}>
-          lifetime earnings
-        </p>
-      </div>
+      <StatCard
+        label="Lifetime earnings"
+        value={<CountUp value={wallet.lifetimeEarningsCents} format={(n) => formatCents(n)} />}
+      />
 
-      <div className="card">
+      <div className="card" style={{ marginTop: "1rem" }}>
         <p>
           <strong>{formatCents(wallet.currentBalanceCents)}</strong> paid out
         </p>
@@ -59,9 +59,20 @@ export default function WalletPage() {
       </div>
 
       <h2>History</h2>
-      {wallet.payoutHistory.length === 0 && <p className="muted">No payouts yet.</p>}
-      {wallet.payoutHistory.map((p) => (
-        <div key={p.id} className="card card-elevated">
+      {wallet.payoutHistory.length === 0 && (
+        <EmptyState
+          icon={<WalletIcon width={30} height={30} aria-hidden />}
+          title="Nothing earned yet"
+          body="Enter a challenge to start building your wallet."
+          action={{ label: "Browse challenges", href: "/challenges" }}
+        />
+      )}
+      {wallet.payoutHistory.map((p, i) => (
+        <div
+          key={p.id}
+          className="card card-elevated card-enter"
+          style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+        >
           <strong>{formatCents(p.amount)}</strong>{" "}
           <span
             className="badge badge-tier"

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PEROKIO — World → Country → City map (click-through mockup)</title>
+<style>
+  /* Same tokens as the live app's globals.css (neon-space: black / crimson /
+     hot-pink / pale-pink) — copy-pasted here on purpose, this is a
+     throwaway click-through mockup, not something meant to stay in sync. */
+  :root {
+    --fg: #FFDEDE;
+    --bg: #000000;
+    --muted: #B98A94;
+    --text-muted: #6E4A52;
+    --border: #3A1620;
+    --accent: #FF0B55;
+    --accent-gradient: linear-gradient(135deg, #CF0F47 0%, #FF0B55 100%);
+    --accent-fg: #000000;
+    --card-bg: #150609;
+    --info: #3B82F6;
+    --tier-0: #CD7F32;
+    --tier-1: #94A3B8;
+    --tier-2: #FBBF24;
+    --tier-3: #E2E8F0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0d0d10;
+    color: var(--fg);
+    font-family: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1rem 5rem;
+  }
+  h1 { font-size: 1.1rem; margin: 0 0 0.3rem; }
+  .dek { color: var(--muted); font-size: 0.85rem; max-width: 60ch; text-align: center; margin: 0 0 2rem; }
+
+  /* ===== phone frame ===== */
+  .device {
+    width: 380px; max-width: 92vw; border-radius: 44px; background: #000; padding: 12px;
+    box-shadow: 0 30px 70px -20px rgba(0,0,0,.7);
+  }
+  .screen {
+    position: relative; border-radius: 34px; overflow: hidden; background: radial-gradient(ellipse at 50% -10%, #240009 0%, var(--bg) 60%);
+    height: 700px;
+  }
+  .statusbar { display: flex; justify-content: space-between; padding: 14px 20px 0; font-size: 12px; font-weight: 600; color: var(--fg); }
+
+  /* ===== breadcrumb / header ===== */
+  .topbar {
+    position: relative; z-index: 5; padding: 1rem 1.1rem 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .crumbs { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; color: var(--muted); flex-wrap: wrap; }
+  .crumbs .seg { cursor: pointer; padding: 0.15rem 0.4rem; border-radius: 999px; transition: color .15s, background .15s; }
+  .crumbs .seg.active { color: var(--fg); background: rgba(255,11,85,.16); }
+  .crumbs .sep { opacity: .5; }
+  .headline { font-size: 1rem; font-weight: 800; margin: 0; }
+  .sub { font-size: 0.72rem; color: var(--text-muted); margin: 0; }
+
+  /* ===== scene (bubble field / pin field share this) ===== */
+  .scene { position: relative; height: 560px; }
+  .layer { position: absolute; inset: 0; transition: opacity .35s ease, transform .35s ease; }
+  .layer.hidden { opacity: 0; pointer-events: none; transform: scale(1.08); }
+
+  /* glow bg blobs for atmosphere */
+  .scene::before {
+    content: ""; position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(circle at 25% 30%, rgba(255,11,85,.16), transparent 40%),
+      radial-gradient(circle at 75% 65%, rgba(207,15,71,.14), transparent 42%);
+  }
+
+  /* ===== bubble (world / country level) ===== */
+  .bubble {
+    position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center;
+    gap: 0.3rem; cursor: pointer; z-index: 2;
+  }
+  .bubble .orb {
+    border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: var(--accent-fg); box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 6px 22px rgba(255,11,85,.35);
+    position: relative; transition: transform .15s ease;
+  }
+  .bubble:hover .orb { transform: scale(1.07); }
+  .bubble .orb::after {
+    content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid rgba(255,11,85,.5);
+    animation: pulse 2.8s ease-out infinite;
+  }
+  @keyframes pulse { 0% { transform: scale(.75); opacity: .55; } 100% { transform: scale(1.7); opacity: 0; } }
+  .bubble .num { font-size: 0.68rem; color: var(--fg); background: rgba(0,0,0,.7); padding: 0.1rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+  .bubble .name { font-size: 0.6rem; color: var(--muted); }
+
+  .bubble.locked .orb { background: #241016; box-shadow: 0 0 0 1px rgba(255,255,255,.05); filter: grayscale(.3); }
+  .bubble.locked .orb::after { display: none; }
+  .bubble.locked .lock { position: absolute; font-size: 0.85rem; }
+  .bubble.locked .num { color: var(--text-muted); }
+
+  /* ===== pins (city level) — mirrors the live /map pin styling ===== */
+  .pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: .2rem; z-index: 2; cursor: pointer; }
+  .ring { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .ring::before { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1.5px solid var(--pin-color, var(--accent)); opacity: .55; animation: pulse 2.6s ease-out infinite; }
+  .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--pin-color, var(--accent)); color: var(--accent-fg); font-size: .62rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg); box-shadow: 0 2px 8px rgba(0,0,0,.45); }
+  .statusDot { position: absolute; bottom: 0; right: -1px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--bg); }
+  .statusDot.online { background: #22C55E; }
+  .statusDot.offline { background: #52525B; }
+  .plabel { font-size: .62rem; color: var(--fg); background: rgba(0,0,0,.72); padding: .08rem .4rem; border-radius: 6px; white-space: nowrap; }
+
+  /* ===== profile bottom sheet ===== */
+  .sheetBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 8; }
+  .sheetBackdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: absolute; left: .75rem; right: .75rem; bottom: -100%; background: var(--card-bg);
+    border: 1px solid rgba(255,255,255,.1); border-radius: 18px; padding: 1.1rem 1.2rem 1.3rem;
+    z-index: 9; box-shadow: 0 -8px 32px rgba(0,0,0,.5); transition: bottom .28s cubic-bezier(.22,1,.36,1);
+  }
+  .sheet.open { bottom: .75rem; }
+  .sheetHead { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+  .sheetAvatar { width: 46px; height: 46px; border-radius: 50%; background: var(--accent-gradient); color: var(--accent-fg); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem; flex-shrink: 0; position: relative; }
+  .sheetName { font-weight: 700; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: .4rem; }
+  .sheetMeta { font-size: .76rem; color: var(--muted); margin: .1rem 0 0; }
+  .sheetClose { margin-left: auto; background: rgba(255,255,255,.08); border: none; color: var(--fg); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: .9rem; flex-shrink: 0; }
+  .tierPill { font-size: .62rem; font-weight: 700; padding: .1rem .45rem; border-radius: 999px; border: 1.5px solid var(--tier-color); color: var(--tier-color); background: color-mix(in srgb, var(--tier-color) 16%, var(--bg)); }
+  .statChip { display: flex; align-items: center; gap: .25rem; font-size: .68rem; color: var(--muted); }
+  .statusRow { display: flex; gap: .8rem; margin: .7rem 0 .9rem; }
+  .statGrid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: .9rem; }
+  .statBox { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 10px; padding: .5rem .6rem; }
+  .statBox .lbl { font-size: .62rem; color: var(--text-muted); }
+  .statBox .val { font-family: monospace; font-size: 1.05rem; font-weight: 800; }
+  .sheetActions { display: flex; gap: .6rem; }
+  .likeBtn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: .4rem; padding: .65rem; border-radius: 12px;
+    border: 1px solid var(--border); background: rgba(255,255,255,.05); color: var(--fg); font-weight: 700; font-size: .85rem;
+    cursor: pointer; transition: transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .likeBtn .heart { transition: transform .25s cubic-bezier(.34,1.56,.64,1); display: inline-block; }
+  .likeBtn.liked { background: rgba(255,11,85,.14); border-color: var(--accent); color: var(--accent); }
+  .likeBtn.liked .heart { transform: scale(1.3); }
+  .likeBtn.pulse .heart { animation: heartPop .4s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes heartPop { 0% { transform: scale(1); } 45% { transform: scale(1.5); } 100% { transform: scale(1.3); } }
+  .viewProfileBtn { flex: 1; padding: .65rem; border-radius: 12px; border: none; background: var(--accent-gradient); color: var(--accent-fg); font-weight: 700; font-size: .85rem; text-align: center; }
+
+  .toast {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%) translateY(-14px); z-index: 12;
+    background: rgba(255,11,85,.92); color: #000; font-weight: 700; font-size: .74rem; padding: .4rem .8rem; border-radius: 999px;
+    opacity: 0; transition: opacity .2s ease, transform .2s ease; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .legend { position: relative; z-index: 3; padding: 0 1.1rem; display: flex; gap: .5rem; font-size: .64rem; color: var(--text-muted); }
+
+  .notes { max-width: 380px; margin-top: 1.5rem; font-size: .78rem; color: var(--muted); line-height: 1.6; }
+  .notes b { color: var(--fg); }
+</style>
+</head>
+<body>
+  <h1>World → Country → City map</h1>
+  <p class="dek">Click-through concept for the multi-city map idea. All numbers/positions are placeholder — same "stylized, not real GPS" rule as the live /map.</p>
+
+  <div class="device">
+    <div class="screen" id="screen">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+
+      <div class="topbar">
+        <div class="crumbs" id="crumbs">
+          <span class="seg active" data-level="world">World</span>
+        </div>
+        <p class="headline" id="headline">Your global reach</p>
+        <p class="sub" id="sub">Tap a region to zoom in</p>
+      </div>
+
+      <div class="scene">
+        <!-- WORLD LAYER -->
+        <div class="layer" id="layer-world">
+          <div class="bubble" style="left:28%; top:30%;" data-goto="country" data-name="United States" data-num="14.2K" onclick="goCountry(this)">
+            <div class="orb" style="width:74px;height:74px;font-size:.78rem;">14.2K</div>
+            <div class="name">United States</div>
+          </div>
+          <div class="bubble" style="left:52%; top:24%;" data-goto="country" data-name="United Kingdom" data-num="5.1K" onclick="goCountry(this)">
+            <div class="orb" style="width:52px;height:52px;font-size:.66rem;">5.1K</div>
+            <div class="name">United Kingdom</div>
+          </div>
+          <div class="bubble" style="left:66%; top:46%;" data-goto="country" data-name="Nigeria" data-num="9.8K" onclick="goCountry(this)">
+            <div class="orb" style="width:64px;height:64px;font-size:.72rem;">9.8K</div>
+            <div class="name">Nigeria</div>
+          </div>
+          <div class="bubble" style="left:78%; top:36%;" data-goto="country" data-name="India" data-num="11.6K" onclick="goCountry(this)">
+            <div class="orb" style="width:68px;height:68px;font-size:.74rem;">11.6K</div>
+            <div class="name">India</div>
+          </div>
+          <div class="bubble locked" style="left:38%; top:62%;">
+            <div class="orb" style="width:44px;height:44px;"><span class="lock">🔒</span></div>
+            <div class="num">Unlock at Gold</div>
+            <div class="name">Brazil</div>
+          </div>
+        </div>
+
+        <!-- COUNTRY LAYER -->
+        <div class="layer hidden" id="layer-country">
+          <div class="bubble" style="left:30%; top:34%;" data-goto="city" data-name="New York" data-num="6.4K" onclick="goCity(this)">
+            <div class="orb" style="width:66px;height:66px;font-size:.72rem;">6.4K</div>
+            <div class="name">New York</div>
+          </div>
+          <div class="bubble" style="left:60%; top:28%;" data-goto="city" data-name="Los Angeles" data-num="4.1K" onclick="goCity(this)">
+            <div class="orb" style="width:56px;height:56px;font-size:.68rem;">4.1K</div>
+            <div class="name">Los Angeles</div>
+          </div>
+          <div class="bubble locked" style="left:45%; top:58%;">
+            <div class="orb" style="width:40px;height:40px;"><span class="lock">🔒</span></div>
+            <div class="num">Unlock at Silver</div>
+            <div class="name">Austin</div>
+          </div>
+          <div class="bubble" style="left:74%; top:56%;" data-goto="city" data-name="Miami" data-num="2.8K" onclick="goCity(this)">
+            <div class="orb" style="width:46px;height:46px;font-size:.6rem;">2.8K</div>
+            <div class="name">Miami</div>
+          </div>
+        </div>
+
+        <!-- CITY LAYER (individual pins, same visual language as live /map) -->
+        <div class="layer hidden" id="layer-city">
+          <button class="pin" style="left:18%; top:40%; --pin-color: var(--tier-2);" onclick="openSheet('Ava Chen','Gold', 3,'online','1,204','48','#2 in NYC')">
+            <div class="ring"><div class="dot">AC<span class="statusDot online"></span></div></div>
+            <div class="plabel">Ava</div>
+          </button>
+          <button class="pin" style="left:42%; top:26%; --pin-color: var(--accent);" onclick="openSheet('Marcus Lee','Platinum', 4,'online','3,410','112','#1 in NYC')">
+            <div class="ring"><div class="dot">ML<span class="statusDot online"></span></div></div>
+            <div class="plabel">Marcus</div>
+          </button>
+          <button class="pin" style="left:60%; top:48%; --pin-color: var(--tier-1);" onclick="openSheet('Priya Patel','Silver', 2,'offline','622','21','#7 in NYC')">
+            <div class="ring"><div class="dot">PP<span class="statusDot offline"></span></div></div>
+            <div class="plabel">Priya</div>
+          </button>
+          <button class="pin" style="left:74%; top:30%; --pin-color: var(--tier-0);" onclick="openSheet('Jonah Reyes','Bronze', 1,'online','188','9','#14 in NYC')">
+            <div class="ring"><div class="dot">JR<span class="statusDot online"></span></div></div>
+            <div class="plabel">Jonah</div>
+          </button>
+          <button class="pin" style="left:30%; top:62%; --pin-color: var(--info);" onclick="openSheet('You','Silver', 2,'online','940','30','You')">
+            <div class="ring"><div class="dot">ME<span class="statusDot online"></span></div></div>
+            <div class="plabel">You</div>
+          </button>
+        </div>
+
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <div class="legend"><span>● influence score</span><span>🔒 locked region</span><span>tap a pin for profile</span></div>
+
+      <div class="sheetBackdrop" id="backdrop" onclick="closeSheet()"></div>
+      <div class="sheet" id="sheet">
+        <div class="sheetHead">
+          <div class="sheetAvatar" id="sAvatar"></div>
+          <div>
+            <p class="sheetName" id="sName"></p>
+            <p class="sheetMeta" id="sMeta"></p>
+          </div>
+          <button class="sheetClose" onclick="closeSheet()">✕</button>
+        </div>
+        <div class="statGrid">
+          <div class="statBox"><div class="lbl">Rank (city)</div><div class="val" id="sRank"></div></div>
+          <div class="statBox"><div class="lbl">Influence</div><div class="val" id="sInfluence"></div></div>
+        </div>
+        <div class="sheetActions">
+          <button class="likeBtn" id="likeBtn" onclick="toggleLike()"><span class="heart">🤍</span><span id="likeLabel">Like</span></button>
+          <div class="viewProfileBtn">View full profile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <b>How this maps onto real Mapbox:</b> the World/Country layers here would replace Mapbox's tile-based scene with pure CSS bubbles (Mapbox isn't needed at that zoom — no 3D buildings to show). The City layer keeps the real Mapbox 3D scene exactly as it is on <code>/map</code> today, with these same pin/sheet components already live. Locked regions and the like→Community-list action are new, not yet wired to the backend.
+  </div>
+
+<script>
+  function setCrumbs(level, name) {
+    const crumbs = document.getElementById('crumbs');
+    let html = '<span class="seg' + (level==='world'?' active':'') + '" data-level="world" onclick="goWorld()">World</span>';
+    if (level === 'country' || level === 'city') {
+      html += '<span class="sep">›</span><span class="seg' + (level==='country'?' active':'') + '" onclick="goWorld(true)">' + (window._countryName||'Country') + '</span>';
+    }
+    if (level === 'city') {
+      html += '<span class="sep">›</span><span class="seg active">' + (window._cityName||'City') + '</span>';
+    }
+    crumbs.innerHTML = html;
+  }
+  function showLayer(id) {
+    ['layer-world','layer-country','layer-city'].forEach(l => {
+      document.getElementById(l).classList.toggle('hidden', l !== id);
+    });
+  }
+  function goWorld(fromBreadcrumb) {
+    showLayer('layer-world');
+    setCrumbs('world');
+    document.getElementById('headline').textContent = 'Your global reach';
+    document.getElementById('sub').textContent = 'Tap a region to zoom in';
+  }
+  function goCountry(el) {
+    window._countryName = el.dataset.name;
+    showLayer('layer-country');
+    setCrumbs('country');
+    document.getElementById('headline').textContent = el.dataset.name;
+    document.getElementById('sub').textContent = 'Influence ' + el.dataset.num + ' · tap a city to zoom in';
+  }
+  function goCity(el) {
+    window._cityName = el.dataset.name;
+    showLayer('layer-city');
+    setCrumbs('city');
+    document.getElementById('headline').textContent = el.dataset.name;
+    document.getElementById('sub').textContent = 'Influence ' + el.dataset.num + ' · tap a pin for their profile';
+  }
+
+  let likedState = false;
+  function openSheet(name, tier, tierIdx, status, influence, rank, rankLabel) {
+    document.getElementById('sAvatar').textContent = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('sName').innerHTML = name + ' <span class="tierPill" style="--tier-color: var(--tier-' + tierIdx + ')">' + tier + '</span>';
+    document.getElementById('sMeta').textContent = (status === 'online' ? '🟢 Active now' : '⚪ Offline') + ' · ' + window._cityName;
+    document.getElementById('sRank').textContent = rankLabel;
+    document.getElementById('sInfluence').textContent = influence;
+    likedState = false;
+    const btn = document.getElementById('likeBtn');
+    btn.classList.remove('liked');
+    document.querySelector('#likeBtn .heart').textContent = '🤍';
+    document.getElementById('likeLabel').textContent = 'Like';
+    document.getElementById('backdrop').classList.add('open');
+    document.getElementById('sheet').classList.add('open');
+  }
+  function closeSheet() {
+    document.getElementById('backdrop').classList.remove('open');
+    document.getElementById('sheet').classList.remove('open');
+  }
+  function toggleLike() {
+    likedState = !likedState;
+    const btn = document.getElementById('likeBtn');
+    btn.classList.toggle('liked', likedState);
+    btn.classList.remove('pulse'); void btn.offsetWidth; btn.classList.add('pulse');
+    document.querySelector('#likeBtn .heart').textContent = likedState ? '❤️' : '🤍';
+    document.getElementById('likeLabel').textContent = likedState ? 'Liked' : 'Like';
+    if (likedState) {
+      const toast = document.getElementById('toast');
+      toast.textContent = 'Saved to your Community list';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+  }
+</script>
+</body>
+</html>

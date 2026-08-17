@@ -103,9 +103,16 @@ async function main() {
 
     // Ava wins, Marcus is runner-up/crowd favourite, Priya & Jonah were
     // round-2 survivors (made full content, didn't reach the final).
+    // Ava's and Marcus's carry a real, playable Mux asset — Mux's own public
+    // demo playback id (the one used throughout Mux's docs/examples), not a
+    // real creator upload. Lets the /feed scroll page actually play
+    // something in dev without a configured MUX_TOKEN_ID, same "stub
+    // honestly" posture as the seeded avatars — clearly fake, never claimed
+    // as a real submission video.
+    const MUX_DEMO_PLAYBACK_ID = "DS00Spx1CV902MCtPj5WknGlR102V5HFkDe";
     const [subAva, subMarcus, subPriya, subJonah] = await Promise.all([
-      prisma.submission.create({ data: { creatorId: ava.id, challengeId: challengeA.id, phase: "full_content", status: "advanced", compositeScore: 0.91 } }),
-      prisma.submission.create({ data: { creatorId: marcus.id, challengeId: challengeA.id, phase: "full_content", status: "advanced", compositeScore: 0.84 } }),
+      prisma.submission.create({ data: { creatorId: ava.id, challengeId: challengeA.id, phase: "full_content", status: "advanced", compositeScore: 0.91, videoStatus: "ready", playbackId: MUX_DEMO_PLAYBACK_ID } }),
+      prisma.submission.create({ data: { creatorId: marcus.id, challengeId: challengeA.id, phase: "full_content", status: "advanced", compositeScore: 0.84, videoStatus: "ready", playbackId: MUX_DEMO_PLAYBACK_ID } }),
       prisma.submission.create({ data: { creatorId: priya.id, challengeId: challengeA.id, phase: "full_content", status: "eliminated", compositeScore: 0.71 } }),
       prisma.submission.create({ data: { creatorId: jonah.id, challengeId: challengeA.id, phase: "full_content", status: "eliminated", compositeScore: 0.68 } }),
     ]);

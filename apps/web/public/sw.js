@@ -39,3 +39,36 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match(request).then((cached) => cached ?? fetch(request)));
   }
 });
+
+// Real Web Push (VAPID) delivery — the payload is the JSON PushService.
+// sendToUser() sends: { title, body, url? }.
+self.addEventListener("push", (event) => {
+  let payload = { title: "Perokio", body: "You have a new notification." };
+  try {
+    if (event.data) payload = { ...payload, ...event.data.json() };
+  } catch {
+    // Non-JSON payload — fall back to the default copy above.
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      data: { url: payload.url ?? "/notifications" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? "/notifications";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      const existing = clients.find((c) => new URL(c.url).origin === self.location.origin);
+      if (existing) return existing.focus().then(() => existing.navigate(url));
+      return self.clients.openWindow(url);
+    }),
+  );
+});

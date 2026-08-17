@@ -1,21 +1,25 @@
-/* PEROKIO v2 — brand identity palette: black / crimson / hot-pink / pale-pink,
-   "neon space" mood. Replaces the earlier sunset (yellow-orange-red)
-   direction — same token NAMES as before (kept stable since 8+ files
-   reference --accent/--tier-N/--rally/etc. directly), only values change. */
+/* PEROKIO v3 — brand identity palette: near-black / neon lime-yellow-green,
+   "electric night" mood. Replaces the earlier neon-space (black/crimson/
+   hot-pink) direction — same token NAMES as before (kept stable since 8+
+   files reference --accent/--tier-N/--rally/etc. directly), only values
+   change. Every hardcoded rgba() shadow/glow that referenced the old
+   crimson hue by literal value (not by var()) got hunted down and
+   converted to color-mix(var(--accent)) in this pass, so the NEXT palette
+   swap doesn't have to repeat this search. */
 
 :root {
-  --fg: #FFDEDE;
-  --bg: #000000;
-  --muted: #B98A94;
-  --text-muted: #6E4A52; /* third, dimmer tier — timestamps/captions, not body-adjacent text */
-  --border: #3A1620;
-  --border-active: #FF0B55;
-  --accent: #FF0B55;
-  --accent-gradient: linear-gradient(135deg, #CF0F47 0%, #FF0B55 100%);
-  --accent-fg: #000000; /* black text on the bright neon-pink accent */
+  --fg: #F4F7E4;
+  --bg: #0A0A08;
+  --muted: #9A9C87;
+  --text-muted: #63644F; /* third, dimmer tier — timestamps/captions, not body-adjacent text */
+  --border: #26271C;
+  --border-active: #CFFF3D;
+  --accent: #CFFF3D;
+  --accent-gradient: linear-gradient(135deg, #E8FF6B 0%, #CFFF3D 55%, #9EE600 100%);
+  --accent-fg: #0A0A08; /* near-black text on the bright lime accent */
   --danger: #EF4444;
-  --card-bg: #150609;
-  --bg-hover: #220D14;
+  --card-bg: #121208;
+  --bg-hover: #1C1D12;
 
   /* Tier scale — untouched by the brand palette swap on purpose. These are
      a semantic ranking (bronze/silver/gold/platinum), not a brand color;
@@ -26,10 +30,10 @@
   --tier-2: #FBBF24; /* gold */
   --tier-3: #E2E8F0; /* platinum */
 
-  /* Challenge/live-pin color — re-aliased to the new hot-pink accent (it
-     was always "the hot/urgent brand-adjacent color," just a different hue
+  /* Challenge/live-pin color — re-aliased to the new lime accent (it was
+     always "the hot/urgent brand-adjacent color," just a different hue
      before). 8+ files reference --rally directly. */
-  --rally: #FF0B55;
+  --rally: #CFFF3D;
 
   /* Semantic — separate from --accent/--tier/--rally, which are brand
      colors, not state. Use these for verdicts, not decoration. Left alone
@@ -42,6 +46,21 @@
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
+
+  /* 0 by default (desktop/Sidebar has no fixed bottom bar); redefined below
+     767px, where BottomNav is fixed to the bottom of the screen. Any
+     position:fixed element anchored with `bottom:` — the map's pin sheet,
+     the shared Sheet component's funding/rating sheet — needs to add this
+     to its own bottom offset, since BottomNav.module.css's `.spacer` trick
+     only clears normal document flow, not other fixed-position elements. */
+  --bottom-nav-clearance: 0px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    /* Matches BottomNav.module.css's own .spacer height exactly. */
+    --bottom-nav-clearance: 64px;
+  }
 }
 
 * {
@@ -83,7 +102,7 @@ a {
 .nav a.active {
   color: var(--fg);
   font-weight: 700;
-  background: rgba(255, 11, 85, 0.16);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
   border-radius: var(--radius-sm);
   margin: -0.3rem -0.5rem;
   padding: 0.3rem 0.5rem;
@@ -132,7 +151,7 @@ h2 {
   background: linear-gradient(180deg, var(--card-bg), #0A0004);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.55),
-    0 8px 20px rgba(255, 11, 85, 0.12),
+    0 8px 20px color-mix(in srgb, var(--accent) 12%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -151,7 +170,7 @@ h2 {
   transform: translateY(-2px);
   box-shadow:
     0 14px 32px rgba(0, 0, 0, 0.6),
-    0 8px 20px rgba(255, 11, 85, 0.2),
+    0 8px 20px color-mix(in srgb, var(--accent) 20%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -188,7 +207,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--border-active);
-  box-shadow: 0 0 0 3px rgba(255, 11, 85, 0.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 input::placeholder,
 textarea::placeholder {
@@ -337,4 +356,47 @@ button.secondary {
     flex-wrap: wrap;
     gap: 0.6rem;
   }
+}
+
+/* ── Shared motion primitives ─────────────────────────────────────────
+   Used by list pages (staggered entrance) and the streak indicator
+   (flame). Kept here, not per-component, so nothing reinvents a bespoke
+   animation — see docs/perokio/component-library.html §05 for the same
+   keyframes shown live before they were wired into real pages. */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-enter {
+  animation: cardEnter 0.25s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-enter { animation: none; }
+}
+
+/* Desktop sidebar takes over navigation from the top .nav bar at 768px+
+   (Sidebar.module.css shows/hides the sidebar itself at the same
+   breakpoint) — content gets left padding to clear it. */
+@media (min-width: 768px) {
+  .nav {
+    display: none;
+  }
+  .container-with-sidebar {
+    margin-left: 232px;
+    max-width: calc(720px + 232px);
+  }
+}
+
+@keyframes flameFlicker {
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  25% { transform: scale(1.05) rotate(2deg); }
+  50% { transform: scale(0.95) rotate(-1deg); }
+  75% { transform: scale(1.02) rotate(1deg); }
+}
+.flame-flicker {
+  display: inline-block;
+  animation: flameFlicker 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flame-flicker { animation: none; }
 }

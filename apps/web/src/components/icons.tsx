@@ -117,3 +117,30 @@ export function ShareIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function FilmIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M8 4v16M16 4v16M3 9h5M16 9h5M3 15h5M16 15h5" />
+    </svg>
+  );
+}
+
+export function UnmuteIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 10v4h4l5 4V6L8 10H4Z" />
+      <path d="M16.5 9a4 4 0 0 1 0 6M19 7a7.5 7.5 0 0 1 0 10" />
+    </svg>
+  );
+}
+
+export function MuteIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M4 10v4h4l5 4V6L8 10H4Z" />
+      <path d="m16 9 4.5 6M20.5 9 16 15" />
+    </svg>
+  );
+}

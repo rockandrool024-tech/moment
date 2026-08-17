@@ -1,0 +1,30 @@
+.burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--p-color);
+  animation: burst 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--p-delay);
+}
+@keyframes burst {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--p-rot)) translateY(var(--p-dist));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .burst { display: none; }
+}

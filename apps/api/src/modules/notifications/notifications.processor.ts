@@ -1,8 +1,10 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Logger } from "@nestjs/common";
 import { Job } from "bullmq";
+import { Notification } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { NotificationEvent, NotificationsService } from "./notifications.service";
+import { PushService } from "./push.service";
 
 // Notification copy is the only place apps/api ever renders money as text
 // (everywhere else returns raw cents for the client to format) — kept
@@ -19,9 +21,9 @@ const PAYOUT_COPY: Record<string, { emoji: string; label: string }> = {
   referral_bonus: { emoji: "🤝", label: "Referral bonus" },
 };
 
-// Writes the real Notification row an inbox reads from (GET /notifications)
-// — this used to just log. Still no push/SMS/email delivery channel; that's
-// real infra (FCM/Twilio/SES) this stub doesn't have credentials for.
+// Writes the real Notification row an inbox reads from (GET /notifications),
+// then best-effort delivers a real Web Push (VAPID) notification via
+// PushService — no FCM/Twilio/SES account needed for that part.
 @Processor("notifications")
 export class NotificationsProcessor extends WorkerHost {
   private readonly logger = new Logger(NotificationsProcessor.name);
@@ -29,8 +31,16 @@ export class NotificationsProcessor extends WorkerHost {
   constructor(
     private readonly notifications: NotificationsService,
     private readonly prisma: PrismaService,
+    private readonly push: PushService,
   ) {
     super();
+  }
+
+  // Best-effort, fire-and-forget from the caller's perspective — PushService
+  // already swallows per-subscription failures, so this never blocks the
+  // in-app inbox row (already written by the time this runs) on delivery.
+  private notifyPush(userId: string, notification: Notification): void {
+    void this.push.sendToUser(userId, { title: notification.title, body: notification.body });
   }
 
   async process(job: Job<NotificationEvent>): Promise<void> {
@@ -46,15 +56,17 @@ export class NotificationsProcessor extends WorkerHost {
         case "challenge_invite":
           await this.handleChallengeInvite(event.userId, event.challengeId);
           break;
-        case "submission_eliminated":
-          await this.notifications.record(
+        case "submission_eliminated": {
+          const n = await this.notifications.record(
             event.userId,
             "round_result",
             "Entry not advanced",
             "Your entry didn't make it through this round — check the challenge for what's next.",
             { submissionId: event.submissionId },
           );
+          this.notifyPush(event.userId, n);
           break;
+        }
       }
     } catch (error) {
       this.logger.error(`Failed to record notification for ${event.type}`, error as Error);
@@ -69,13 +81,14 @@ export class NotificationsProcessor extends WorkerHost {
     if (!payout) return;
 
     const copy = PAYOUT_COPY[payout.type] ?? { emoji: "💵", label: "Payout" };
-    await this.notifications.record(
+    const n = await this.notifications.record(
       userId,
       "payout",
       `${copy.emoji} ${copy.label}: ${formatCents(payout.amount)}`,
       `${payout.challenge.title} — ${formatCents(payout.amount)} is on its way to your linked Stripe account.`,
       { payoutId, amount: payout.amount, payoutType: payout.type },
     );
+    this.notifyPush(userId, n);
   }
 
   private async handleRoundRevealed(userId: string, roundId: string): Promise<void> {
@@ -85,13 +98,14 @@ export class NotificationsProcessor extends WorkerHost {
     });
     if (!round) return;
 
-    await this.notifications.record(
+    const n = await this.notifications.record(
       userId,
       "round_result",
       `🏆 Round ${round.roundNumber} revealed`,
       `Results are in for "${round.challenge.title}" — round ${round.roundNumber}.`,
       { roundId, challengeId: round.challengeId },
     );
+    this.notifyPush(userId, n);
   }
 
   private async handleChallengeInvite(userId: string, challengeId: string): Promise<void> {
@@ -101,12 +115,13 @@ export class NotificationsProcessor extends WorkerHost {
     });
     if (!challenge) return;
 
-    await this.notifications.record(
+    const n = await this.notifications.record(
       userId,
       "challenge_invite",
       "📣 You're invited to a challenge",
       `A brand invited you to compete in "${challenge.title}".`,
       { challengeId },
     );
+    this.notifyPush(userId, n);
   }
 }

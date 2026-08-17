@@ -27,6 +27,7 @@ Start here, in order:
 | `moment-prototype.html` | **The reference implementation.** 37 screens, interactive. Open in a browser; there's an "All screens" toggle for review. |
 | `docs/prototype-screen-index.md` | What each of the 37 screens is for, and which mechanic it serves. |
 | `docs/ADR-001` … `ADR-005` | The five architecture decisions, in dependency order. |
+| `docs/ADR-006` | Story-economy mental model — reviews an external "v2" proposal item by item: what's already built, what's adopted, what's blocked on a real prerequisite, and what's explicitly rejected because it conflicts with a locked decision below. |
 | `docs/growth-viral-mechanics.md` | Growth model, k math, retention targets, unit economics. |
 | `docs/production-app-scope.md` | Everything needed beyond the mocked screens to reach production. |
 | `docs/mockup-01` … `mockup-09` | Early wireframes. Superseded by the prototype — reference only. |

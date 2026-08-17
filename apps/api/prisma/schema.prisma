@@ -170,6 +170,7 @@ model Submission {
   challenge   Challenge        @relation(fields: [challengeId], references: [id])
   phase       SubmissionPhase
   videoRef    String?          @map("video_ref") // Mux asset id
+  playbackId  String?          @map("playback_id") // Mux playback id — the asset id alone can't build a stream.mux.com URL
   videoStatus String           @default("pending") @map("video_status") // pending | ready | errored
   status      SubmissionStatus @default(pending)
   sellerScore Int?             @map("seller_score") // 1-5, lightweight per ADR-003

@@ -17,7 +17,10 @@ async function bootstrap() {
   );
 
   // The web app is always a different origin from the API, in dev and prod.
-  app.enableCors({ origin: process.env.CORS_ORIGIN ?? "http://localhost:3001" });
+  // Comma-separated so a phone-on-LAN origin can be added alongside
+  // localhost during local dev without losing desktop access.
+  const corsOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:3001").split(",").map((o) => o.trim());
+  app.enableCors({ origin: corsOrigins });
 
   app.enableShutdownHooks();
 

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UseGuards } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { UsersService } from "./users.service";
 import { JourneyMilestone } from "./journey";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard)
@@ -33,5 +34,10 @@ export class UsersController {
   @Get("me/journey")
   getJourney(@CurrentUser() user: User): Promise<JourneyMilestone[]> {
     return this.users.getJourney(user.id);
+  }
+
+  @Patch("me")
+  updateProfile(@CurrentUser() user: User, @Body() dto: UpdateProfileDto): Promise<User> {
+    return this.users.updateProfile(user.id, dto);
   }
 }

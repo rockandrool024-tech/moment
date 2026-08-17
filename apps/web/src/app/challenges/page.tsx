@@ -7,6 +7,8 @@ import { Challenge, ChallengeStatus } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 import { PlayIcon } from "@/components/icons";
+import { Loading } from "@/components/Loading";
+import { EmptyState } from "@/components/EmptyState";
 
 // Matches /map's legend: coral for anything live, accent green once
 // resolved, a flat border for draft/cancelled — same color language as the
@@ -37,18 +39,25 @@ export default function ChallengesPage() {
         )}
       </div>
 
-      {challenges === null && <p className="muted">Loading…</p>}
-      {challenges?.length === 0 && <p className="muted">No challenges yet.</p>}
+      {challenges === null && <Loading label="Loading challenges" />}
+      {challenges?.length === 0 && (
+        <EmptyState
+          icon={<PlayIcon width={30} height={30} aria-hidden />}
+          title="No live challenges right now"
+          body="New ones show up here the moment a brand funds them — check back soon."
+        />
+      )}
 
-      {challenges?.map((c) => (
+      {challenges?.map((c, i) => (
         <Link key={c.id} href={`/challenges/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
           <div
-            className="card card-elevated card-edged card-interactive"
+            className="card card-elevated card-edged card-interactive card-enter"
             style={{
               ["--edge-color" as string]: statusEdgeColor(c.status),
               display: "flex",
               alignItems: "center",
               gap: "0.9rem",
+              animationDelay: `${Math.min(i, 8) * 40}ms`,
             }}
           >
             <span

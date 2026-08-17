@@ -34,6 +34,7 @@ export interface DiscoveryCreator {
   tier: number;
   wins: number;
   referralCode: string;
+  location: string | null;
 }
 
 export interface DiscoveryBrand {
@@ -42,6 +43,7 @@ export interface DiscoveryBrand {
   activeChallengeCount: number;
   activePrizePoolCents: number;
   isColdStart: boolean;
+  location: string | null;
 }
 
 export interface MapPin {
@@ -58,10 +60,33 @@ export interface MapPin {
   y: number;
   heightScale: number; // 0.4-1.4, building/pin height driven by activity signal
   meta: string; // short caption: win count or prize pool, already public elsewhere
+  // 1-indexed position within its own list (creators ranked by tier+earnings,
+  // challenges by active prize pool) — the same ordering getDiscoveryCreators/
+  // Brands already return, just surfaced so the map can show "influence rank."
+  rank: number;
+  // The same real number `meta` already renders as text (wins / active
+  // challenges) — exposed numerically too so the pin can show a Snap-Map-
+  // style count badge without the client parsing "3 wins" back out of a
+  // caption string. Never a fabricated view/reach count.
+  count: number;
 }
 
 export interface MapNearbyResponse {
   pins: MapPin[];
+}
+
+export interface FeedVideo {
+  id: string;
+  playbackId: string; // caller builds the stream.mux.com URL — this endpoint only returns ready, playable rows
+  creatorId: string;
+  creatorName: string | null;
+  challengeTitle: string;
+  challengeId: string;
+  voteCount: number;
+}
+
+export interface FeedVideosResponse {
+  videos: FeedVideo[];
 }
 
 // Deterministic 0-1 float from a string — same "seed, don't fake" posture as
@@ -147,13 +172,17 @@ export class PublicService {
    * Public/no-auth, cached, since it's meant to be a browsable "who's
    * winning right now" surface for spectators, not just logged-in users.
    */
-  async getDiscoveryCreators(): Promise<DiscoveryCreator[]> {
-    return this.cache.getOrSet("public:discovery:creators", DISCOVERY_CACHE_TTL_SECONDS, async () => {
+  // `location` filters the cached, unfiltered result set in memory rather
+  // than bypassing the cache per-query — DISCOVERY_LIMIT keeps this cheap,
+  // and it means one cache entry serves every filter instead of one per
+  // location string.
+  async getDiscoveryCreators(location?: string): Promise<DiscoveryCreator[]> {
+    const all = await this.cache.getOrSet("public:discovery:creators", DISCOVERY_CACHE_TTL_SECONDS, async () => {
       const creators = await this.prisma.user.findMany({
         where: { role: { in: ["creator", "both"] }, phoneVerifiedAt: { not: null } },
         orderBy: [{ tier: "desc" }, { lifetimeEarnings: "desc" }],
         take: DISCOVERY_LIMIT,
-        select: { id: true, displayName: true, tier: true, referralCode: true },
+        select: { id: true, displayName: true, tier: true, referralCode: true, location: true },
       });
       if (creators.length === 0) return [];
 
@@ -169,13 +198,18 @@ export class PublicService {
         displayName: c.displayName,
         tier: c.tier,
         referralCode: c.referralCode,
+        location: c.location,
         wins: winsByUser.get(c.id) ?? 0,
       }));
     });
+
+    if (!location) return all;
+    const needle = location.toLowerCase();
+    return all.filter((c) => c.location?.toLowerCase().includes(needle));
   }
 
-  async getDiscoveryBrands(): Promise<DiscoveryBrand[]> {
-    return this.cache.getOrSet("public:discovery:brands", DISCOVERY_CACHE_TTL_SECONDS, async () => {
+  async getDiscoveryBrands(location?: string): Promise<DiscoveryBrand[]> {
+    const all = await this.cache.getOrSet("public:discovery:brands", DISCOVERY_CACHE_TTL_SECONDS, async () => {
       const activeChallenges = await this.prisma.challenge.findMany({
         where: { status: { in: ["round1_open", "round2_open", "round3_open"] } },
         select: { sellerId: true, prizePool: true, stipendPool: true },
@@ -192,7 +226,7 @@ export class PublicService {
 
       const sellers = await this.prisma.user.findMany({
         where: { id: { in: [...bySeller.keys()] } },
-        select: { id: true, displayName: true },
+        select: { id: true, displayName: true, location: true },
       });
 
       const resolvedCounts = await this.prisma.challenge.groupBy({
@@ -208,6 +242,7 @@ export class PublicService {
           return {
             id: s.id,
             displayName: s.displayName,
+            location: s.location,
             activeChallengeCount: stats.count,
             activePrizePoolCents: stats.poolCents,
             isColdStart: (resolvedBySeller.get(s.id) ?? 0) === 0,
@@ -216,6 +251,10 @@ export class PublicService {
         .sort((a, b) => b.activePrizePoolCents - a.activePrizePoolCents)
         .slice(0, DISCOVERY_LIMIT);
     });
+
+    if (!location) return all;
+    const needle = location.toLowerCase();
+    return all.filter((b) => b.location?.toLowerCase().includes(needle));
   }
 
   /**
@@ -232,7 +271,7 @@ export class PublicService {
         this.getDiscoveryBrands(),
       ]);
 
-      const creatorPins: MapPin[] = creators.slice(0, 12).map((c) => ({
+      const creatorPins: MapPin[] = creators.slice(0, 12).map((c, i) => ({
         id: c.id,
         kind: "creator",
         displayName: c.displayName,
@@ -242,9 +281,11 @@ export class PublicService {
         y: 12 + seededUnitFloat(`${c.id}:y`) * 68,
         heightScale: 0.5 + (c.tier / 3) * 0.6 + seededUnitFloat(`${c.id}:h`) * 0.2,
         meta: c.wins === 1 ? "1 win" : `${c.wins} wins`,
+        rank: i + 1,
+        count: c.wins,
       }));
 
-      const challengePins: MapPin[] = brands.slice(0, 8).map((b) => ({
+      const challengePins: MapPin[] = brands.slice(0, 8).map((b, i) => ({
         id: b.id,
         kind: "challenge",
         displayName: b.displayName,
@@ -254,9 +295,46 @@ export class PublicService {
         y: 12 + seededUnitFloat(`${b.id}:y`) * 68,
         heightScale: Math.min(1.4, 0.5 + b.activePrizePoolCents / 500_000),
         meta: `${b.activeChallengeCount} live`,
+        rank: i + 1,
+        count: b.activeChallengeCount,
       }));
 
       return { pins: [...creatorPins, ...challengePins] };
+    });
+  }
+
+  /**
+   * TikTok-style scrollable feed — real, ready-to-play submissions only.
+   * videoStatus must be "ready" AND playbackId must be set (the Mux
+   * asset-ready webhook writes both together), so this never returns a
+   * submission mid-processing or one whose playbackId predates that field
+   * existing. No fallback/placeholder row — an empty list here is honest:
+   * it means nothing is actually playable yet, not a bug to paper over.
+   */
+  async getFeedVideos(): Promise<FeedVideosResponse> {
+    return this.cache.getOrSet("public:feed:videos", DISCOVERY_CACHE_TTL_SECONDS, async () => {
+      const submissions = await this.prisma.submission.findMany({
+        where: { videoStatus: "ready", playbackId: { not: null } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        include: {
+          creator: { select: { id: true, displayName: true } },
+          challenge: { select: { id: true, title: true } },
+          _count: { select: { peerVotesReceived: true, votesReceived: true } },
+        },
+      });
+
+      return {
+        videos: submissions.map((s) => ({
+          id: s.id,
+          playbackId: s.playbackId as string,
+          creatorId: s.creator.id,
+          creatorName: s.creator.displayName,
+          challengeTitle: s.challenge.title,
+          challengeId: s.challenge.id,
+          voteCount: s._count.peerVotesReceived + s._count.votesReceived,
+        })),
+      };
     });
   }
 }

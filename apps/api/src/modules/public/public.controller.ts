@@ -1,8 +1,9 @@
-import { Controller, Get, Param, ParseUUIDPipe } from "@nestjs/common";
+import { Controller, Get, Param, ParseUUIDPipe, Query } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import {
   DiscoveryBrand,
   DiscoveryCreator,
+  FeedVideosResponse,
   MapNearbyResponse,
   PublicChallengeSummary,
   PublicService,
@@ -31,17 +32,22 @@ export class PublicController {
   }
 
   @Get("discovery/creators")
-  getDiscoveryCreators(): Promise<DiscoveryCreator[]> {
-    return this.publicService.getDiscoveryCreators();
+  getDiscoveryCreators(@Query("location") location?: string): Promise<DiscoveryCreator[]> {
+    return this.publicService.getDiscoveryCreators(location);
   }
 
   @Get("discovery/brands")
-  getDiscoveryBrands(): Promise<DiscoveryBrand[]> {
-    return this.publicService.getDiscoveryBrands();
+  getDiscoveryBrands(@Query("location") location?: string): Promise<DiscoveryBrand[]> {
+    return this.publicService.getDiscoveryBrands(location);
   }
 
   @Get("map/nearby")
   getMapNearby(): Promise<MapNearbyResponse> {
     return this.publicService.getMapNearby();
+  }
+
+  @Get("feed/videos")
+  getFeedVideos(): Promise<FeedVideosResponse> {
+    return this.publicService.getFeedVideos();
   }
 }

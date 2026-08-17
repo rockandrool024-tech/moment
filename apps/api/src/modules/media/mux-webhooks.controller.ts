@@ -44,9 +44,10 @@ export class MuxWebhooksController {
     switch (event.type) {
       case "video.asset.ready": {
         if (!uploadId) break;
+        const playbackId = event.data.playback_ids?.[0]?.id;
         await this.prisma.submission.updateMany({
           where: { videoRef: uploadId },
-          data: { videoRef: event.data.id, videoStatus: "ready" },
+          data: { videoRef: event.data.id, playbackId, videoStatus: "ready" },
         });
         break;
       }

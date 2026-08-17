@@ -36,6 +36,14 @@ export default () => ({
     authToken: process.env.TWILIO_AUTH_TOKEN,
     verifyServiceSid: process.env.TWILIO_VERIFY_SERVICE_SID,
   },
+  // Real Web Push (VAPID) — no FCM/APNs/third-party push account needed.
+  // Optional like Stripe/Twilio: boots without it, PushService throws only
+  // once something actually tries to send (see PushService.getVapidConfig).
+  vapid: {
+    publicKey: process.env.VAPID_PUBLIC_KEY,
+    privateKey: process.env.VAPID_PRIVATE_KEY,
+    subject: process.env.VAPID_SUBJECT,
+  },
   rounds: {
     // ADR-003: results reveal 2h after round close regardless of stragglers.
     revealDeadlineMs: 2 * 60 * 60 * 1000,

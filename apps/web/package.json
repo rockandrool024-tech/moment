@@ -4,7 +4,7 @@
   "private": true,
   "description": "MOMENT web app — Next.js client for the Phase 1 backend. Bare-bones UI; design comes later.",
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "next lint"

@@ -21,6 +21,7 @@ export interface User {
   lastVoteDate: string | null;
   streakCount: number;
   streakPausedReason: string | null;
+  location: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -160,6 +161,7 @@ export interface DiscoveryCreator {
   tier: number;
   wins: number;
   referralCode: string;
+  location: string | null;
 }
 
 export interface DiscoveryBrand {
@@ -168,6 +170,7 @@ export interface DiscoveryBrand {
   activeChallengeCount: number;
   activePrizePoolCents: number;
   isColdStart: boolean;
+  location: string | null;
 }
 
 export interface MapPin {
@@ -180,6 +183,20 @@ export interface MapPin {
   y: number;
   heightScale: number;
   meta: string;
+  rank: number;
+  count: number;
+}
+
+// ── Video feed ──────────────────────────────────────────────────────────
+
+export interface FeedVideo {
+  id: string;
+  playbackId: string;
+  creatorId: string;
+  creatorName: string | null;
+  challengeTitle: string;
+  challengeId: string;
+  voteCount: number;
 }
 
 export interface MapNearbyResponse {
@@ -364,6 +381,26 @@ export interface StoryClaim {
   claimedAt: string;
   story?: Story;
   content?: Content | null;
+}
+
+export type StoryStage = "submitted" | "claimed" | "content_added" | "posted";
+
+// A seller's own Story with a claim/content/engagement rollup — see
+// StoriesService.myStories. reportedViews/reportedLikes are a sum of
+// creator-entered numbers, never verified — same status as ExternalPost's
+// own fields, just aggregated for the storyteller's dashboard.
+export interface MyStorySummary {
+  id: string;
+  title: string;
+  access: StoryAccess;
+  mode: StoryMode;
+  createdAt: string;
+  stage: StoryStage;
+  claimCount: number;
+  contentCount: number;
+  postCount: number;
+  reportedViews: number;
+  reportedLikes: number;
 }
 
 // ── Creator journey ───────────────────────────────────────────────────────

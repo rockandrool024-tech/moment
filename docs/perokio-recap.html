@@ -1,0 +1,566 @@
+<!doctype html>
+<title>Perokio — Product Recap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #050004;
+    --bg-elevated: #120609;
+    --bg-inset: #0b0305;
+    --border: #2B1017;
+    --border-soft: #1C0A0F;
+    --fg: #F5DFE2;
+    --muted: #A9818A;
+    --dim: #6E4A52;
+    --accent: #FF0B55;
+    --accent-2: #CF0F47;
+    --accent-soft: rgba(255, 11, 85, 0.14);
+    --accent-gradient: linear-gradient(135deg, #CF0F47 0%, #FF0B55 100%);
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --info: #3B82F6;
+    --tier-0: #CD7F32;
+    --tier-1: #94A3B8;
+    --tier-2: #FBBF24;
+    --tier-3: #E2E8F0;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --sans: -apple-system, "Segoe UI", "Inter", Roboto, sans-serif;
+    --rail-w: 236px;
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: dark; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(255,11,85,.16), transparent 55%),
+      radial-gradient(ellipse 700px 500px at 88% 8%, rgba(207,15,71,.12), transparent 50%);
+  }
+
+  a { color: inherit; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  code { font-family: var(--mono); }
+
+  .shell { display: flex; max-width: 1180px; margin: 0 auto; }
+
+  /* ===== rail nav ===== */
+  .rail {
+    position: sticky; top: 0; align-self: flex-start; height: 100vh; width: var(--rail-w); flex-shrink: 0;
+    padding: 2.2rem 0 2rem 1.75rem; display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .rail .brand { display: flex; align-items: baseline; gap: .4rem; margin-bottom: .15rem; }
+  .rail .brand b {
+    font-size: 1.05rem; font-weight: 800; letter-spacing: .01em;
+    background: var(--accent-gradient); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .rail .brand span { font-size: .68rem; color: var(--dim); }
+  .rail .status {
+    font-size: .64rem; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: .06em;
+    margin: .5rem 0 2rem; display: flex; align-items: center; gap: .35rem;
+  }
+  .rail .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .rail nav { display: flex; flex-direction: column; gap: .1rem; }
+  .rail nav a {
+    text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; padding: .5rem .7rem;
+    border-radius: 8px; border-left: 2px solid transparent; transition: color .15s ease, background .15s ease;
+  }
+  .rail nav a:hover { color: var(--fg); background: rgba(255,255,255,.03); }
+  .rail nav a.current { color: var(--fg); background: var(--accent-soft); border-left-color: var(--accent); font-weight: 700; }
+  .rail .foot { margin-top: auto; padding-top: 1.5rem; font-size: .68rem; color: var(--dim); }
+
+  /* ===== content ===== */
+  .content { flex: 1; min-width: 0; padding: 3.2rem 2.5rem 8rem 2.75rem; border-left: 1px solid var(--border-soft); }
+  section { max-width: 760px; padding-top: 3.6rem; margin-top: -3.6rem; }
+  section:first-of-type { padding-top: 0; margin-top: 0; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent);
+    font-weight: 700; margin-bottom: .6rem;
+  }
+  h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.01em; margin-bottom: .9rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.8rem 0 .7rem; }
+  .lede { font-size: 1.02rem; color: var(--muted); max-width: 62ch; }
+  section > .lede, section > p { margin-bottom: 1.1rem; }
+
+  hr.div { border: none; border-top: 1px solid var(--border-soft); margin: 3.6rem 0 0; max-width: 760px; }
+
+  /* ===== hero ===== */
+  .hero-value {
+    font-size: 1.32rem; font-weight: 700; line-height: 1.45; margin: 1.1rem 0 .9rem; max-width: 54ch;
+  }
+  .hero-thesis {
+    border-left: 2px solid var(--accent); padding-left: 1rem; color: var(--fg); font-size: .96rem; margin: 1.4rem 0 2rem; max-width: 56ch;
+  }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; margin-top: 1.6rem; }
+  .stat-box { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: .8rem .9rem; }
+  .stat-box .n { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-box .l { font-size: .68rem; color: var(--dim); margin-top: .1rem; }
+
+  /* ===== funnel strip ===== */
+  .funnel { display: flex; gap: .6rem; margin: 1.6rem 0; }
+  .funnel-step { flex: 1; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1rem .9rem; position: relative; }
+  .funnel-step .k { font-family: var(--mono); font-size: .64rem; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+  .funnel-step .t { font-weight: 700; font-size: .88rem; margin: .3rem 0 .35rem; }
+  .funnel-step .d { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+  .funnel-arrow { display: flex; align-items: center; color: var(--dim); font-size: .9rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .84rem; margin: 1rem 0 1.6rem; }
+  th { text-align: left; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); font-weight: 700; padding: 0 .7rem .5rem 0; border-bottom: 1px solid var(--border); }
+  td { padding: .55rem .7rem .55rem 0; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .table-wrap { overflow-x: auto; max-width: 760px; }
+
+  .route { font-family: var(--mono); font-size: .8rem; color: var(--accent); background: rgba(255,11,85,.08); padding: .12rem .4rem; border-radius: 5px; white-space: nowrap; }
+  .tag { display: inline-block; font-size: .64rem; font-weight: 700; letter-spacing: .03em; padding: .12rem .5rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .tag.group-core { color: var(--accent); border-color: rgba(255,11,85,.35); background: rgba(255,11,85,.08); }
+  .tag.group-money { color: var(--tier-2); border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.08); }
+  .tag.group-growth { color: var(--info); border-color: rgba(59,130,246,.3); background: rgba(59,130,246,.08); }
+  .tag.group-admin { color: var(--muted); }
+
+  /* mermaid host */
+  .diagram { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px; padding: 1.3rem; margin: 1.2rem 0 1.8rem; overflow-x: auto; max-width: 100%; }
+  .diagram-caption { font-size: .72rem; color: var(--dim); margin-top: -.9rem; margin-bottom: 1.6rem; }
+
+  /* persona cards */
+  .persona-grid { display: flex; flex-direction: column; gap: .9rem; margin: 1.2rem 0 1.8rem; }
+  .persona {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.2rem;
+  }
+  .persona .who { display: flex; align-items: center; gap: .55rem; margin-bottom: .55rem; }
+  .persona .who .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .persona .who b { font-size: .92rem; }
+  .persona .steps { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .76rem; color: var(--muted); }
+  .persona .steps .s { display: flex; align-items: center; gap: .4rem; }
+  .persona .steps .arrow { color: var(--dim); }
+
+  /* component grid */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(216px, 1fr)); gap: .7rem; margin: 1.2rem 0 1.8rem; }
+  .comp-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: .85rem .95rem; }
+  .comp-card .name { font-family: var(--mono); font-size: .78rem; color: var(--accent); font-weight: 600; }
+  .comp-card .desc { font-size: .76rem; color: var(--muted); margin-top: .35rem; line-height: 1.5; }
+  .comp-group-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); font-weight: 700; margin: 1.6rem 0 .5rem; }
+  .comp-group-label:first-of-type { margin-top: .8rem; }
+
+  /* functionality checklist */
+  .func-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; margin: 1rem 0 1.8rem; }
+  .func-group { break-inside: avoid; margin-bottom: 1.6rem; }
+  .func-group h4 { font-size: .82rem; font-weight: 700; margin: 0 0 .6rem; color: var(--fg); }
+  .func-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+  .func-list li { font-size: .8rem; color: var(--muted); padding-left: 1.2rem; position: relative; line-height: 1.5; }
+  .func-list li::before { content: "✓"; position: absolute; left: 0; color: var(--success); font-weight: 700; font-size: .72rem; top: .1rem; }
+  .func-list.stub li::before { content: "◐"; color: var(--warning); }
+  .func-list.cut li::before { content: "✕"; color: var(--dim); }
+
+  .blocker-box {
+    background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3); border-radius: 12px; padding: 1rem 1.15rem; margin: 1rem 0 1.8rem;
+  }
+  .blocker-box .lbl { font-size: .66rem; text-transform: uppercase; letter-spacing: .07em; color: var(--warning); font-weight: 700; margin-bottom: .4rem; }
+  .blocker-box p { font-size: .84rem; color: var(--fg); line-height: 1.55; }
+
+  @media (max-width: 900px) {
+    .shell { flex-direction: column; }
+    .rail { position: static; width: 100%; height: auto; padding: 1.4rem 1.4rem 0; }
+    .rail nav { flex-direction: row; overflow-x: auto; gap: .3rem; padding-bottom: .8rem; }
+    .rail nav a { white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+    .rail nav a.current { border-bottom-color: var(--accent); border-left-color: transparent; }
+    .rail .foot { display: none; }
+    .content { padding: 2rem 1.4rem 5rem; border-left: none; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .func-grid { grid-template-columns: 1fr; }
+    .funnel { flex-direction: column; }
+    .funnel-arrow { display: none; }
+  }
+
+  ::selection { background: var(--accent); color: #000; }
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><b>PEROKIO</b><span>recap</span></div>
+    <div class="status">v1 scope locked</div>
+    <nav id="railnav">
+      <a href="#value" class="current">What it is</a>
+      <a href="#funnel">The funnel &amp; economics</a>
+      <a href="#domain">Every page</a>
+      <a href="#journeys">Who does what</a>
+      <a href="#flow">How pages connect</a>
+      <a href="#components">Component library</a>
+      <a href="#functionality">What's actually built</a>
+      <a href="#status">What's left</a>
+    </nav>
+    <div class="foot">Generated from the live codebase &amp; README/TODO — not a wishlist.</div>
+  </aside>
+
+  <main class="content">
+
+    <section id="value">
+      <div class="eyebrow">What it is</div>
+      <h2>A payout event, not a content app</h2>
+      <p class="hero-value">Creators compete for real cash prizes. You vote on who wins. Brands fund the pool, creators submit content, blind peer voting narrows the field, and the public picks the winner — escrowed with Stripe, paid out when the round closes.</p>
+      <div class="hero-thesis">The product is not a content app with a payout feature. It is <strong>a payout event that generates content, spectators, and its own marketing.</strong></div>
+
+      <div class="stat-row">
+        <div class="stat-box"><div class="n">21</div><div class="l">pages/routes</div></div>
+        <div class="stat-box"><div class="n">21</div><div class="l">shared components</div></div>
+        <div class="stat-box"><div class="n">14</div><div class="l">backend modules</div></div>
+        <div class="stat-box"><div class="n">13/32</div><div class="l">entrants get paid</div></div>
+      </div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="funnel">
+      <div class="eyebrow">The funnel &amp; economics</div>
+      <h2>Three elimination rounds, one escrowed pool</h2>
+      <p class="lede">This is the mechanic every page in the app ultimately serves — a creator's content moves through three rounds, narrowing by blind vote each time, until one winner and twelve others walk away with money.</p>
+
+      <div class="funnel">
+        <div class="funnel-step">
+          <div class="k">Round 1</div>
+          <div class="t">Teaser</div>
+          <div class="d">≤15s clip. Blind pairwise voting — two anonymised teasers side by side, never one alone. Picking blocked for the first 3s. A voter must cast 8 votes before their own result unlocks.</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="k">Round 2</div>
+          <div class="t">Full content</div>
+          <div class="d">Survivors produce the complete piece. Peer voting narrows the field down to a final four.</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="k">Round 3</div>
+          <div class="t">Public final</div>
+          <div class="d">Blind verified-audience vote. The brand makes the final call between the top contenders.</div>
+        </div>
+      </div>
+
+      <h3>Where a $5,000 pool actually goes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Component</th><th>Formula</th><th class="num">At $5,000</th></tr></thead>
+          <tbody>
+            <tr><td>Winner prize</td><td>the pool</td><td class="num">$5,000</td></tr>
+            <tr><td>Finalist stipends</td><td>12% of pool, 4 ways</td><td class="num">$150 each</td></tr>
+            <tr><td>Round-2 survivor bonus</td><td>6% of pool across survivors</td><td class="num">$25 each</td></tr>
+            <tr><td>Crowd favourite</td><td>5% of pool, floor $50 — platform-funded</td><td class="num">$250</td></tr>
+            <tr><td>Platform fee</td><td>20% gross → 10.2% net after bonus + Stripe</td><td class="num">$1,180 → $724</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.82rem; color:var(--muted);">Two currencies keep the growth loop from corrupting the contest: <strong style="color:var(--fg)">quality score</strong> (blind votes from a pool untouched by the competing creator's own link) decides the prize; <strong style="color:var(--fg)">rally score</strong> (votes from a creator's own link) earns XP and the crowd-favourite bonus, never the prize itself.</p>
+    </section>
+
+    <hr class="div" />
+
+    <section id="domain">
+      <div class="eyebrow">Every page</div>
+      <h2>21 routes, grouped by job</h2>
+      <p class="lede">Everything that exists under <code>apps/web/src/app</code> right now.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Route</th><th>Group</th><th>What it's for</th></tr></thead>
+          <tbody>
+            <tr><td><span class="route">/</span></td><td><span class="tag">Entry</span></td><td>Landing page — value prop + get-started/spectate CTAs, skipped straight to <code>/challenges</code> if already logged in.</td></tr>
+            <tr><td><span class="route">/login</span></td><td><span class="tag">Entry</span></td><td>Phone-OTP login, role picker on the phone step.</td></tr>
+            <tr><td><span class="route">/challenges</span></td><td><span class="tag group-core">Core loop</span></td><td>Main feed — the app's home tab.</td></tr>
+            <tr><td><span class="route">/challenges/new</span></td><td><span class="tag group-money">Brand</span></td><td>Create + fund a challenge (Stripe escrow wizard).</td></tr>
+            <tr><td><span class="route">/challenges/[id]</span></td><td><span class="tag group-core">Core loop</span></td><td>Challenge detail — brief, prize pool, current round state.</td></tr>
+            <tr><td><span class="route">/challenges/[id]/submit</span></td><td><span class="tag group-core">Core loop</span></td><td>Video upload for a round entry (Mux).</td></tr>
+            <tr><td><span class="route">/challenges/[id]/invite</span></td><td><span class="tag group-money">Brand</span></td><td>Invite creators from the discovery feed; fires a notification.</td></tr>
+            <tr><td><span class="route">/challenges/[id]/analytics</span></td><td><span class="tag group-money">Brand</span></td><td>Submission funnel, votes per round, payouts by type.</td></tr>
+            <tr><td><span class="route">/rounds/[id]</span></td><td><span class="tag group-core">Core loop</span></td><td>The blind pairwise vote deck itself.</td></tr>
+            <tr><td><span class="route">/battle/[challengeId]</span></td><td><span class="tag group-growth">Public/growth</span></td><td>No-login, server-rendered spectator page — the link that gets shared. Open Graph tags for instant unfurl.</td></tr>
+            <tr><td><span class="route">/results/[submissionId]</span></td><td><span class="tag group-core">Core loop</span></td><td>The outcome ticket for one submission — advance/knockout/win.</td></tr>
+            <tr><td><span class="route">/v/[code]</span></td><td><span class="tag group-growth">Growth</span></td><td>A creator's stable personal rally link — resolves to whatever battle they currently have live, redirects to <code>/battle/[id]</code>.</td></tr>
+            <tr><td><span class="route">/r/[code]</span></td><td><span class="tag group-growth">Growth</span></td><td>Referral signup link — attributes a new signup, redirects into login.</td></tr>
+            <tr><td><span class="route">/stories</span></td><td><span class="tag group-core">Core loop</span></td><td>Feed of Stories — the generalized brief format (a funded Challenge is one kind of Story; a free brief with no escrow is another).</td></tr>
+            <tr><td><span class="route">/stories/new</span></td><td><span class="tag group-money">Brand</span></td><td>Create a Story/brief.</td></tr>
+            <tr><td><span class="route">/stories/[id]</span></td><td><span class="tag group-core">Core loop</span></td><td>Story detail — claim it, attach content + external post links.</td></tr>
+            <tr><td><span class="route">/map</span></td><td><span class="tag group-core">Core loop</span></td><td>Zenly-style 3D discovery map — real Mapbox scene, stylized (non-GPS) creator/challenge pins.</td></tr>
+            <tr><td><span class="route">/discovery</span></td><td><span class="tag group-core">Core loop</span></td><td>Creators / brands tabs — the browse surface.</td></tr>
+            <tr><td><span class="route">/me</span></td><td><span class="tag group-core">Core loop</span></td><td>Profile — tier, streak, journey milestones, referral stats.</td></tr>
+            <tr><td><span class="route">/wallet</span></td><td><span class="tag group-money">Money</span></td><td>Earnings summary, payout history.</td></tr>
+            <tr><td><span class="route">/notifications</span></td><td><span class="tag group-core">Core loop</span></td><td>In-app inbox — payouts, round results, invites.</td></tr>
+            <tr><td><span class="route">/admin</span></td><td><span class="tag group-admin">Admin</span></td><td>God-view console — unlinked from nav, still fully guarded server-side. Stuck rounds, KYB queue, disputes, growth dashboard.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="journeys">
+      <div class="eyebrow">Who does what</div>
+      <h2>Three people use this app differently</h2>
+      <p class="lede">The same 21 pages, walked in three different orders depending on who's holding the phone.</p>
+
+      <div class="persona-grid">
+        <div class="persona">
+          <div class="who"><span class="dot" style="background:var(--accent)"></span><b>Creator — chasing the prize</b></div>
+          <div class="steps">
+            <span class="s"><span class="route">/discovery</span></span><span class="arrow">→</span>
+            <span class="s"><span class="route">/challenges/[id]</span></span><span class="arrow">→</span>
+            <span class="s"><span class="route">/challenges/[id]/submit</span></span><span class="arrow">→</span>
+            <span class="s">shares <span class="route">/v/[code]</span></span><span class="arrow">→</span>
+            <span class="s"><span class="route">/rounds/[id]</span> ×3</span><span class="arrow">→</span>
+            <span class="s"><span class="route">/results/[submissionId]</span></span><span class="arrow">→</span>
+            <span class="s"><span class="route">/wallet</span></span>
+          </div>
+        </div>
+        <div class="persona">
+          <div class="who"><span class="dot" style="background:var(--tier-2)"></span><b>Brand — funding the pool</b></div>
+          <div class="steps">
+            <span class="s"><span class="route">/challenges/new</span></span><span class="arrow">→</span>
+            <span class="s">Stripe funding webhook auto-opens round 1</span><span class="arrow">→</span>
+            <span class="s"><span class="route">/challenges/[id]/invite</span></span><span class="arrow">→</span>
+            <span class="s">light-score each round</span><span class="arrow">→</span>
+            <span class="s"><span class="route">/challenges/[id]/analytics</span></span><span class="arrow">→</span>
+            <span class="s">round-3 final pick</span>
+          </div>
+        </div>
+        <div class="persona">
+          <div class="who"><span class="dot" style="background:var(--info)"></span><b>Spectator / voter — no account needed until they vote</b></div>
+          <div class="steps">
+            <span class="s">lands on <span class="route">/battle/[id]</span> from a shared link</span><span class="arrow">→</span>
+            <span class="s"><span class="route">/login</span> (OTP, <code>?returnTo=</code>)</span><span class="arrow">→</span>
+            <span class="s">casts 8 votes in <span class="route">/rounds/[id]</span></span><span class="arrow">→</span>
+            <span class="s">own result unlocks</span><span class="arrow">→</span>
+            <span class="s">browses <span class="route">/discovery</span> / <span class="route">/map</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="flow">
+      <div class="eyebrow">How pages connect</div>
+      <h2>The full navigation graph</h2>
+      <p class="lede">Every arrow below is a real link or redirect in the codebase today.</p>
+
+      <div class="diagram">
+        <pre class="mermaid">
+%%{init: {"theme":"dark", "themeVariables": {"background":"#120609","primaryColor":"#1c0a0f","primaryTextColor":"#F5DFE2","primaryBorderColor":"#FF0B55","lineColor":"#B98A94","fontFamily":"-apple-system,Segoe UI,sans-serif","fontSize":"13px","tertiaryColor":"#0b0305"}}}%%
+flowchart TD
+  Landing["/  Landing"] --> Login["/login"]
+  RallyLink["/v/[code]  rally link"] --> Battle["/battle/[id]  spectator (no login)"]
+  ReferralLink["/r/[code]  referral"] --> Login
+  Battle --> Login
+  Login --> Challenges["/challenges  main feed"]
+  Challenges --> ChallengeDetail["/challenges/[id]"]
+  Challenges --> Discovery["/discovery"]
+  Challenges --> Map["/map"]
+  Challenges --> Stories["/stories"]
+  Discovery --> Map
+  ChallengeDetail --> Submit["/challenges/[id]/submit"]
+  ChallengeDetail --> VoteDeck["/rounds/[id]  vote deck"]
+  ChallengeDetail --> Invite["/challenges/[id]/invite"]
+  ChallengeDetail --> Analytics["/challenges/[id]/analytics"]
+  BrandNew["/challenges/new"] --> ChallengeDetail
+  VoteDeck --> Results["/results/[submissionId]"]
+  Results --> Wallet["/wallet"]
+  Stories --> StoryDetail["/stories/[id]"]
+  StoriesNew["/stories/new"] --> Stories
+  Me["/me  profile"] --> Wallet
+  Me --> Notifications["/notifications"]
+  Admin["/admin  god-view"]
+        </pre>
+      </div>
+      <div class="diagram-caption">Grey box with no inbound arrow (<code>/admin</code>) — deliberately unlinked from nav, reached only by typing the URL.</div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="components">
+      <div class="eyebrow">Component library</div>
+      <h2>21 shared components</h2>
+      <p class="lede">What's under <code>apps/web/src/components</code> — everything on every page above is built from this set.</p>
+
+      <div class="comp-group-label">Navigation &amp; shell</div>
+      <div class="comp-grid">
+        <div class="comp-card"><div class="name">BottomNav</div><div class="desc">Fixed 5-tab thumb bar (Challenges/Map/Discover/Wallet/Me), mobile only.</div></div>
+        <div class="comp-card"><div class="name">Sidebar</div><div class="desc">Desktop nav, takes over from BottomNav/NavBar at 768px+.</div></div>
+        <div class="comp-card"><div class="name">NavBar</div><div class="desc">Mobile top bar — wordmark, notification bell with unread badge, auth.</div></div>
+        <div class="comp-card"><div class="name">PageTransition</div><div class="desc">Route-change transition wrapper.</div></div>
+      </div>
+
+      <div class="comp-group-label">Identity &amp; profile</div>
+      <div class="comp-grid">
+        <div class="comp-card"><div class="name">Avatar</div><div class="desc">Presence-ring avatar, reused across nav, discovery, profile, map pins.</div></div>
+        <div class="comp-card"><div class="name">JourneyStepper</div><div class="desc">Six-milestone creator progress stepper, shown on /me.</div></div>
+        <div class="comp-card"><div class="name">PushOptIn</div><div class="desc">Web-push permission prompt.</div></div>
+        <div class="comp-card"><div class="name">PwaInstallPrompt</div><div class="desc">Custom install prompt, surfaces after a visitor's 2nd visit.</div></div>
+      </div>
+
+      <div class="comp-group-label">Competition &amp; voting</div>
+      <div class="comp-grid">
+        <div class="comp-card"><div class="name">VoteDeck</div><div class="desc">The blind pairwise voting interface — the core mechanic.</div></div>
+        <div class="comp-card"><div class="name">RallyCapture</div><div class="desc">Captures a rally-link attribution code on the spectator page.</div></div>
+        <div class="comp-card"><div class="name">StarRating</div><div class="desc">Star input control.</div></div>
+        <div class="comp-card"><div class="name">RatingForm</div><div class="desc">Bidirectional post-challenge rating submission.</div></div>
+      </div>
+
+      <div class="comp-group-label">Money &amp; trust</div>
+      <div class="comp-grid">
+        <div class="comp-card"><div class="name">StripeFundForm</div><div class="desc">Campaign escrow funding via Stripe.</div></div>
+        <div class="comp-card"><div class="name">TrustStatsMini</div><div class="desc">Compact brand trust stats — on-time payout rate.</div></div>
+      </div>
+
+      <div class="comp-group-label">Feedback, motion &amp; data</div>
+      <div class="comp-grid">
+        <div class="comp-card"><div class="name">Sheet</div><div class="desc">Reusable bottom-sheet with the map's rise animation — funding breakdown, rating confirm.</div></div>
+        <div class="comp-card"><div class="name">EmptyState</div><div class="desc">Empty-list placeholder.</div></div>
+        <div class="comp-card"><div class="name">Loading</div><div class="desc">Loading indicator.</div></div>
+        <div class="comp-card"><div class="name">Celebration</div><div class="desc">Win/payout celebration effect.</div></div>
+        <div class="comp-card"><div class="name">CountUp</div><div class="desc">Animated number count-up, for stats reveals.</div></div>
+        <div class="comp-card"><div class="name">StatCard</div><div class="desc">Labeled stat display card.</div></div>
+        <div class="comp-card"><div class="name">SegmentedControl</div><div class="desc">Generic tab control, currently driving Discovery's creators/brands toggle.</div></div>
+        <div class="comp-card"><div class="name">icons</div><div class="desc">Shared inline icon set — replaced emoji/text across the whole app.</div></div>
+      </div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="functionality">
+      <div class="eyebrow">What's actually built</div>
+      <h2>Shipped, not planned</h2>
+      <p class="lede">Pulled straight from the sprint log in <code>TODO.md</code> — this is what's real today, not a roadmap.</p>
+
+      <div class="func-grid">
+        <div class="func-group">
+          <h4>Backend spine</h4>
+          <ul class="func-list">
+            <li>Full competition/escrow/voting/trust/growth schema</li>
+            <li>Stripe Connect escrow + all 4 payout types</li>
+            <li>Mux video upload/playback</li>
+            <li>Phone-OTP identity</li>
+            <li>BullMQ round state machine (open → closed → tallied → revealed)</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Competition core</h4>
+          <ul class="func-list">
+            <li>Blind pairwise voting with 3s gate + attention check</li>
+            <li>8-vote participation gate</li>
+            <li>Brand light-score + composite (70/30 peer/brand)</li>
+            <li>Round-3 seller final pick, auto-falls back to top quality vote</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Growth loops</h4>
+          <ul class="func-list">
+            <li>Personal rally links + live voter counter + rally XP</li>
+            <li>Share cards (advance/knockout/win) via next/og</li>
+            <li>Public no-login SSR spectator pages, cached + rate-limited</li>
+            <li>Referrals — signup attribution, $5 reward on first submit/vote</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Retention &amp; social proof</h4>
+          <ul class="func-list">
+            <li>Tiers end-to-end (badge on profile/entry/OG image)</li>
+            <li>Voting streaks — pause, not break</li>
+            <li>Discovery feed (creators/brands tabs)</li>
+            <li>Creator Journey — 6 milestones, /me stepper</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Money &amp; trust</h4>
+          <ul class="func-list">
+            <li>Wallet summary + bidirectional ratings</li>
+            <li>Public brand trust stats (ADR-004)</li>
+            <li>KYB gate (admin-reviewed) on funding</li>
+            <li>Server-derived round scheduling</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Brand tools</h4>
+          <ul class="func-list">
+            <li>Funding wizard — auto-opens round 1 on webhook confirm</li>
+            <li>Campaign analytics (funnel, votes, payouts by type)</li>
+            <li>Invite creators from discovery + notification</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Admin &amp; ops</h4>
+          <ul class="func-list">
+            <li>God-view console, stuck-round detection + force-reveal</li>
+            <li>KYB approve/reject queue, dispute raise + resolve</li>
+            <li>Growth dashboard (completion rate, repeat rate, k-proxy)</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <h4>Platform</h4>
+          <ul class="func-list">
+            <li>PWA — manifest, service worker, install prompt</li>
+            <li>In-app notification inbox, real per-event copy</li>
+            <li>Story/Claim model — generalizes Challenge to free (unfunded) briefs</li>
+            <li>Docker prod stack — Postgres, Redis, api, web, Caddy TLS</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="margin-top:.5rem;">Deliberately stubbed or cut — not silently dropped</h3>
+      <div class="func-grid">
+        <div class="func-group">
+          <ul class="func-list stub">
+            <li>AI image/video generation — needs a Fal.ai/Replicate key</li>
+            <li>KYC document verification — admin flag only, not real Stripe Identity</li>
+            <li>Push/SMS/email delivery — in-app inbox only, needs FCM/Twilio/SES</li>
+            <li>GPS geofencing — QR-code check-in instead (this is a web app)</li>
+          </ul>
+        </div>
+        <div class="func-group">
+          <ul class="func-list cut">
+            <li>Coordinated vote-fraud detection — cut, needs real voting data to tune</li>
+            <li>Native mobile app — replaced by an installable PWA on purpose</li>
+            <li>Ad-based streak recovery — no ad SDK, streak auto-resumes instead</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr class="div" />
+
+    <section id="status">
+      <div class="eyebrow">What's left</div>
+      <h2>Gating a real launch</h2>
+      <p class="lede">In order — none of these are "more features," they're what stands between this and going live.</p>
+
+      <div class="blocker-box">
+        <div class="lbl">Launch blocker</div>
+        <p>Sweepstakes/gambling exposure — unresolved. Entry must be free and the outcome defensible as skill-determined; the peer-vote mechanic needs to survive that test jurisdiction by jurisdiction. Blocks both the Terms of Service and the payout logic. Get a legal opinion in parallel with everything else — it's the longest pole, not a code task.</p>
+      </div>
+
+      <ul class="func-list" style="max-width:56ch;">
+        <li>Provider accounts moving sandbox → live (Stripe Connect, Mux, Twilio Verify) — mostly account-review time</li>
+        <li>Sprint 5 depth work — predictions, in-person campaigns, real AI creative studio</li>
+        <li>Load/concurrency testing on the round state machine — the docs call it "the crux"; a bug here is a wrong contest result, not a UI glitch</li>
+        <li>Cold-start execution — 10 local brands + 50 hand-recruited creators, calendar time not code</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const links = document.querySelectorAll('#railnav a');
+  const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href')));
+  const setCurrent = () => {
+    let idx = 0;
+    const y = window.scrollY + 140;
+    sections.forEach((s, i) => { if (s && s.offsetTop <= y) idx = i; });
+    links.forEach((a, i) => a.classList.toggle('current', i === idx));
+  };
+  document.addEventListener('scroll', setCurrent, { passive: true });
+  setCurrent();
+</script>

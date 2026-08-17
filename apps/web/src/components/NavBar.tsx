@@ -5,31 +5,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
-import { Avatar } from "@/components/Avatar";
-import { BellIcon, CompassIcon, PinIcon, PlayIcon, WalletIcon } from "@/components/icons";
+import { BellIcon, FilmIcon } from "@/components/icons";
 
 const UNREAD_POLL_MS = 60_000;
 
-function NavLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={active ? "active" : undefined}
-      style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}
-    >
-      {children}
-    </Link>
-  );
-}
-
+// Mobile-only top bar (hidden at 768px+, where Sidebar takes over — see
+// globals.css). Slimmed down to branding + notifications + auth: the
+// primary nav links this used to carry live in BottomNav now, so a
+// creator's thumb never has to reach the top of a phone screen for them.
 export function NavBar() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -48,32 +31,26 @@ export function NavBar() {
 
   return (
     <nav className="nav">
-      <Link href="/challenges" className="wordmark">PEROKIO</Link>
-      <NavLink href="/challenges" active={isActive("/challenges")}>
-        <PlayIcon width={16} height={16} aria-hidden />
-        Challenges
-      </NavLink>
-      <NavLink href="/stories" active={isActive("/stories")}>
-        Stories
-      </NavLink>
-      <NavLink href="/map" active={isActive("/map")}>
-        <CompassIcon width={16} height={16} aria-hidden />
-        Map
-      </NavLink>
-      <NavLink href="/discovery" active={isActive("/discovery")}>
-        <PinIcon width={16} height={16} aria-hidden />
-        Discover
-      </NavLink>
+      <Link href="/challenges" className="wordmark">
+        PEROKIO
+      </Link>
+      <span className="spacer" />
+      <Link
+        href="/feed"
+        className={isActive("/feed") ? "active" : undefined}
+        style={{ display: "inline-flex", alignItems: "center" }}
+        aria-label="Watch"
+      >
+        <FilmIcon width={18} height={18} aria-hidden />
+      </Link>
       {user && (
-        <NavLink href="/wallet" active={isActive("/wallet")}>
-          <WalletIcon width={16} height={16} aria-hidden />
-          Wallet
-        </NavLink>
-      )}
-      {user && (
-        <NavLink href="/notifications" active={isActive("/notifications")}>
+        <Link
+          href="/notifications"
+          className={isActive("/notifications") ? "active" : undefined}
+          style={{ display: "inline-flex", alignItems: "center" }}
+        >
           <span style={{ position: "relative", display: "inline-flex" }}>
-            <BellIcon width={16} height={16} aria-hidden />
+            <BellIcon width={18} height={18} aria-hidden />
             {unreadCount > 0 && (
               <span
                 style={{
@@ -97,15 +74,8 @@ export function NavBar() {
               </span>
             )}
           </span>
-        </NavLink>
+        </Link>
       )}
-      {user && (
-        <NavLink href="/me" active={isActive("/me")}>
-          <Avatar userId={user.id} size={20} />
-          Me
-        </NavLink>
-      )}
-      <span className="spacer" />
       {user ? (
         <button
           className="secondary"

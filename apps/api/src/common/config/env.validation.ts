@@ -68,6 +68,18 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   ADMIN_PHONE_NUMBERS?: string;
+
+  @IsString()
+  @IsOptional()
+  VAPID_PUBLIC_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  VAPID_PRIVATE_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  VAPID_SUBJECT?: string;
 }
 
 // Validates process.env at boot. Provider keys are optional so the app boots

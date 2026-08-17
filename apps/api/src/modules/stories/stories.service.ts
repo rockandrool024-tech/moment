@@ -85,4 +85,53 @@ export class StoriesService {
       orderBy: { claimedAt: "desc" },
     });
   }
+
+  /**
+   * A seller's own Stories, each with a claim/content/engagement rollup and
+   * a derived lifecycle stage — computed from existing relations, nothing
+   * stored. Engagement is a sum of creator-entered ExternalPost numbers,
+   * same "display only, never scored" data as everywhere else it appears
+   * (see ADR-006) — never presented as verified reach.
+   */
+  async myStories(sellerId: string) {
+    const stories = await this.prisma.story.findMany({
+      where: { sellerId },
+      include: {
+        claims: {
+          include: { content: { include: { externalPosts: true } } },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return stories.map((story) => {
+      const claimsWithContent = story.claims.filter((c) => c.content);
+      const posts = claimsWithContent.flatMap((c) => c.content?.externalPosts ?? []);
+      const reportedViews = posts.reduce((sum, p) => sum + (p.views ?? 0), 0);
+      const reportedLikes = posts.reduce((sum, p) => sum + (p.likes ?? 0), 0);
+
+      const stage: "submitted" | "claimed" | "content_added" | "posted" =
+        posts.length > 0
+          ? "posted"
+          : claimsWithContent.length > 0
+            ? "content_added"
+            : story.claims.length > 0
+              ? "claimed"
+              : "submitted";
+
+      return {
+        id: story.id,
+        title: story.title,
+        access: story.access,
+        mode: story.mode,
+        createdAt: story.createdAt,
+        stage,
+        claimCount: story.claims.length,
+        contentCount: claimsWithContent.length,
+        postCount: posts.length,
+        reportedViews,
+        reportedLikes,
+      };
+    });
+  }
 }

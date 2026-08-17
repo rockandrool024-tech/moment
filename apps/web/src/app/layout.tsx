@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/lib/auth-context";
 import { NavBar } from "@/components/NavBar";
+import { Sidebar } from "@/components/Sidebar";
+import { BottomNav } from "@/components/BottomNav";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { PageTransition } from "@/components/PageTransition";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16643f",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -24,7 +27,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <NavBar />
-          <main className="container">{children}</main>
+          <Sidebar />
+          <main className="container container-with-sidebar">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          <BottomNav />
           <PwaInstallPrompt />
         </AuthProvider>
       </body>

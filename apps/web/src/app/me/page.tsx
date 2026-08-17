@@ -11,7 +11,7 @@ import { JourneyStepper } from "@/components/JourneyStepper";
 import { FlameIcon, RallyIcon, ShareIcon, TierCrownIcon, WalletIcon } from "@/components/icons";
 
 export default function MePage() {
-  const { user, loading } = useAuth();
+  const { user, loading, refresh } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
@@ -22,6 +22,10 @@ export default function MePage() {
   const [journey, setJourney] = useState<JourneyMilestone[] | null>(null);
   const [copied, setCopied] = useState(false);
   const [refCopied, setRefCopied] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [displayNameDraft, setDisplayNameDraft] = useState("");
+  const [locationDraft, setLocationDraft] = useState("");
+  const [profileBusy, setProfileBusy] = useState(false);
 
   async function regenerateAvatar() {
     setAvatarBusy(true);
@@ -41,8 +45,27 @@ export default function MePage() {
       api.get<StreakSummary>("/users/me/streak").then(setStreak);
       api.get<ReferralStats>("/users/me/referrals").then(setReferralStats);
       api.get<JourneyMilestone[]>("/users/me/journey").then(setJourney);
+      setDisplayNameDraft(user.displayName ?? "");
+      setLocationDraft(user.location ?? "");
     }
   }, [user]);
+
+  async function saveProfile() {
+    setProfileBusy(true);
+    setError(null);
+    try {
+      await api.patch<User>("/users/me", {
+        displayName: displayNameDraft.trim() || undefined,
+        location: locationDraft.trim() || undefined,
+      });
+      await refresh();
+      setEditingProfile(false);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't save your profile");
+    } finally {
+      setProfileBusy(false);
+    }
+  }
 
   function copyRallyLink() {
     if (!user) return;
@@ -97,7 +120,44 @@ export default function MePage() {
             </p>
           </div>
         </div>
-        {user.displayName && <h2 style={{ margin: "0 0 0.5rem" }}>{user.displayName}</h2>}
+        {editingProfile ? (
+          <div style={{ marginBottom: "0.75rem" }}>
+            <div className="field">
+              <label htmlFor="displayName">Display name</label>
+              <input
+                id="displayName"
+                value={displayNameDraft}
+                onChange={(e) => setDisplayNameDraft(e.target.value)}
+                maxLength={60}
+                placeholder="Your name"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="location">Location</label>
+              <input
+                id="location"
+                value={locationDraft}
+                onChange={(e) => setLocationDraft(e.target.value)}
+                maxLength={80}
+                placeholder="Brooklyn, NY"
+              />
+            </div>
+            <button onClick={saveProfile} disabled={profileBusy}>
+              {profileBusy ? "Saving…" : "Save"}
+            </button>{" "}
+            <button className="secondary" onClick={() => setEditingProfile(false)} disabled={profileBusy}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <>
+            {user.displayName && <h2 style={{ margin: "0 0 0.5rem" }}>{user.displayName}</h2>}
+            {user.location && <p className="muted" style={{ margin: "0 0 0.5rem" }}>{user.location}</p>}
+            <button className="secondary" onClick={() => setEditingProfile(true)}>
+              Edit profile
+            </button>
+          </>
+        )}
         <p>Phone: {user.phone}</p>
         <p>Role: {user.role}</p>
         <p>Phone verified: {user.phoneVerifiedAt ? "yes" : "no"}</p>

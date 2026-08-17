@@ -1,0 +1,56 @@
+/* Mobile-only primary navigation — hidden at the same 768px breakpoint
+   where Sidebar takes over. This is the actual fix for "no mobile-specific
+   nav pattern" flagged in the original UX audit: a real thumb-reach tab
+   bar, not a horizontal bar that just wraps on narrow screens. */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.4rem 0.3rem calc(0.4rem + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--card-bg), #0A0004);
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .nav {
+    display: none;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.5rem;
+  min-width: 52px;
+  min-height: 48px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+.item.active {
+  color: var(--accent);
+}
+.avatarWrap {
+  display: flex;
+}
+.avatarWrap.active {
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+
+/* Push page content clear of the fixed bar on mobile. */
+.spacer {
+  height: 64px;
+}
+@media (min-width: 768px) {
+  .spacer {
+    display: none;
+  }
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { Notification } from "@/lib/types";
 import { BellIcon } from "@/components/icons";
+import { PushOptIn } from "@/components/PushOptIn";
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -51,6 +52,8 @@ export default function NotificationsPage() {
           </button>
         )}
       </div>
+
+      <PushOptIn />
 
       {notifications === null && <p className="muted">Loading…</p>}
       {notifications?.length === 0 && (

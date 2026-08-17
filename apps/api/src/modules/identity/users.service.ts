@@ -39,6 +39,13 @@ export class UsersService {
     });
   }
 
+  // Whitelisted by UpdateProfileDto at the controller boundary — never
+  // accepts kybVerified/tier/role, so a client can't self-promote by
+  // replaying a crafted PATCH body.
+  updateProfile(userId: string, data: { displayName?: string; location?: string }): Promise<User> {
+    return this.prisma.user.update({ where: { id: userId }, data });
+  }
+
   // "Generation" today just re-seeds the deterministic placeholder identicon
   // (see avatar-generator.ts) by bumping the timestamp it's derived from —
   // no external call yet. Swap in a real provider call + avatarUrl write
