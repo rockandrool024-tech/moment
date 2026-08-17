@@ -136,6 +136,15 @@ export function UnmuteIcon(props: IconProps) {
   );
 }
 
+export function CoinIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9 15V9l3 1.5L15 9v6" />
+    </svg>
+  );
+}
+
 export function MuteIcon(props: IconProps) {
   return (
     <svg {...base(props)}>

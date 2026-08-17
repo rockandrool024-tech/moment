@@ -76,6 +76,7 @@ Once you have real Stripe/Mux keys, point their webhook endpoints at:
 
 - Stripe: `https://api.example.com/payments/webhooks/stripe`
 - Mux: `https://api.example.com/media/webhooks/mux`
+- Coinbase Commerce (cosmetic coins): `https://api.example.com/payments/webhooks/coinbase`
 
 ## Rolling back
 

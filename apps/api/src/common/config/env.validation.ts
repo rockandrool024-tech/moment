@@ -80,6 +80,14 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   VAPID_SUBJECT?: string;
+
+  @IsString()
+  @IsOptional()
+  COINBASE_COMMERCE_API_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  COINBASE_COMMERCE_WEBHOOK_SECRET?: string;
 }
 
 // Validates process.env at boot. Provider keys are optional so the app boots

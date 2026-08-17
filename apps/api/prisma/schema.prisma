@@ -72,6 +72,14 @@ model User {
   // geolocation is deliberately out of scope.
   location String?
 
+  // Cosmetic currency, bought with crypto (CoinsService/CryptoService) —
+  // deliberately never read by any scoring, vote-weight, entry, or Payout
+  // code path. See README.md's "Explicitly rejected" section: a purchasable
+  // advantage near the prize was already rejected once, for a documented
+  // reason (follower/wallet size buying outcomes). This balance can only
+  // ever be spent on cosmetics, never on anything that touches a contest.
+  coinBalance Int @default(0) @map("coin_balance")
+
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
 
@@ -94,6 +102,7 @@ model User {
   storiesCreated      Story[]            @relation("StorySeller")
   storyClaims         StoryClaim[]
   pushSubscriptions   PushSubscription[]
+  coinPurchases       CoinPurchase[]
 
   @@map("users")
 }
@@ -379,6 +388,37 @@ model Payout {
   @@index([userId])
   @@index([createdAt])
   @@map("payouts")
+}
+
+// ── Cosmetic currency (crypto) ──────────────────────────────────────────
+//
+// Deliberately its own model, not a Payout variant — Payout is the
+// real-money ledger this app pays creators FROM (winner/stipend/survivor-
+// bonus/crowd-favourite/referral-bonus). CoinPurchase is money flowing IN,
+// for a currency that only ever buys cosmetics. Keeping them structurally
+// separate makes it obvious at the schema level that a coin purchase can
+// never be mistaken for — or accidentally wired into — the prize economy.
+
+enum CoinPurchaseStatus {
+  pending
+  completed
+  expired
+}
+
+model CoinPurchase {
+  id                String             @id @default(uuid())
+  userId            String             @map("user_id")
+  user              User               @relation(fields: [userId], references: [id])
+  coins             Int // credited to User.coinBalance once completed
+  priceUsdCents     Int                @map("price_usd_cents") // display/reporting only — the actual charge is in crypto
+  provider          String             @default("coinbase_commerce")
+  providerChargeId  String             @unique @map("provider_charge_id")
+  status            CoinPurchaseStatus @default(pending)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  completedAt       DateTime?          @map("completed_at")
+
+  @@index([userId])
+  @@map("coin_purchases")
 }
 
 // ── Trust ────────────────────────────────────────────────────────────────

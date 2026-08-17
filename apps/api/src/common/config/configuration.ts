@@ -31,6 +31,13 @@ export default () => ({
     tokenSecret: process.env.MUX_TOKEN_SECRET,
     webhookSecret: process.env.MUX_WEBHOOK_SECRET,
   },
+  // Cosmetic-currency crypto checkout — Coinbase Commerce, chosen for a
+  // plain REST API (no SDK dependency needed, see CryptoService). Same
+  // "boots without it, fails only at call time" posture as Stripe/Mux.
+  coinbaseCommerce: {
+    apiKey: process.env.COINBASE_COMMERCE_API_KEY,
+    webhookSecret: process.env.COINBASE_COMMERCE_WEBHOOK_SECRET,
+  },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID,
     authToken: process.env.TWILIO_AUTH_TOKEN,

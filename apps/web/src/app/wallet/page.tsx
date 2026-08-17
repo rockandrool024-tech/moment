@@ -1,14 +1,79 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api-client";
-import { WalletSummary } from "@/lib/types";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { api, ApiError } from "@/lib/api-client";
+import { CoinsSummary, WalletSummary } from "@/lib/types";
 import { formatCents } from "@/lib/format";
-import { WalletIcon } from "@/components/icons";
+import { CoinIcon, WalletIcon } from "@/components/icons";
 import { StatCard } from "@/components/StatCard";
 import { EmptyState } from "@/components/EmptyState";
 import { Loading } from "@/components/Loading";
 import { CountUp } from "@/components/CountUp";
+
+// Cosmetic-only currency — never affects votes, entries, or the prize pool
+// (see schema.prisma's CoinPurchase comment). Its own card, deliberately
+// visually separate from the real-money earnings above it.
+function CoinsCard() {
+  const searchParams = useSearchParams();
+  const coinsStatus = searchParams.get("coins"); // "success" | "cancelled", set by Coinbase's redirect
+  const [coins, setCoins] = useState<CoinsSummary | null>(null);
+  const [busyPackage, setBusyPackage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.get<CoinsSummary>("/users/me/coins").then(setCoins);
+  }, []);
+
+  async function buy(packageId: string) {
+    setBusyPackage(packageId);
+    setError(null);
+    try {
+      const { checkoutUrl } = await api.post<{ checkoutUrl: string }>("/users/me/coins/purchase", {
+        packageId,
+      });
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setBusyPackage(null);
+    }
+  }
+
+  return (
+    <div className="card card-elevated" style={{ marginTop: "1rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+        <CoinIcon width={20} height={20} aria-hidden style={{ color: "var(--accent)" }} />
+        <strong>{coins ? <CountUp value={coins.coinBalance} /> : "…"} coins</strong>
+      </div>
+      <p className="muted" style={{ fontSize: "0.82rem", margin: "0 0 0.75rem" }}>
+        Cosmetic only — coins never affect votes, entries, or prize money. Paid for with crypto via
+        Coinbase Commerce.
+      </p>
+
+      {coinsStatus === "success" && (
+        <p className="muted" style={{ fontSize: "0.82rem" }}>
+          Payment received — coins land once the crypto payment confirms on-chain, usually within a
+          few minutes.
+        </p>
+      )}
+      {coinsStatus === "cancelled" && <p className="error">Checkout cancelled — no charge was made.</p>}
+      {error && <p className="error">{error}</p>}
+
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {coins?.packages.map((pkg) => (
+          <button
+            key={pkg.id}
+            className="secondary"
+            disabled={busyPackage !== null}
+            onClick={() => buy(pkg.id)}
+          >
+            {busyPackage === pkg.id ? "Redirecting…" : `${pkg.label} — $${pkg.priceUsd}`}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Earned — transfer pending",
@@ -29,6 +94,14 @@ const TYPE_COLOR: Record<string, string> = {
 };
 
 export default function WalletPage() {
+  return (
+    <Suspense fallback={<Loading label="Loading wallet" />}>
+      <WalletPageInner />
+    </Suspense>
+  );
+}
+
+function WalletPageInner() {
   const [wallet, setWallet] = useState<WalletSummary | null>(null);
 
   useEffect(() => {
@@ -57,6 +130,8 @@ export default function WalletPage() {
           it&rsquo;s won, even before Stripe settles it.
         </p>
       </div>
+
+      <CoinsCard />
 
       <h2>History</h2>
       {wallet.payoutHistory.length === 0 && (

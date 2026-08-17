@@ -22,8 +22,23 @@ export interface User {
   streakCount: number;
   streakPausedReason: string | null;
   location: string | null;
+  coinBalance: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// ── Cosmetic currency (crypto checkout) ────────────────────────────────────
+
+export interface CoinPackage {
+  id: string;
+  coins: number;
+  priceUsd: number;
+  label: string;
+}
+
+export interface CoinsSummary {
+  coinBalance: number;
+  packages: CoinPackage[];
 }
 
 export type ChallengeStatus =
