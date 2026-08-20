@@ -4,6 +4,7 @@ import { api } from "@/lib/api-client";
 import { PublicChallengeSummary, PublicTally } from "@/lib/types";
 import { formatCents } from "@/lib/format";
 import { RallyCapture } from "@/components/RallyCapture";
+import { BrandMark } from "@/components/BrandMark";
 import { CheckIcon, FilmIcon, LockIcon, VoteCheckIcon } from "@/components/icons";
 import styles from "./battle.module.css";
 
@@ -24,7 +25,7 @@ export default async function BattlePage({ params, searchParams }: { params: { c
   return (
     <div className={styles.page}>
       <RallyCapture code={searchParams.rally} />
-      <header className={styles.top}><Link href="/" className="wordmark">PEROKIO</Link><Link href="/feed" className="btn secondary"><FilmIcon width={16} height={16} aria-hidden />Watch live</Link></header>
+      <header className={styles.top}><Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link><Link href="/feed" className="btn secondary"><FilmIcon width={16} height={16} aria-hidden />Watch live</Link></header>
       <section className={styles.hero}>
         <div className={styles.heroBadges}><span className="badge badge-live">Live battle</span><span className="badge">{summary.status.replaceAll("_", " ")}</span></div>
         <div className={styles.heroCopy}><h1>{summary.title}</h1><div className={styles.heroBottom}><p>{summary.brief}</p><div className={`${styles.prize} money`}>{formatCents(summary.prizePool)}</div></div></div>

@@ -7,6 +7,7 @@ import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { UserRole } from "@/lib/types";
 import { FilmIcon, PinIcon, UserIcon, VerifiedIcon } from "@/components/icons";
+import { BrandMark } from "@/components/BrandMark";
 import styles from "./login.module.css";
 
 type Step = "phone" | "code";
@@ -18,7 +19,7 @@ const roles: Array<{ value: UserRole; title: string; description: string; icon: 
 ];
 
 export default function LoginPage() {
-  return <Suspense fallback={<div className={styles.loader}>PEROKIO</div>}><LoginForm /></Suspense>;
+  return <Suspense fallback={<div className={styles.loader}><BrandMark /></div>}><LoginForm /></Suspense>;
 }
 
 function LoginForm() {
@@ -66,7 +67,7 @@ function LoginForm() {
   return (
     <div className={styles.page}>
       <aside className={styles.brandPanel} aria-hidden>
-        <Link href="/" className="wordmark">PEROKIO</Link>
+        <Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link>
         <div className={styles.brandCopy}>
           <h2>Your work deserves a real stage.</h2>
           <p>Enter funded briefs, advance through blind voting and turn strong creative work into cash and momentum.</p>
@@ -77,7 +78,7 @@ function LoginForm() {
       <main className={styles.formPanel}>
         <div className={styles.formWrap}>
           <div className={styles.topbar}>
-            <Link href="/" className="wordmark">PEROKIO</Link>
+            <Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link>
             <div className={styles.progress} aria-label={`Step ${step === "phone" ? 1 : 2} of 2`}>
               <span className={`${styles.progressDot} ${styles.progressDotActive}`} />
               <span className={`${styles.progressDot} ${step === "code" ? styles.progressDotActive : ""}`} />

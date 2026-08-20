@@ -8,6 +8,7 @@ import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { formatCents } from "@/lib/format";
 import { Avatar } from "@/components/Avatar";
 import { JourneyStepper } from "@/components/JourneyStepper";
+import { SharePanel } from "@/components/SharePanel";
 import { Sheet } from "@/components/Sheet";
 import { Notice } from "@/components/Notice";
 import { CardSkeletonList } from "@/components/Skeleton";
@@ -128,6 +129,13 @@ export default function MePage() {
         <div className={`card ${styles.stat}`}><span className={`${styles.statIcon} ${streak?.streakPausedReason ? styles.streakPaused : styles.streakLive}`}><FlameIcon width={20} height={20} aria-hidden /></span><strong>{streakCount}</strong><span>{streak?.streakPausedReason ? "Streak paused" : "Voting streak"}</span></div>
         <div className={`card ${styles.stat}`}><span className={styles.statIcon}><RallyIcon width={20} height={20} aria-hidden /></span><strong>{rallyStats?.rallyXp ?? user.rallyXp}</strong><span>Rally XP</span></div>
       </section>
+
+      <SharePanel
+        href={`/v/${user.referralCode}`}
+        title={`${user.displayName ?? "A Perokio creator"} is building momentum`}
+        message={`Follow ${user.displayName ?? "this creator"}'s Perokio journey`}
+        label="Share your journey"
+      />
 
       <div className={styles.grid}>
         <section className={`card ${styles.card}`}>

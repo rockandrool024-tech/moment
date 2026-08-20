@@ -24,6 +24,12 @@
   --info: #68a9ff;
   --live: #ff5d66;
   --rally: #cfff3d;
+  --map-night: #0b1520;
+  --story-coral: #ff8a65;
+  --challenge-violet: #9b8cff;
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --motion-map: 600ms;
 
   --tier-0: #cd7f32;
   --tier-1: #a7b3c2;
@@ -48,6 +54,7 @@
   --shadow-accent: 0 12px 30px color-mix(in srgb, var(--accent) 17%, transparent);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.25, 1);
 
   --sidebar-width: 216px;
   --bottom-nav-clearance: 72px;
@@ -223,9 +230,28 @@ h3 {
   text-decoration: none;
 }
 
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  color: inherit;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.brand-mark img {
+  width: 1.85rem;
+  height: 1.85rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--accent) 18%, transparent));
+}
+.brand-mark--compact img { width: 1.45rem; height: 1.45rem; }
+
 .wordmark:hover {
   color: var(--accent-soft);
 }
+.wordmark:hover .brand-mark img { transform: rotate(-3deg) scale(1.04); }
+.brand-mark img { transition: transform var(--motion-standard) var(--ease-snap); }
 
 /* Page composition */
 .page-header {

@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { PageHeader } from "@/components/PageHeader";
 import { CardSkeletonList } from "@/components/Skeleton";
+import { TaskBar } from "@/components/TaskBar";
 import styles from "./challenges.module.css";
 
 type Filter = "all" | "live" | "resolved";
@@ -70,6 +71,8 @@ export default function ChallengesPage() {
         description="Browse live competitions, study the brief and enter with your strongest idea. Blind voting keeps follower counts out of the result."
         actions={canCreate ? <Link href="/challenges/new" className="btn"><PlusIcon width={18} height={18} aria-hidden />New challenge</Link> : <Link href="/feed" className="btn secondary"><PlayIcon width={17} height={17} aria-hidden />Watch live</Link>}
       />
+
+      {user && <TaskBar liveChallengeHref={challenges?.find((challenge) => isLive(challenge.status)) ? `/challenges/${challenges.find((challenge) => isLive(challenge.status))?.id}` : "/challenges"} />}
 
       <div className={styles.toolbar}>
         <div className={styles.search}>

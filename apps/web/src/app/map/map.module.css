@@ -46,18 +46,59 @@
   justify-content: center;
   color: var(--fg);
   flex-shrink: 0;
-  transition: transform 0.4s ease;
+  transition: transform var(--motion-map) var(--ease-out), background var(--motion-standard) var(--ease-out);
 }
+
+.intentRail {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.2rem 1.1rem 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+.intentRail::-webkit-scrollbar { display: none; }
+.intent {
+  display: grid;
+  min-width: 126px;
+  gap: 0.12rem;
+  padding: 0.58rem 0.72rem;
+  scroll-snap-align: start;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--map-night) 72%, var(--surface-1));
+  border: 1px solid color-mix(in srgb, var(--info) 18%, var(--border));
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: color var(--motion-standard) var(--ease-out), background var(--motion-standard) var(--ease-out), border-color var(--motion-standard) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+.intent strong { color: inherit; font-size: 0.74rem; }
+.intent span { overflow: hidden; color: var(--text-muted); font-size: 0.58rem; text-overflow: ellipsis; white-space: nowrap; }
+.intent:hover { color: var(--fg); border-color: var(--border-strong); }
+.intent:active { transform: scale(0.97); }
+.intentActive { color: var(--accent-fg); background: var(--accent); border-color: var(--accent); }
+.intentActive span { color: color-mix(in srgb, var(--accent-fg) 68%, transparent); }
 
 .scene {
   position: relative;
   height: min(72vh, 620px);
   overflow: hidden;
+  background: var(--map-night);
+}
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--map-night) 52%, transparent), color-mix(in srgb, var(--bg) 36%, transparent));
 }
 
 .mapContainer {
   position: absolute;
   inset: 0;
+  z-index: 0;
 }
 /* Mapbox's own controls (zoom, attribution) — restyled to match the dark
    chrome instead of Mapbox's default light control skin. */
@@ -72,6 +113,7 @@
 .mapFallback {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -197,7 +239,7 @@
   border-radius: 50%;
   border: 1.5px solid var(--pin-color, var(--accent));
   opacity: 0.55;
-  animation: pulse 2.6s ease-out infinite;
+  animation: pulse 2.6s var(--ease-out) infinite;
 }
 .avatarDot {
   width: 14px;
@@ -255,6 +297,7 @@
 }
 .legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .legendDot { width: 7px; height: 7px; border-radius: 50%; }
+.privacyNote { flex-basis: 100%; color: var(--text-muted); font-size: 0.6rem; }
 
 .sheet {
   position: fixed;
@@ -272,7 +315,7 @@
   padding: 1.1rem 1.2rem 1.3rem;
   z-index: 31;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
-  animation: rise 0.22s ease-out;
+  animation: rise var(--motion-standard) var(--ease-out);
 }
 @keyframes rise {
   from { transform: translateY(12px); opacity: 0; }

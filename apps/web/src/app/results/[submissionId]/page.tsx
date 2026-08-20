@@ -8,6 +8,8 @@ import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { Avatar } from "@/components/Avatar";
 import { Celebration } from "@/components/Celebration";
 import { OutcomeTicket } from "@/components/OutcomeTicket";
+import { BrandMark } from "@/components/BrandMark";
+import { SharePanel } from "@/components/SharePanel";
 import { FilmIcon, ShareIcon } from "@/components/icons";
 import styles from "./result.module.css";
 
@@ -47,7 +49,7 @@ export default async function ResultPage({ params }: { params: { submissionId: s
   return (
     <div className={styles.page}>
       {tone === "winner" && <Celebration />}
-      <header className={styles.top}><Link href="/" className="wordmark">PEROKIO</Link><Link href="/feed" className="btn secondary"><FilmIcon width={16} height={16} aria-hidden />Watch live</Link></header>
+      <header className={styles.top}><Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link><Link href="/feed" className="btn secondary"><FilmIcon width={16} height={16} aria-hidden />Watch live</Link></header>
       <div className={styles.layout}>
         <main className={styles.copy}>
           <div className={styles.creator}>
@@ -66,6 +68,12 @@ export default async function ResultPage({ params }: { params: { submissionId: s
             {votingIsLive ? <Link href={`/battle/${submission.challengeId}?rally=${submission.creatorReferralCode}`} className="btn"><ShareIcon width={16} height={16} aria-hidden />Rally a vote</Link> : <Link href={`/battle/${submission.challengeId}`} className="btn">Watch the battle</Link>}
             <Link href="/login" className="btn secondary">Join Perokio</Link>
           </div>
+          <SharePanel
+            href={votingIsLive ? `/battle/${submission.challengeId}?rally=${submission.creatorReferralCode}` : `/results/${submission.id}?rally=${submission.creatorReferralCode}`}
+            title={`${headline} — ${submission.challenge.title}`}
+            message={votingIsLive ? `Watch this live Perokio battle: ${submission.challenge.title}` : `See the verified Perokio result: ${submission.challenge.title}`}
+            label={votingIsLive ? "Rally this creator" : "Share this result"}
+          />
           <p className={styles.foot}>The ticket reveals on click or tap. It never relies on hover, and its outcome matches the server-side campaign result.</p>
         </main>
         <aside>

@@ -18,6 +18,14 @@ import styles from "./map.module.css";
 // endpoint is anonymous and shared-cached across every visitor (ADR-002),
 // so per-viewer personalization can't live in its response.
 type ViewerPin = MapPin & { isSelf?: boolean };
+type MapIntent = "explore" | "creators" | "challenges" | "live";
+
+const MAP_INTENTS: { key: MapIntent; label: string; description: string }[] = [
+  { key: "explore", label: "Explore", description: "All public momentum" },
+  { key: "creators", label: "Creators", description: "People building a track record" },
+  { key: "challenges", label: "Challenges", description: "Funded events and live rounds" },
+  { key: "live", label: "Live now", description: "What is active right now" },
+];
 
 // Real Mapbox rendering (vector tiles, pan/zoom/rotate, real 3D building
 // extrusion) for the *background scene* — but pin placement is plain CSS
@@ -98,6 +106,7 @@ function MapPageInner() {
   const { user } = useAuth();
   const [serverPins, setServerPins] = useState<MapPin[] | null>(null);
   const [selected, setSelected] = useState<ViewerPin | null>(null);
+  const [activeIntent, setActiveIntent] = useState<MapIntent>("explore");
   const [mapError, setMapError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -122,6 +131,14 @@ function MapPageInner() {
     }
     return [...serverPins, buildSelfPin(user)];
   }, [serverPins, user]);
+
+  const visiblePins = useMemo(() => {
+    if (!pins) return null;
+    if (activeIntent === "creators") return pins.filter((pin) => pin.kind === "creator");
+    if (activeIntent === "challenges") return pins.filter((pin) => pin.kind === "challenge");
+    if (activeIntent === "live") return pins.filter((pin) => pin.kind === "challenge" || pin.meta.toLowerCase().includes("live"));
+    return pins;
+  }, [activeIntent, pins]);
 
   useEffect(() => {
     api.get<MapNearbyResponse>("/public/map/nearby").then((r) => {
@@ -268,13 +285,29 @@ function MapPageInner() {
         <div>
           <h1>live map</h1>
           <p className={styles.caption}>
-            Who&rsquo;s active right now — laid out for feel, not GPS. Perokio doesn&rsquo;t track
-            real location.
+            Discover public momentum by zone — never private exact location. Perokio shows activity,
+            not surveillance.
           </p>
         </div>
         <button type="button" className={styles.compass} onClick={recenter} aria-label="Re-center the map">
           <CompassIcon width={18} height={18} />
         </button>
+      </div>
+
+      <div className={styles.intentRail} role="tablist" aria-label="Map discovery layers">
+        {MAP_INTENTS.map((intent) => (
+          <button
+            key={intent.key}
+            type="button"
+            role="tab"
+            aria-selected={activeIntent === intent.key}
+            className={activeIntent === intent.key ? `${styles.intent} ${styles.intentActive}` : styles.intent}
+            onClick={() => setActiveIntent(intent.key)}
+          >
+            <strong>{intent.label}</strong>
+            <span>{intent.description}</span>
+          </button>
+        ))}
       </div>
 
       <div className={styles.scene}>
@@ -288,7 +321,7 @@ function MapPageInner() {
 
         {!mapError && (
           <div className={styles.pinLayer}>
-            {pins?.map((p) => (
+            {visiblePins?.map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -317,8 +350,8 @@ function MapPageInner() {
           </div>
         )}
 
-        {pins?.length === 0 && (
-          <p className={styles.emptyNote}>Nothing active yet — check back once a challenge opens.</p>
+        {visiblePins?.length === 0 && (
+          <p className={styles.emptyNote}>Nothing matches this layer yet — switch back to Explore to see all public momentum.</p>
         )}
       </div>
 
@@ -339,6 +372,7 @@ function MapPageInner() {
             You
           </span>
         )}
+        <span className={styles.privacyNote}>Approximate zones · visibility controlled by you</span>
       </div>
 
       {selected && (

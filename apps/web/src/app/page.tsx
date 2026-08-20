@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { CheckIcon, FilmIcon, ShareIcon, VerifiedIcon } from "@/components/icons";
+import { BrandMark } from "@/components/BrandMark";
 import styles from "./home.module.css";
 
 export default function HomePage() {
@@ -16,13 +17,13 @@ export default function HomePage() {
   }, [loading, user, router]);
 
   if (loading || user) {
-    return <div className={styles.loading}><div className={styles.loadingMark}>PEROKIO</div></div>;
+    return <div className={styles.loading}><div className={styles.loadingMark}><BrandMark /></div></div>;
   }
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link href="/" className="wordmark">PEROKIO</Link>
+        <Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link>
         <div className={styles.headerActions}>
           <Link href="/feed" className={styles.headerLink}>Watch</Link>
           <Link href="/login" className="btn secondary">Log in</Link>

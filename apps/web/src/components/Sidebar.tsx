@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { Avatar } from "@/components/Avatar";
+import { BrandMark } from "@/components/BrandMark";
 import {
   BellIcon,
   CompassIcon,
@@ -63,8 +64,8 @@ export function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      <Link href="/challenges" className={`wordmark ${styles.wordmark}`}>
-        PEROKIO
+      <Link href="/challenges" className={`wordmark ${styles.wordmark}`} aria-label="Perokio home">
+        <BrandMark />
       </Link>
       <p className={styles.tagline}>Create. Compete. Get paid.</p>
 

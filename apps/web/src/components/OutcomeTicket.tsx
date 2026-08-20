@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { CheckIcon, TierCrownIcon } from "@/components/icons";
+import { BrandMark } from "@/components/BrandMark";
 import styles from "./OutcomeTicket.module.css";
 
 interface OutcomeTicketProps {
@@ -16,8 +17,8 @@ export function OutcomeTicket({ brandLabel, outcome, creator, tier, payout, tick
     <details className={styles.ticket}>
       <summary className={styles.summary}>
         <div className={styles.header}>
-          <span className={styles.logo}>PK</span>
-          <span><strong>PEROKIO</strong><small>{brandLabel}</small></span>
+          <BrandMark compact className={styles.logo} />
+          <span><strong>Verified outcome</strong><small>{brandLabel}</small></span>
         </div>
         <div className={styles.mystery}><span>?</span><small>Tap to reveal</small></div>
         <div className={styles.stub}><span className={styles.barcode} aria-hidden /><code>{ticketId}</code></div>

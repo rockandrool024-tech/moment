@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 import { Avatar } from "@/components/Avatar";
+import { BrandMark } from "@/components/BrandMark";
 import { BellIcon } from "@/components/icons";
 import styles from "./NavBar.module.css";
 
@@ -33,7 +34,7 @@ export function NavBar() {
 
   return (
     <nav className="nav" aria-label="Mobile header">
-      <Link href="/challenges" className="wordmark">PEROKIO</Link>
+      <Link href="/challenges" className="wordmark" aria-label="Perokio home"><BrandMark compact /></Link>
       <span className="spacer" />
       {user ? (
         <>
