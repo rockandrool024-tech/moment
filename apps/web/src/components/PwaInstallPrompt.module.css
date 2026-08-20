@@ -1,0 +1,61 @@
+.prompt {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + var(--bottom-nav-clearance));
+  left: 1rem;
+  z-index: 50;
+  display: flex;
+  max-width: 520px;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.copy {
+  min-width: 0;
+}
+
+.copy strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.9rem;
+}
+
+.copy span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.45rem;
+}
+
+.actions button {
+  min-height: 42px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 480px) {
+  .prompt {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .actions button {
+    flex: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .prompt {
+    right: 1.5rem;
+    bottom: 1.5rem;
+    left: auto;
+    margin: 0;
+  }
+}

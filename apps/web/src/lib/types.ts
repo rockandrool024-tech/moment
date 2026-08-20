@@ -74,6 +74,7 @@ export interface Submission {
   challengeId: string;
   phase: SubmissionPhase;
   videoRef: string | null;
+  playbackId?: string | null;
   videoStatus: string;
   status: SubmissionStatus;
   sellerScore: number | null;

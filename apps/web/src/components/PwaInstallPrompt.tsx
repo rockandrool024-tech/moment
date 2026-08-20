@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import styles from "./PwaInstallPrompt.module.css";
 
 const VISIT_COUNT_KEY = "moment.visitCount";
 const DISMISSED_KEY = "moment.installDismissed";
@@ -56,29 +57,15 @@ export function PwaInstallPrompt() {
   }
 
   return (
-    <div
-      className="card card-elevated sheet-rise"
-      style={{
-        position: "fixed",
-        bottom: "1rem",
-        left: "1rem",
-        right: "1rem",
-        maxWidth: 480,
-        margin: "0 auto",
-        zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: "0.75rem",
-      }}
-    >
-      <span>Install Perokio for quicker access to votes and payouts.</span>
-      <span style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+    <div className={`card card-elevated sheet-rise ${styles.prompt}`} role="dialog" aria-label="Install Perokio">
+      <div className={styles.copy}>
+        <strong>Keep Perokio close</strong>
+        <span>Install the app for faster votes, results and payouts.</span>
+      </div>
+      <div className={styles.actions}>
         <button onClick={install}>Install</button>
-        <button className="secondary" onClick={dismiss}>
-          Not now
-        </button>
-      </span>
+        <button className="secondary" onClick={dismiss}>Not now</button>
+      </div>
     </div>
   );
 }

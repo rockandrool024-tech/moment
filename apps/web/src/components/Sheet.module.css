@@ -1,49 +1,76 @@
-/* Light-theme counterpart to /map's dark bottom sheet — same rise-in
-   motion and fixed-bottom placement, different palette (this is the main
-   app's surface, not map's self-contained dark scene). */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
   z-index: 40;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(4px);
 }
 
 .sheet {
   position: fixed;
-  left: 0.75rem;
   right: 0.75rem;
-  /* Clears BottomNav on mobile — see globals.css's --bottom-nav-clearance
-     comment. This sheet already renders above BottomNav (z-index 41 vs 30),
-     so nothing was hidden, but its bottom edge sat flush against/behind the
-     nav bar without this. */
   bottom: calc(0.75rem + var(--bottom-nav-clearance, 0px));
-  max-width: 480px;
-  margin: 0 auto;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.1rem 1.2rem 1.3rem;
+  left: 0.75rem;
   z-index: 41;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  width: min(calc(100% - 1.5rem), 520px);
+  max-height: min(78dvh, 720px);
+  margin-inline: auto;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-1);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-float);
+}
+
+.handle {
+  width: 42px;
+  height: 4px;
+  margin: 0.55rem auto 0;
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
 }
 
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.6rem;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem 0.7rem;
+}
+
+.head h2 {
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 .close {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-  min-height: 0;
+  width: 40px;
+  min-width: 40px;
+  min-height: 40px;
   padding: 0;
+  color: var(--muted);
+  transform: rotate(90deg);
+}
+
+.body {
+  min-height: 0;
+  padding: 0.35rem 1.1rem 1.1rem;
+  overflow-y: auto;
+}
+
+.footer {
+  padding: 0.85rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .sheet {
+    right: 2rem;
+    bottom: 2rem;
+    left: auto;
+    width: min(480px, calc(100vw - var(--sidebar-width) - 4rem));
+  }
 }

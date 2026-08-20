@@ -1,0 +1,26 @@
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info { color: var(--info); }
+.success { color: var(--success); }
+.warning { color: var(--warning); }
+.danger { color: var(--danger); }
+
+.copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.title {
+  display: block;
+  margin-bottom: 0.1rem;
+}
+
+@media (max-width: 480px) {
+  .copy + * {
+    align-self: center;
+  }
+}

@@ -12,6 +12,9 @@ import {
   User,
 } from "@/lib/types";
 import { formatCents } from "@/lib/format";
+import { Notice } from "@/components/Notice";
+import { PageHeader } from "@/components/PageHeader";
+import styles from "./admin.module.css";
 
 type Tab = "challenges" | "rounds" | "kyb" | "disputes" | "growth";
 
@@ -24,20 +27,15 @@ export default function AdminPage() {
   const [forbidden, setForbidden] = useState(false);
 
   if (forbidden) {
-    return (
-      <div>
-        <h1>Admin</h1>
-        <p className="error">You don&rsquo;t have admin access.</p>
-      </div>
-    );
+    return <Notice tone="danger" title="Admin access required">Your account is not on the server-side admin allowlist.</Notice>;
   }
 
   return (
     <div>
-      <h1>Admin</h1>
-      <div className="nav" style={{ border: "none", padding: 0, marginBottom: "1rem", flexWrap: "wrap" }}>
+      <PageHeader eyebrow="Operations" title="Admin control room" description="Review campaign state, recover stuck rounds, verify brands, resolve disputes and monitor marketplace health." />
+      <div className={styles.tabs} role="tablist" aria-label="Admin sections">
         {(["challenges", "rounds", "kyb", "disputes", "growth"] as Tab[]).map((t) => (
-          <button key={t} className={tab === t ? "" : "secondary"} onClick={() => setTab(t)}>
+          <button key={t} className={`${styles.tab} ${tab === t ? styles.tabActive : ""}`} onClick={() => setTab(t)} role="tab" aria-selected={tab === t}>
             {t === "kyb" ? "KYB queue" : t[0].toUpperCase() + t.slice(1)}
           </button>
         ))}
@@ -232,9 +230,9 @@ function DisputesTab({ onForbidden }: { onForbidden: () => void }) {
 
   return (
     <div>
-      <div className="nav" style={{ border: "none", padding: 0, marginBottom: "1rem" }}>
+      <div className={styles.tabs} role="tablist" aria-label="Dispute status">
         {(["open", "upheld", "denied"] as DisputeStatus[]).map((s) => (
-          <button key={s} className={filter === s ? "" : "secondary"} onClick={() => setFilter(s)}>
+          <button key={s} className={`${styles.tab} ${filter === s ? styles.tabActive : ""}`} onClick={() => setFilter(s)} role="tab" aria-selected={filter === s}>
             {s}
           </button>
         ))}

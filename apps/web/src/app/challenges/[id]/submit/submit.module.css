@@ -1,0 +1,277 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.layout {
+  display: grid;
+  align-items: start;
+  gap: 1rem;
+}
+
+.formCard,
+.guideCard,
+.successCard {
+  padding: clamp(1rem, 3vw, 1.35rem);
+}
+
+.phaseGroup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.phaseOption {
+  position: relative;
+}
+
+.phaseInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.phaseLabel {
+  display: block;
+  min-height: 74px;
+  padding: 0.75rem;
+  color: var(--muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.phaseLabel strong,
+.phaseLabel span {
+  display: block;
+}
+
+.phaseLabel span {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.phaseInput:checked + .phaseLabel {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-2));
+  border-color: var(--accent);
+}
+
+.phaseInput:focus-visible + .phaseLabel {
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.fieldGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dropzone {
+  position: relative;
+  display: grid;
+  min-height: 230px;
+  padding: 1.2rem;
+  place-items: center;
+  overflow: hidden;
+  color: var(--muted);
+  background: var(--surface-1);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.dropzone:hover,
+.dragging {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface-2));
+  border-color: var(--accent);
+}
+
+.dragging {
+  transform: scale(1.01);
+}
+
+.dropContent {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+}
+
+.dropIcon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  color: var(--accent-soft);
+  background: var(--surface-3);
+  border-radius: 50%;
+}
+
+.dropContent strong {
+  color: var(--fg);
+}
+
+.dropContent span {
+  font-size: 0.76rem;
+}
+
+.preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.38;
+}
+
+.hiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.fileMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--muted);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+}
+
+.fileMeta strong {
+  max-width: 65%;
+  overflow: hidden;
+  color: var(--fg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guideCard {
+  position: sticky;
+  top: 1rem;
+}
+
+.guideList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guideItem {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: start;
+  gap: 0.65rem;
+}
+
+.guideIcon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: var(--accent-soft);
+  background: var(--surface-3);
+  border-radius: 50%;
+}
+
+.guideItem strong,
+.guideItem span {
+  display: block;
+}
+
+.guideItem span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.successWrap {
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.successIcon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  place-items: center;
+  color: var(--accent-fg);
+  background: var(--accent-soft);
+  border-radius: 50%;
+}
+
+.statusSteps {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1.25rem 0;
+}
+
+.statusStep {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem;
+  color: var(--text-muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.statusStepActive {
+  color: var(--fg);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  background: var(--surface-3);
+  border-radius: 50%;
+}
+
+.statusStepActive .statusDot {
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+@media (min-width: 820px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.6fr);
+  }
+
+  .fieldGrid {
+    grid-template-columns: 0.45fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .phaseGroup {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,272 @@
+.page {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(207, 255, 61, 0.1), transparent 24rem),
+    var(--bg);
+}
+
+.brandPanel {
+  display: none;
+}
+
+.formPanel {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.formWrap {
+  width: min(100%, 470px);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+}
+
+.backLink {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.progressDot {
+  width: 24px;
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: var(--radius-full);
+}
+
+.progressDotActive {
+  background: var(--accent);
+}
+
+.title {
+  margin-bottom: 0.55rem;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 900;
+}
+
+.subtitle {
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+
+.trust {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 0.9rem;
+  color: var(--muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+}
+
+.trust svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.roleLabel {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.roles {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.1rem;
+}
+
+.roleOption {
+  position: relative;
+}
+
+.roleInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.roleCard {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 68px;
+  padding: 0.75rem;
+  color: var(--muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.roleCard:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+  transform: translateY(-1px);
+}
+
+.roleInput:checked + .roleCard {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+
+.roleInput:focus-visible + .roleCard {
+  outline: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.roleIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--accent-soft);
+  background: var(--surface-3);
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.roleCard strong,
+.roleCard span {
+  display: block;
+}
+
+.roleCard span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.invite {
+  margin-bottom: 1rem;
+  color: var(--accent-soft);
+  font-size: 0.82rem;
+}
+
+.codeInput {
+  text-align: center;
+  font-family: "Geist Mono", monospace;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+}
+
+.codeMeta {
+  margin-bottom: 1rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.legal {
+  margin: 1rem auto 0;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.loader {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  color: var(--accent-soft);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 900px) {
+  .page {
+    grid-template-columns: minmax(360px, 0.9fr) minmax(480px, 1.1fr);
+  }
+
+  .brandPanel {
+    position: relative;
+    display: flex;
+    min-height: 100dvh;
+    padding: clamp(2rem, 5vw, 5rem);
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, transparent, rgba(8, 9, 6, 0.72)),
+      radial-gradient(circle at 70% 18%, rgba(207, 255, 61, 0.48), transparent 17%),
+      linear-gradient(135deg, #1c2718, #081c17 45%, #22200a);
+    border-right: 1px solid var(--border);
+  }
+
+  .brandPanel::after {
+    content: "";
+    position: absolute;
+    right: -10%;
+    bottom: 18%;
+    width: 75%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transform: rotate(-28deg);
+  }
+
+  .brandCopy {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+  }
+
+  .brandCopy h2 {
+    margin-bottom: 1rem;
+    font-size: clamp(2.4rem, 5vw, 4.7rem);
+    font-weight: 900;
+    letter-spacing: -0.065em;
+  }
+
+  .brandCopy p {
+    max-width: 42ch;
+    color: var(--muted);
+  }
+
+  .brandStat {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: fit-content;
+    padding: 0.8rem 1rem;
+    background: rgba(8, 9, 6, 0.72);
+    border: 1px solid rgba(233, 255, 150, 0.22);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(12px);
+  }
+
+  .brandStat strong { color: var(--accent-soft); }
+}

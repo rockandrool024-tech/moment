@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/lib/auth-context";
-import { NavBar } from "@/components/NavBar";
-import { Sidebar } from "@/components/Sidebar";
-import { BottomNav } from "@/components/BottomNav";
-import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
-import { PageTransition } from "@/components/PageTransition";
+import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Perokio",
-  description: "Creator-competition marketplace — Phase 1 client",
+  title: {
+    default: "Perokio — Create. Compete. Get paid.",
+    template: "%s · Perokio",
+  },
+  description: "Real creative briefs, blind voting, and cash prizes for creators.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/icon-192.png",
@@ -18,7 +17,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#080906",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,13 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <AuthProvider>
-          <NavBar />
-          <Sidebar />
-          <main className="container container-with-sidebar">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <BottomNav />
-          <PwaInstallPrompt />
+          <AppShell>{children}</AppShell>
         </AuthProvider>
       </body>
     </html>

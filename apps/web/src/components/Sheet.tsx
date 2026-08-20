@@ -1,29 +1,29 @@
 import { ReactNode } from "react";
+import { MoreIcon } from "@/components/icons";
 import styles from "./Sheet.module.css";
 
 interface SheetProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  footer?: ReactNode;
 }
 
-// Standard confirm-step / detail-panel entrance (globals.css .sheet-rise —
-// same rise animation as /map's pin sheet) so funding confirmation, rating,
-// and anything else that used to just pop in reads as one consistent
-// pattern instead of a per-screen one-off.
-export function Sheet({ title, onClose, children }: SheetProps) {
+export function Sheet({ title, onClose, children, footer }: SheetProps) {
   return (
     <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={`${styles.sheet} sheet-rise`} role="dialog" aria-label={title}>
-        <div className={styles.head}>
-          <h2 style={{ margin: 0, fontSize: "1.05rem" }}>{title}</h2>
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Close">
-            ✕
+      <div className={styles.backdrop} onClick={onClose} aria-hidden />
+      <section className={`${styles.sheet} sheet-rise`} role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <div className={styles.handle} aria-hidden />
+        <header className={styles.head}>
+          <h2 id="sheet-title">{title}</h2>
+          <button type="button" className={`${styles.close} ghost`} onClick={onClose} aria-label="Close dialog">
+            <MoreIcon width={20} height={20} aria-hidden />
           </button>
-        </div>
-        {children}
-      </div>
+        </header>
+        <div className={styles.body}>{children}</div>
+        {footer && <footer className={styles.footer}>{footer}</footer>}
+      </section>
     </>
   );
 }

@@ -1,0 +1,214 @@
+.hero {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.balanceCard {
+  min-height: 230px;
+  padding: 1.35rem;
+  color: var(--accent-fg);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.48), transparent 8rem),
+    var(--accent-gradient);
+  border: 0;
+}
+
+.balanceLabel {
+  display: block;
+  margin-bottom: 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.balanceValue {
+  display: block;
+  margin-bottom: 1.35rem;
+  font-size: clamp(2.7rem, 9vw, 5rem);
+  font-weight: 950;
+  letter-spacing: -0.07em;
+  line-height: 0.9;
+}
+
+.balanceMeta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.balanceMetaItem {
+  padding: 0.75rem;
+  background: rgba(8, 9, 6, 0.12);
+  border: 1px solid rgba(8, 9, 6, 0.16);
+  border-radius: var(--radius-md);
+}
+
+.balanceMetaItem strong,
+.balanceMetaItem span {
+  display: block;
+}
+
+.balanceMetaItem strong {
+  font-size: 1.05rem;
+}
+
+.balanceMetaItem span {
+  font-size: 0.65rem;
+  font-weight: 750;
+}
+
+.explainer {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 0.7rem;
+  padding: 1rem;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.explainerIcon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  color: var(--accent-soft);
+  background: var(--surface-3);
+  border-radius: 50%;
+}
+
+.explainer strong,
+.explainer span {
+  display: block;
+}
+
+.explainer span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.tabs {
+  margin-bottom: 1rem;
+}
+
+.coinsCard {
+  padding: 1.2rem;
+}
+
+.coinsHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.coinsBalance {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-soft);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.coinsCopy {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.packages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 0.55rem;
+}
+
+.package {
+  min-height: 72px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.history {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.historyRow {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.8rem;
+}
+
+.typeIcon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--type-color, var(--accent-soft));
+  background: color-mix(in srgb, var(--type-color, var(--accent)) 10%, var(--surface-2));
+  border-radius: 50%;
+}
+
+.historyCopy {
+  min-width: 0;
+}
+
+.historyCopy strong,
+.historyCopy span {
+  display: block;
+}
+
+.historyCopy strong {
+  overflow: hidden;
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyCopy span {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.amount {
+  text-align: right;
+}
+
+.amount strong,
+.amount span {
+  display: block;
+}
+
+.amount strong {
+  color: var(--fg);
+  font-size: 0.95rem;
+}
+
+.amount span {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+}
+
+@media (min-width: 820px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.55fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .historyRow {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .amount {
+    grid-column: 2;
+    text-align: left;
+  }
+}

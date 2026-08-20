@@ -1,53 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
-import { MyStorySummary, Story, StoryStage } from "@/lib/types";
+import { MyStorySummary, Story, StoryAccess, StoryStage } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
-import { StatCard } from "@/components/StatCard";
 import { CountUp } from "@/components/CountUp";
+import { ChevronRightIcon, FilmIcon, PlusIcon, RefreshIcon } from "@/components/icons";
+import { EmptyState } from "@/components/EmptyState";
+import { Notice } from "@/components/Notice";
+import { PageHeader } from "@/components/PageHeader";
+import { CardSkeletonList } from "@/components/Skeleton";
+import styles from "./stories.module.css";
 
 const STAGES: { key: StoryStage; label: string }[] = [
   { key: "submitted", label: "Submitted" },
   { key: "claimed", label: "Claimed" },
-  { key: "content_added", label: "Content made" },
+  { key: "content_added", label: "Content" },
   { key: "posted", label: "Posted" },
 ];
 
-// Derived, not stored (see StoriesService.myStories / ADR-006) — the
-// storyteller's own lifecycle readout for one Story.
+const storyArt = [
+  "linear-gradient(135deg,#2a2510,#15241e 52%,#112132)",
+  "linear-gradient(135deg,#2c171a,#1f1732 50%,#102421)",
+  "linear-gradient(135deg,#142b2d,#192017 52%,#352910)",
+];
+
 function LifecycleStepper({ stage }: { stage: StoryStage }) {
-  const currentIdx = STAGES.findIndex((s) => s.key === stage);
+  const currentIndex = STAGES.findIndex((item) => item.key === stage);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", margin: "0.6rem 0" }}>
-      {STAGES.map((s, i) => (
-        <div key={s.key} style={{ display: "flex", alignItems: "center", gap: "0.3rem", flex: i < STAGES.length - 1 ? 1 : undefined }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-            <span
-              style={{
-                width: 9,
-                height: 9,
-                borderRadius: "50%",
-                background: i <= currentIdx ? "var(--accent)" : "var(--border)",
-                boxShadow: i === currentIdx ? "0 0 8px var(--accent)" : "none",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontSize: "0.62rem",
-                color: i <= currentIdx ? "var(--fg)" : "var(--text-muted)",
-                fontWeight: i === currentIdx ? 700 : 500,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {s.label}
-            </span>
-          </div>
-          {i < STAGES.length - 1 && (
-            <div style={{ flex: 1, height: 2, background: i < currentIdx ? "var(--accent)" : "var(--border)", marginBottom: "1.1rem" }} />
-          )}
+    <div className={styles.stepper} aria-label={`Story stage: ${STAGES[currentIndex]?.label ?? stage}`}>
+      {STAGES.map((item, index) => (
+        <div className={styles.step} key={item.key}>
+          <div className={styles.nodeWrap}><span className={`${styles.node} ${index < currentIndex ? styles.nodeDone : ""} ${index === currentIndex ? styles.nodeCurrent : ""}`} /><span className={`${styles.stepLabel} ${index <= currentIndex ? styles.stepLabelActive : ""}`}>{item.label}</span></div>
+          {index < STAGES.length - 1 && <span className={`${styles.line} ${index < currentIndex ? styles.lineDone : ""}`} />}
         </div>
       ))}
     </div>
@@ -56,80 +42,63 @@ function LifecycleStepper({ stage }: { stage: StoryStage }) {
 
 function MyStoriesDashboard() {
   const [mine, setMine] = useState<MyStorySummary[] | null>(null);
-
-  useEffect(() => {
-    api.get<MyStorySummary[]>("/stories/me/mine").then(setMine);
-  }, []);
-
+  useEffect(() => { api.get<MyStorySummary[]>("/stories/me/mine").then(setMine).catch(() => setMine([])); }, []);
   if (mine === null || mine.length === 0) return null;
 
   return (
-    <div className="card-elevated" style={{ marginBottom: "1.5rem" }}>
-      <h2 style={{ margin: "0 0 0.2rem", fontSize: "1.05rem" }}>My stories</h2>
-      <p className="muted" style={{ fontSize: "0.82rem", margin: "0 0 1rem" }}>
-        Engagement numbers are what creators reported themselves — never verified, never scored.
-      </p>
-      {mine.map((s) => (
-        <div key={s.id} style={{ borderTop: "1px solid var(--border)", paddingTop: "0.9rem", marginTop: "0.9rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "0.5rem", flexWrap: "wrap" }}>
-            <Link href={`/stories/${s.id}`} style={{ fontWeight: 700, textDecoration: "none", color: "inherit" }}>
-              {s.title}
-            </Link>
-            <span className="badge">{s.access}</span>
-          </div>
-          <LifecycleStepper stage={s.stage} />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.5rem" }}>
-            <StatCard label="Claimed by" value={<CountUp value={s.claimCount} />} />
-            <StatCard label="Content pieces" value={<CountUp value={s.contentCount} />} />
-            <StatCard
-              label="Reported views"
-              value={<CountUp value={s.reportedViews} format={(n) => Math.round(n).toLocaleString()} />}
-            />
+    <section className={`card card-elevated ${styles.dashboard}`}>
+      <span className="page-eyebrow">Brand workspace</span>
+      <h2>Story lifecycle</h2>
+      <p className="muted">Views and likes are creator-reported context. They are never verified, ranked or used in payouts.</p>
+      {mine.map((story) => (
+        <div className={styles.storyProgress} key={story.id}>
+          <div className={styles.progressHead}><Link href={`/stories/${story.id}`}>{story.title}</Link><span className="badge">{story.access}</span></div>
+          <LifecycleStepper stage={story.stage} />
+          <div className={styles.dashboardStats}>
+            <div className={styles.miniStat}><strong><CountUp value={story.claimCount} /></strong><span>Claims</span></div>
+            <div className={styles.miniStat}><strong><CountUp value={story.contentCount} /></strong><span>Content pieces</span></div>
+            <div className={styles.miniStat}><strong><CountUp value={story.reportedViews} format={(value) => Math.round(value).toLocaleString()} /></strong><span>Reported views</span></div>
           </div>
         </div>
       ))}
-    </div>
+    </section>
   );
 }
 
 export default function StoriesPage() {
   const [stories, setStories] = useState<Story[] | null>(null);
+  const [filter, setFilter] = useState<"ALL" | StoryAccess>("ALL");
+  const [error, setError] = useState(false);
+  const [requestKey, setRequestKey] = useState(0);
   const { user } = useAuth();
+  const canCreate = user?.role === "seller" || user?.role === "both";
 
   useEffect(() => {
-    api.get<Story[]>("/stories").then(setStories);
-  }, []);
+    setStories(null);
+    setError(false);
+    api.get<Story[]>("/stories").then(setStories).catch(() => { setStories([]); setError(true); });
+  }, [requestKey]);
+
+  const visible = useMemo(() => (stories ?? []).filter((story) => filter === "ALL" || story.access === filter), [stories, filter]);
 
   return (
     <div>
-      <div className="nav" style={{ border: "none", padding: 0, marginBottom: "1rem" }}>
-        <h1 style={{ margin: 0 }}>Stories</h1>
-        <span className="spacer" />
-        {(user?.role === "seller" || user?.role === "both") && (
-          <Link href="/stories/new" className="btn">
-            New story
+      <PageHeader eyebrow="Open creative briefs" title="Tell stories, not just ads." description="Stories are non-competitive briefs a creator can claim and turn into content. A funded tournament with blind voting belongs in Challenges." actions={canCreate ? <Link href="/stories/new" className="btn"><PlusIcon width={17} height={17} aria-hidden />New story</Link> : <Link href="/challenges" className="btn secondary">Browse challenges</Link>} />
+      {canCreate && <MyStoriesDashboard />}
+      <div className={styles.controls} aria-label="Story access filters">{(["ALL", "FREE", "PAID"] as const).map((value) => <button key={value} className={`${styles.filter} ${filter === value ? styles.active : ""}`} onClick={() => setFilter(value)} aria-pressed={filter === value}>{value === "ALL" ? "All stories" : value === "FREE" ? "Open briefs" : "Paid briefs"}</button>)}</div>
+      {error && <Notice tone="danger" title="Stories couldn’t refresh" action={<button className="secondary" onClick={() => setRequestKey((key) => key + 1)}><RefreshIcon width={15} height={15} aria-hidden />Retry</button>}>The story feed is temporarily unavailable.</Notice>}
+      {stories === null && <CardSkeletonList count={4} media />}
+      {stories && visible.length === 0 && !error && <EmptyState icon={<FilmIcon width={30} height={30} aria-hidden />} title={filter === "ALL" ? "No stories yet" : `No ${filter.toLowerCase()} stories right now`} body="New story briefs appear here as brands publish them." action={canCreate ? { label: "Create the first story", href: "/stories/new" } : { label: "Browse challenges", href: "/challenges" }} />}
+      <div className={styles.grid}>
+        {visible.map((story, index) => (
+          <Link className={styles.link} href={`/stories/${story.id}`} key={story.id}>
+            <article className={`card card-interactive card-enter ${styles.card}`} style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}>
+              <div className={styles.art} style={{ ["--story-art" as string]: storyArt[index % storyArt.length] }}><div className={styles.artBadges}><span className="badge badge-accent">{story.access}</span><span className="badge">{story.mode}</span></div><span className={styles.artLabel}>Creator story brief</span></div>
+              <div className={styles.body}><h2>{story.title}</h2><p>{story.brief}</p><div className={styles.foot}><span>{new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(story.createdAt))}</span><span>View brief <ChevronRightIcon width={14} height={14} aria-hidden /></span></div></div>
+            </article>
           </Link>
-        )}
+        ))}
       </div>
-      <p className="muted">
-        A story is a brief a brand offers, free or paid, that a creator can claim and turn into
-        content. A funded, competitive brief runs as a <Link href="/challenges">Challenge</Link>{" "}
-        instead.
-      </p>
-
-      {(user?.role === "seller" || user?.role === "both") && <MyStoriesDashboard />}
-
-      {stories === null && <p className="muted">Loading…</p>}
-      {stories?.length === 0 && <p className="muted">No stories yet.</p>}
-
-      {stories?.map((s) => (
-        <Link key={s.id} href={`/stories/${s.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="card">
-            <h2 style={{ margin: "0 0 0.25rem" }}>{s.title}</h2>
-            <span className="badge">{s.access}</span> <span className="badge">{s.mode}</span>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }

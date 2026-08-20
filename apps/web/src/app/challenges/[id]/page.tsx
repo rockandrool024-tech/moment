@@ -12,10 +12,37 @@ import { StripeFundForm } from "@/components/StripeFundForm";
 import { RatingForm } from "@/components/RatingForm";
 import { TrustStatsMini } from "@/components/TrustStatsMini";
 import { Sheet } from "@/components/Sheet";
-import { VerifiedIcon } from "@/components/icons";
+import { EmptyState } from "@/components/EmptyState";
+import { Notice } from "@/components/Notice";
+import { CardSkeleton } from "@/components/Skeleton";
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  ChevronRightIcon,
+  LockIcon,
+  PlayIcon,
+  VerifiedIcon,
+} from "@/components/icons";
+import styles from "./challenge-detail.module.css";
 
-interface RatingRow {
-  rateeId: string;
+interface RatingRow { rateeId: string; }
+
+function friendlyLabel(key: string) {
+  return key.replace(/([A-Z])/g, " $1").replace(/[_-]/g, " ").trim();
+}
+
+function friendlyValue(value: unknown) {
+  if (typeof value === "boolean") return value ? "Required" : "Optional";
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value.join(", ");
+  return "See brief for details";
+}
+
+function roundLabel(round: Round) {
+  if (round.type === "peer_vote_teaser") return "Blind teaser vote";
+  if (round.type === "peer_vote_narrow") return "Full-content vote";
+  return "Public final";
 }
 
 export default function ChallengeDetailPage() {
@@ -33,37 +60,39 @@ export default function ChallengeDetailPage() {
   const [showConfirmBreakdown, setShowConfirmBreakdown] = useState(false);
 
   const load = useCallback(async () => {
-    const [c, r] = await Promise.all([
-      api.get<Challenge>(`/challenges/${id}`),
-      api.get<Round[]>(`/challenges/${id}/rounds`),
-    ]);
-    setChallenge(c);
-    setRounds(r);
-    if (c.status === "resolved") {
-      const [subs, mine] = await Promise.all([
-        api.get<Submission[]>(`/submissions?challengeId=${id}&phase=full_content`),
-        user ? api.get<RatingRow[]>(`/challenges/${id}/ratings/mine`) : Promise.resolve([]),
+    setError(null);
+    try {
+      const [c, r] = await Promise.all([
+        api.get<Challenge>(`/challenges/${id}`),
+        api.get<Round[]>(`/challenges/${id}/rounds`),
       ]);
-      setFinalists(subs.filter((s) => s.status === "advanced"));
-      setRatedIds(new Set(mine.map((r) => r.rateeId)));
+      setChallenge(c);
+      setRounds(r);
+      if (c.status === "resolved") {
+        const [subs, mine] = await Promise.all([
+          api.get<Submission[]>(`/submissions?challengeId=${id}&phase=full_content`),
+          user ? api.get<RatingRow[]>(`/challenges/${id}/ratings/mine`) : Promise.resolve([]),
+        ]);
+        setFinalists(subs.filter((s) => s.status === "advanced"));
+        setRatedIds(new Set(mine.map((r) => r.rateeId)));
+      }
+    } catch {
+      setError("We couldn’t load this challenge. Check your connection and try again.");
     }
   }, [id, user]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
-  const isOwner = user && challenge && user.id === challenge.sellerId;
-  const needsKyb = isOwner && !user?.kybVerified;
+  const isOwner = Boolean(user && challenge && user.id === challenge.sellerId);
+  const needsKyb = Boolean(isOwner && !user?.kybVerified);
 
   async function fund() {
     setError(null);
     setBusy(true);
     try {
-      const result = await api.post<FundingResult>(`/challenges/${id}/fund`);
-      setFunding(result);
+      setFunding(await api.post<FundingResult>(`/challenges/${id}/fund`));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setError(err instanceof ApiError ? err.message : "Funding couldn’t start. Try again in a moment.");
     } finally {
       setBusy(false);
     }
@@ -74,9 +103,9 @@ export default function ChallengeDetailPage() {
     setError(null);
     try {
       await api.post("/users/me/request-kyb");
-      setError(null);
+      setWizardStatus("Verification request sent. We’ll notify you when it is reviewed.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setError(err instanceof ApiError ? err.message : "Verification couldn’t be requested. Try again.");
     } finally {
       setBusy(false);
     }
@@ -86,39 +115,23 @@ export default function ChallengeDetailPage() {
     setError(null);
     setBusy(true);
     try {
-      // Server derives round number/type/advanceCount/scheduling — see
-      // rounds.service.ts's createNext. The frontend just asks for "the next
-      // round" and surfaces whatever conflict message comes back.
       await api.post(`/challenges/${id}/rounds/auto`);
       await load();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setError(err instanceof ApiError ? err.message : "The next round couldn’t open yet.");
     } finally {
       setBusy(false);
     }
   }
 
-  // "Campaign wizard" — Stripe.js confirms the charge client-side, but
-  // funded status only flips once the webhook lands (ADR: webhook-driven
-  // confirmation is the source of truth, never the client). Rather than
-  // making the seller find and click a separate "open round 1" button,
-  // poll briefly for the webhook to catch up, then open round 1 for them
-  // automatically. Falls back to the existing manual button if the webhook
-  // is slow — nothing here is authoritative, /rounds/auto still enforces
-  // every rule server-side.
   async function afterFundingConfirmed() {
     setFunding(null);
-    setWizardStatus("Confirming payment…");
+    setWizardStatus("Confirming the secured prize…");
     for (let attempt = 0; attempt < 8; attempt++) {
       const fresh = await api.get<Challenge>(`/challenges/${id}`);
       if (fresh.status === "funded") {
         setWizardStatus("Opening round 1…");
-        try {
-          await api.post(`/challenges/${id}/rounds/auto`);
-        } catch {
-          // Someone/something already opened it, or a real rule rejected it
-          // — either way, just fall through to a normal reload below.
-        }
+        try { await api.post(`/challenges/${id}/rounds/auto`); } catch { /* server remains authoritative */ }
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -127,157 +140,166 @@ export default function ChallengeDetailPage() {
     await load();
   }
 
-  if (!challenge) return <p className="muted">Loading…</p>;
+  if (!challenge) {
+    return (
+      <div>
+        <Link href="/challenges" className={styles.back}><ArrowLeftIcon width={16} height={16} aria-hidden />All challenges</Link>
+        {error ? <Notice tone="danger" title="Challenge unavailable" action={<button className="secondary" onClick={() => void load()}>Retry</button>}>{error}</Notice> : <CardSkeleton media />}
+      </div>
+    );
+  }
 
-  // Client-side affordance only (not authoritative) — the /rounds/auto
-  // endpoint is the real source of truth and will reject with a clear
-  // message if this guess is wrong (e.g. previous round not revealed yet).
-  const canOpenNextRound =
-    isOwner &&
-    rounds.length < 3 &&
-    ((rounds.length === 0 && challenge.status === "funded") ||
-      (rounds.length > 0 && rounds[rounds.length - 1].status === "revealed"));
+  const canOpenNextRound = isOwner && rounds.length < 3 && ((rounds.length === 0 && challenge.status === "funded") || (rounds.length > 0 && rounds[rounds.length - 1].status === "revealed"));
+  const criteria = Object.entries(challenge.checklistCriteria ?? {});
+  const isLive = challenge.status.includes("_open") || challenge.status === "funded";
 
   return (
     <div>
-      <h1>{challenge.title}</h1>
-      <span className="badge">{challenge.status}</span>
-      <p>{challenge.brief}</p>
+      <Link href="/challenges" className={styles.back}><ArrowLeftIcon width={16} height={16} aria-hidden />All challenges</Link>
+
+      <section className={styles.hero}>
+        <div className={styles.heroTop}>
+          <span className={isLive ? "badge badge-live" : "badge"}>{challenge.status.replaceAll("_", " ")}</span>
+          <span className={styles.heroTrust}><VerifiedIcon width={15} height={15} aria-hidden />Prize secured before launch</span>
+        </div>
+        <div className={styles.heroBody}>
+          <h1>{challenge.title}</h1>
+          <div className={styles.heroMeta}>
+            <p>Creative competition · blind voting protects the quality score from follower counts.</p>
+            <div className={`${styles.heroPrize} money`}>{formatCents(challenge.prizePool)}</div>
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.statusRow}>
+        <span className="chip"><LockIcon width={14} height={14} aria-hidden />Escrow protected</span>
+        <span className="chip">Up to 3 rounds</span>
+        <span className="chip">Blind peer vote</span>
+      </div>
 
       {isOwner && (
-        <p style={{ display: "flex", gap: "0.5rem" }}>
-          <Link href={`/challenges/${challenge.id}/analytics`} className="btn">
-            View analytics
-          </Link>
-          <Link href={`/challenges/${challenge.id}/invite`} className="btn">
-            Invite creators
-          </Link>
-        </p>
+        <div className={styles.ownerActions}>
+          <Link href={`/challenges/${challenge.id}/analytics`} className="btn secondary">Campaign analytics</Link>
+          <Link href={`/challenges/${challenge.id}/invite`} className="btn secondary">Invite creators</Link>
+        </div>
       )}
 
-      <div className="card">
-        <h2 style={{ marginTop: 0 }}>Prize breakdown</h2>
-        <p style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0 0 0.5rem" }}>
-          {formatCents(challenge.prizePool)} <span className="muted" style={{ fontSize: "0.95rem", fontWeight: 500 }}>pool</span>
-        </p>
-        <button className="secondary" onClick={() => setShowPreviewBreakdown(true)}>
-          See breakdown
-        </button>
+      {error && <Notice tone="danger" title="Action needs attention">{error}</Notice>}
+      {wizardStatus && <Notice tone="info" title="Campaign setup">{wizardStatus}</Notice>}
+
+      <div className={styles.layout}>
+        <main className={styles.mainColumn}>
+          <section className={`card ${styles.sectionCard}`}>
+            <span className="page-eyebrow">The brief</span>
+            <h2>What to create</h2>
+            <p className={styles.brief}>{challenge.brief}</p>
+            <div className={styles.checklist}>
+              {(criteria.length ? criteria : [["submission", "Follow the creative direction above"]]).map(([key, value]) => (
+                <div className={styles.checkItem} key={key}>
+                  <span className={styles.checkIcon}><CheckIcon width={16} height={16} aria-hidden /></span>
+                  <div><strong>{friendlyLabel(key)}</strong><span>{friendlyValue(value)}</span></div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={`card ${styles.sectionCard}`}>
+            <span className="page-eyebrow">Competition path</span>
+            <h2>Rounds</h2>
+            {rounds.length === 0 ? (
+              <EmptyState icon={<PlayIcon width={28} height={28} aria-hidden />} title="Round 1 hasn’t opened" body="The first blind vote opens after the prize is funded and the campaign is ready." />
+            ) : (
+              <div className={styles.rounds}>
+                {rounds.map((round) => (
+                  <Link className={styles.roundLink} key={round.id} href={`/rounds/${round.id}`}>
+                    <span className={styles.roundNumber}>{round.roundNumber}</span>
+                    <span className={styles.roundCopy}><strong>{roundLabel(round)}</strong><span>{round.status} · advances {round.advanceCount}</span></span>
+                    <ChevronRightIcon width={18} height={18} aria-hidden />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {challenge.status === "resolved" && user && (
+            <section className={`card ${styles.sectionCard}`}>
+              <span className="page-eyebrow">Close the loop</span>
+              <h2>Rate the experience</h2>
+              <div className={styles.rateGrid}>
+                {isOwner && finalists.map((finalist) => <RatingForm key={finalist.id} challengeId={challenge.id} rateeId={finalist.creatorId} label={`creator (entry ${finalist.id.slice(0, 8)})`} alreadyRated={ratedIds.has(finalist.creatorId)} />)}
+                {!isOwner && <RatingForm challengeId={challenge.id} rateeId={challenge.sellerId} label="the brand" alreadyRated={ratedIds.has(challenge.sellerId)} />}
+              </div>
+              <h3>Brand trust</h3>
+              <TrustStatsMini userId={challenge.sellerId} />
+            </section>
+          )}
+        </main>
+
+        <aside className={styles.sideColumn}>
+          <section className={`card ${styles.prizeCard}`}>
+            <span className={styles.prizeLabel}>Winner prize</span>
+            <div className={`${styles.prizeValue} money`}>{formatCents(challenge.prizePool)}</div>
+            <div className={styles.trustLine}><LockIcon width={17} height={17} aria-hidden />The pool is kept separate from platform funds.</div>
+            <button className="secondary btn-block" onClick={() => setShowPreviewBreakdown(true)}>See every payout</button>
+          </section>
+
+          <section className={`card ${styles.actionCard}`}>
+            {!isOwner ? (
+              <>
+                <span className="page-eyebrow">Ready to enter?</span>
+                <h2>Start with your strongest idea.</h2>
+                <p>Check the requirements before upload. Your first submission is a short teaser.</p>
+                <Link href={`/challenges/${challenge.id}/submit`} className="btn btn-block">Enter challenge</Link>
+              </>
+            ) : (
+              <>
+                <span className="page-eyebrow">Brand controls</span>
+                <h2>Move the campaign forward.</h2>
+                {needsKyb && challenge.status === "draft" && <Notice tone="warning" title="Verify the business">Business verification is required before the prize can be funded.</Notice>}
+                {needsKyb && challenge.status === "draft" && <button className="secondary btn-block" onClick={requestKyb} disabled={busy}>{busy ? "Requesting…" : "Request verification"}</button>}
+                {!needsKyb && challenge.status === "draft" && !funding && <button className="btn-block" onClick={fund} disabled={busy}>{busy ? "Preparing payment…" : "Secure the prize"}</button>}
+                {canOpenNextRound && <button className="btn-block" onClick={openNextRound} disabled={busy}>{busy ? "Opening…" : `Open round ${rounds.length + 1}`}</button>}
+                {!canOpenNextRound && challenge.status !== "draft" && <p>The next campaign action appears here as soon as the current round is revealed.</p>}
+              </>
+            )}
+          </section>
+
+          {funding && (
+            <section className={`card ${styles.fundingCard}`}>
+              <span className="page-eyebrow">Secure checkout</span>
+              <h2>Confirm funding</h2>
+              <span className={`${styles.total} money`}>{formatCents(funding.breakdown.totalCharge)}</span>
+              <p className="muted">This includes the prize, creator payouts and platform fee.</p>
+              <button type="button" className="secondary btn-block" onClick={() => setShowConfirmBreakdown(true)}>Review charge</button>
+              <StripeFundForm clientSecret={funding.clientSecret} onDone={() => void afterFundingConfirmed()} />
+            </section>
+          )}
+        </aside>
       </div>
 
       {showPreviewBreakdown && (
-        <Sheet title="Prize breakdown" onClose={() => setShowPreviewBreakdown(false)}>
-          <p>Pool: {formatCents(challenge.prizePool)}</p>
-          <p>Stipend pool: {formatCents(challenge.stipendPool)}</p>
-          <p className="muted">
-            Round-2 survivor bonus pool: {formatCents(previewSurvivorBonusPool(challenge.prizePool))}
-          </p>
-          <p className="muted">Crowd favourite: {formatCents(previewCrowdFavourite(challenge.prizePool))}</p>
-          <p className="muted">Take rate: {(challenge.takeRateBps / 100).toFixed(1)}%</p>
+        <Sheet title="What creators can earn" onClose={() => setShowPreviewBreakdown(false)} footer={<button className="btn-block" onClick={() => setShowPreviewBreakdown(false)}>Done</button>}>
+          <dl className={styles.breakdownList}>
+            <div className={styles.breakdownRow}><dt>Winner</dt><dd>{formatCents(challenge.prizePool)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Finalist pool</dt><dd>{formatCents(challenge.stipendPool)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Round-2 survivor pool</dt><dd>{formatCents(previewSurvivorBonusPool(challenge.prizePool))}</dd></div>
+            <div className={styles.breakdownRow}><dt>Crowd favourite</dt><dd>{formatCents(previewCrowdFavourite(challenge.prizePool))}</dd></div>
+            <div className={styles.breakdownRow}><dt>Platform fee</dt><dd>{(challenge.takeRateBps / 100).toFixed(1)}%</dd></div>
+          </dl>
         </Sheet>
-      )}
-
-      {!isOwner && (
-        <Link href={`/challenges/${challenge.id}/submit`} className="btn">
-          Submit an entry
-        </Link>
-      )}
-
-      {needsKyb && challenge.status === "draft" && (
-        <div className="card" style={{ borderColor: "#e8b93f" }}>
-          <p style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <VerifiedIcon width={18} height={18} style={{ color: "#e8b93f", flexShrink: 0 }} aria-hidden />
-            KYB verification required to fund challenges.{" "}
-            <button className="secondary" onClick={requestKyb} disabled={busy}>
-              Request verification
-            </button>
-          </p>
-        </div>
-      )}
-
-      {isOwner && !needsKyb && challenge.status === "draft" && !funding && (
-        <button onClick={fund} disabled={busy}>
-          Fund escrow
-        </button>
-      )}
-
-      {funding && (
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>Confirm funding</h2>
-          <p style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0 0 0.25rem" }}>
-            {formatCents(funding.breakdown.totalCharge)}{" "}
-            <span className="muted" style={{ fontSize: "0.95rem", fontWeight: 500 }}>total charge</span>
-          </p>
-          <button
-            type="button"
-            className="secondary"
-            style={{ marginBottom: "0.75rem" }}
-            onClick={() => setShowConfirmBreakdown(true)}
-          >
-            See breakdown
-          </button>
-          <StripeFundForm clientSecret={funding.clientSecret} onDone={() => void afterFundingConfirmed()} />
-        </div>
       )}
 
       {funding && showConfirmBreakdown && (
-        <Sheet title="Charge breakdown" onClose={() => setShowConfirmBreakdown(false)}>
-          <p>Pool: {formatCents(funding.breakdown.prizePool)}</p>
-          <p>Stipend: {formatCents(funding.breakdown.stipendPool)}</p>
-          <p>Survivor bonus: {formatCents(funding.breakdown.survivorBonusPool)}</p>
-          <p>Platform fee: {formatCents(funding.breakdown.platformFee)}</p>
-          <p style={{ fontWeight: 700 }}>Total: {formatCents(funding.breakdown.totalCharge)}</p>
+        <Sheet title="Charge breakdown" onClose={() => setShowConfirmBreakdown(false)} footer={<button className="btn-block" onClick={() => setShowConfirmBreakdown(false)}>Looks right</button>}>
+          <dl className={styles.breakdownList}>
+            <div className={styles.breakdownRow}><dt>Prize pool</dt><dd>{formatCents(funding.breakdown.prizePool)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Finalist stipends</dt><dd>{formatCents(funding.breakdown.stipendPool)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Survivor bonus</dt><dd>{formatCents(funding.breakdown.survivorBonusPool)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Platform fee</dt><dd>{formatCents(funding.breakdown.platformFee)}</dd></div>
+            <div className={styles.breakdownRow}><dt>Total charge</dt><dd>{formatCents(funding.breakdown.totalCharge)}</dd></div>
+          </dl>
         </Sheet>
       )}
-
-      {wizardStatus && <p className="muted">{wizardStatus}</p>}
-
-      {!wizardStatus && canOpenNextRound && (
-        <button onClick={openNextRound} disabled={busy}>
-          Open round {rounds.length + 1}
-        </button>
-      )}
-
-      {error && <p className="error">{error}</p>}
-
-      {challenge.status === "resolved" && user && (
-        <div>
-          <h2>Rate</h2>
-          {isOwner &&
-            finalists.map((f) => (
-              <RatingForm
-                key={f.id}
-                challengeId={challenge.id}
-                rateeId={f.creatorId}
-                label={`creator (entry ${f.id.slice(0, 8)})`}
-                alreadyRated={ratedIds.has(f.creatorId)}
-              />
-            ))}
-          {!isOwner && (
-            <RatingForm
-              challengeId={challenge.id}
-              rateeId={challenge.sellerId}
-              label="the brand"
-              alreadyRated={ratedIds.has(challenge.sellerId)}
-            />
-          )}
-
-          <div className="card">
-            <h3 style={{ marginTop: 0 }}>Brand trust stats</h3>
-            <TrustStatsMini userId={challenge.sellerId} />
-          </div>
-        </div>
-      )}
-
-      <h2>Rounds</h2>
-      {rounds.length === 0 && <p className="muted">No rounds opened yet.</p>}
-      {rounds.map((r) => (
-        <Link key={r.id} href={`/rounds/${r.id}`} style={{ textDecoration: "none" }}>
-          <div className="card">
-            Round {r.roundNumber} — {r.type} <span className="badge">{r.status}</span>
-          </div>
-        </Link>
-      ))}
     </div>
   );
 }

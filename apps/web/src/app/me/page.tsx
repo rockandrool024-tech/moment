@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { JourneyMilestone, RallyStats, ReferralStats, StreakSummary, User } from "@/lib/types";
-import { tierBadgeStyle, tierColorVar, tierLabel } from "@/lib/tier";
+import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { formatCents } from "@/lib/format";
 import { Avatar } from "@/components/Avatar";
 import { JourneyStepper } from "@/components/JourneyStepper";
-import { FlameIcon, RallyIcon, ShareIcon, TierCrownIcon, WalletIcon } from "@/components/icons";
+import { Sheet } from "@/components/Sheet";
+import { Notice } from "@/components/Notice";
+import { CardSkeletonList } from "@/components/Skeleton";
+import { CheckIcon, FlameIcon, RallyIcon, ShareIcon, TierCrownIcon, WalletIcon } from "@/components/icons";
+import styles from "./me.module.css";
 
 export default function MePage() {
   const { user, loading, refresh } = useAuth();
@@ -27,41 +31,40 @@ export default function MePage() {
   const [locationDraft, setLocationDraft] = useState("");
   const [profileBusy, setProfileBusy] = useState(false);
 
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      api.get<RallyStats>("/users/me/rally-stats").then(setRallyStats),
+      api.get<StreakSummary>("/users/me/streak").then(setStreak),
+      api.get<ReferralStats>("/users/me/referrals").then(setReferralStats),
+      api.get<JourneyMilestone[]>("/users/me/journey").then(setJourney),
+    ]).catch(() => setError("Some progress data couldn’t refresh. Your profile is still available."));
+    setDisplayNameDraft(user.displayName ?? "");
+    setLocationDraft(user.location ?? "");
+  }, [user]);
+
   async function regenerateAvatar() {
     setAvatarBusy(true);
+    setError(null);
     try {
       const updated = await api.post<User>("/users/me/avatar/generate");
       setAvatarVersion(Number(new Date(updated.updatedAt)));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setError(err instanceof ApiError ? err.message : "A new avatar couldn’t be generated.");
     } finally {
       setAvatarBusy(false);
     }
   }
 
-  useEffect(() => {
-    if (user) {
-      api.get<RallyStats>("/users/me/rally-stats").then(setRallyStats);
-      api.get<StreakSummary>("/users/me/streak").then(setStreak);
-      api.get<ReferralStats>("/users/me/referrals").then(setReferralStats);
-      api.get<JourneyMilestone[]>("/users/me/journey").then(setJourney);
-      setDisplayNameDraft(user.displayName ?? "");
-      setLocationDraft(user.location ?? "");
-    }
-  }, [user]);
-
   async function saveProfile() {
     setProfileBusy(true);
     setError(null);
     try {
-      await api.patch<User>("/users/me", {
-        displayName: displayNameDraft.trim() || undefined,
-        location: locationDraft.trim() || undefined,
-      });
+      await api.patch<User>("/users/me", { displayName: displayNameDraft.trim() || undefined, location: locationDraft.trim() || undefined });
       await refresh();
       setEditingProfile(false);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't save your profile");
+      setError(err instanceof ApiError ? err.message : "Your profile couldn’t be saved.");
     } finally {
       setProfileBusy(false);
     }
@@ -69,16 +72,14 @@ export default function MePage() {
 
   function copyRallyLink() {
     if (!user) return;
-    const link = `${window.location.origin}/v/${user.referralCode}`;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(`${window.location.origin}/v/${user.referralCode}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
 
   function copyReferralLink() {
     if (!user) return;
-    const link = `${window.location.origin}/r/${user.referralCode}`;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(`${window.location.origin}/r/${user.referralCode}`);
     setRefCopied(true);
     setTimeout(() => setRefCopied(false), 2000);
   }
@@ -90,187 +91,92 @@ export default function MePage() {
       const { url } = await api.post<{ url: string }>("/users/me/stripe-connect-onboarding");
       window.location.href = url;
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong");
+      setError(err instanceof ApiError ? err.message : "Payout setup couldn’t start.");
     } finally {
       setBusy(false);
     }
   }
 
-  if (loading) return <p className="muted">Loading…</p>;
-  if (!user) return <p className="muted">Not logged in.</p>;
+  if (loading) return <CardSkeletonList count={4} />;
+  if (!user) return <Notice tone="warning" title="Log in to view your profile">Your public progress and payout setup live here after verification.</Notice>;
+
+  const streakCount = streak?.streakCount ?? user.streakCount;
 
   return (
     <div>
-      <h1>My profile</h1>
-      <div className="card">
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-          <Avatar
-            userId={user.id}
-            size={72}
-            tier={user.tier}
-            cacheBust={avatarVersion ? String(avatarVersion) : user.updatedAt}
-          />
-          <div>
-            <button className="secondary" onClick={regenerateAvatar} disabled={avatarBusy}>
-              {avatarBusy ? "Generating…" : "Generate new avatar"}
-            </button>
-            <p className="muted" style={{ margin: "0.25rem 0 0" }}>
-              Generated placeholder — your consistent reference image across Perokio until you add
-              a real one.
-            </p>
+      {error && <Notice tone="danger" title="Profile needs attention" action={<button className="ghost" onClick={() => setError(null)}>Dismiss</button>}>{error}</Notice>}
+
+      <section className={`card ${styles.hero}`}>
+        <div className={styles.identity}>
+          <Avatar userId={user.id} size={82} tier={user.tier} cacheBust={avatarVersion ? String(avatarVersion) : user.updatedAt} />
+          <div className={styles.identityCopy}>
+            <span className="page-eyebrow">Creator profile</span>
+            <h1>{user.displayName ?? "Name your creator profile"}</h1>
+            <p>{user.location ?? "Add your city"} · {user.role === "both" ? "Creator + brand" : user.role}</p>
+            <span className="badge badge-tier" style={tierBadgeStyle(user.tier) as React.CSSProperties}><TierCrownIcon width={14} height={14} aria-hidden />{tierLabel(user.tier)}</span>
           </div>
         </div>
-        {editingProfile ? (
-          <div style={{ marginBottom: "0.75rem" }}>
-            <div className="field">
-              <label htmlFor="displayName">Display name</label>
-              <input
-                id="displayName"
-                value={displayNameDraft}
-                onChange={(e) => setDisplayNameDraft(e.target.value)}
-                maxLength={60}
-                placeholder="Your name"
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="location">Location</label>
-              <input
-                id="location"
-                value={locationDraft}
-                onChange={(e) => setLocationDraft(e.target.value)}
-                maxLength={80}
-                placeholder="Brooklyn, NY"
-              />
-            </div>
-            <button onClick={saveProfile} disabled={profileBusy}>
-              {profileBusy ? "Saving…" : "Save"}
-            </button>{" "}
-            <button className="secondary" onClick={() => setEditingProfile(false)} disabled={profileBusy}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <>
-            {user.displayName && <h2 style={{ margin: "0 0 0.5rem" }}>{user.displayName}</h2>}
-            {user.location && <p className="muted" style={{ margin: "0 0 0.5rem" }}>{user.location}</p>}
-            <button className="secondary" onClick={() => setEditingProfile(true)}>
-              Edit profile
-            </button>
-          </>
-        )}
-        <p>Phone: {user.phone}</p>
-        <p>Role: {user.role}</p>
-        <p>Phone verified: {user.phoneVerifiedAt ? "yes" : "no"}</p>
-        <p style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-          Tier:
-          <TierCrownIcon
-            width={16}
-            height={16}
-            style={{ color: tierColorVar(user.tier) }}
-            aria-hidden
-          />
-          <span className="badge badge-tier" style={tierBadgeStyle(user.tier) as React.CSSProperties}>
-            {tierLabel(user.tier)}
-          </span>
-        </p>
-        <p>Taste score: {user.tasteScore}</p>
-        <p>Referral code: {user.referralCode}</p>
-        {streak && (
-          <p style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            {streak.streakPausedReason ? (
-              <>
-                <FlameIcon width={16} height={16} style={{ color: "var(--muted)" }} aria-hidden />
-                {streak.streakCount}-day streak paused — no eligible content to vote on yet,
-                it&rsquo;ll resume on your next vote
-              </>
-            ) : streak.streakCount > 0 ? (
-              <>
-                <FlameIcon width={16} height={16} style={{ color: "var(--tier-0)" }} aria-hidden />
-                {streak.streakCount}-day voting streak
-              </>
-            ) : (
-              <span className="muted">Vote today to start a streak</span>
-            )}
-          </p>
-        )}
-      </div>
-
-      <div className="card">
-        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <RallyIcon width={18} height={18} aria-hidden /> Your rally link
-        </h2>
-        <p className="muted">
-          Share this — it always points at whatever battle you currently have live. Votes that
-          arrive through it earn you rally XP and count toward crowd favourite; they never
-          decide the prize (two-currency split, ADR-005).
-        </p>
-        <p>
-          <code>/v/{user.referralCode}</code>{" "}
-          <button className="secondary" onClick={copyRallyLink}>
-            <ShareIcon width={14} height={14} aria-hidden style={{ verticalAlign: "-2px" }} />{" "}
-            {copied ? "Copied!" : "Copy link"}
-          </button>
-        </p>
-        {rallyStats && (
-          <p>
-            <strong>{rallyStats.totalVoters}</strong> voters recruited ·{" "}
-            <strong>{rallyStats.rallyXp}</strong> rally XP
-          </p>
-        )}
-      </div>
-
-      {journey && (
-        <div className="card">
-          <h2 style={{ marginTop: 0 }}>Your journey</h2>
-          <JourneyStepper milestones={journey} />
+        <div className={styles.actions}>
+          <button className="secondary" onClick={() => setEditingProfile(true)}>Edit profile</button>
+          <button className="ghost" onClick={() => void regenerateAvatar()} disabled={avatarBusy}>{avatarBusy ? "Generating…" : "Refresh avatar"}</button>
         </div>
+      </section>
+
+      <section className={styles.stats} aria-label="Creator statistics">
+        <div className={`card ${styles.stat}`}><span className={styles.statIcon}><WalletIcon width={20} height={20} aria-hidden /></span><strong>{formatCents(user.lifetimeEarnings)}</strong><span>Lifetime earnings</span></div>
+        <div className={`card ${styles.stat}`}><span className={styles.statIcon}><TierCrownIcon width={20} height={20} aria-hidden /></span><strong>{user.tasteScore}</strong><span>Taste score</span></div>
+        <div className={`card ${styles.stat}`}><span className={`${styles.statIcon} ${streak?.streakPausedReason ? styles.streakPaused : styles.streakLive}`}><FlameIcon width={20} height={20} aria-hidden /></span><strong>{streakCount}</strong><span>{streak?.streakPausedReason ? "Streak paused" : "Voting streak"}</span></div>
+        <div className={`card ${styles.stat}`}><span className={styles.statIcon}><RallyIcon width={20} height={20} aria-hidden /></span><strong>{rallyStats?.rallyXp ?? user.rallyXp}</strong><span>Rally XP</span></div>
+      </section>
+
+      <div className={styles.grid}>
+        <section className={`card ${styles.card}`}>
+          <span className="page-eyebrow">Audience momentum</span>
+          <h2>Your rally link</h2>
+          <p className="muted">It always points to your current battle. Supporters can help the crowd-favourite score, but never decide the main prize.</p>
+          <div className={styles.shareCode}><code>/v/{user.referralCode}</code><button className="secondary" onClick={copyRallyLink}><ShareIcon width={14} height={14} aria-hidden />{copied ? "Copied" : "Copy"}</button></div>
+          <div className={styles.shareStats}>
+            <div className={styles.shareStat}><strong>{rallyStats?.totalVoters ?? 0}</strong><span>Voters recruited</span></div>
+            <div className={styles.shareStat}><strong>{rallyStats?.rallyXp ?? user.rallyXp}</strong><span>Rally XP</span></div>
+          </div>
+        </section>
+
+        <section className={`card ${styles.card}`}>
+          <span className="page-eyebrow">Invite loop</span>
+          <h2>Bring a creator in.</h2>
+          <p className="muted">Earn $5 after someone you invite completes their first eligible vote or entry.</p>
+          <div className={styles.shareCode}><code>/r/{user.referralCode}</code><button className="secondary" onClick={copyReferralLink}><ShareIcon width={14} height={14} aria-hidden />{refCopied ? "Copied" : "Copy"}</button></div>
+          <div className={styles.shareStats}>
+            <div className={styles.shareStat}><strong>{referralStats?.totalReferred ?? 0}</strong><span>People referred</span></div>
+            <div className={styles.shareStat}><strong>{formatCents(referralStats?.totalRewardedCents ?? 0)}</strong><span>Referral earnings</span></div>
+          </div>
+        </section>
+
+        {journey && (
+          <section className={`card ${styles.card}`}>
+            <span className="page-eyebrow">Progress</span>
+            <h2>Your journey</h2>
+            <JourneyStepper milestones={journey} />
+          </section>
+        )}
+
+        <section className={`card ${styles.card}`}>
+          <span className="page-eyebrow">Account readiness</span>
+          <h2>Verification and payouts</h2>
+          <div className={styles.settings}>
+            <div className={styles.settingRow}><div className={styles.settingCopy}><strong>Phone verification</strong><span>{user.phone} · used to protect one-person-one-vote</span></div><span className="badge badge-accent"><CheckIcon width={13} height={13} aria-hidden />Verified</span></div>
+            <div className={styles.settingRow}><div className={styles.settingCopy}><strong>Creator payouts</strong><span>{user.stripeConnectAccountId ? "Ready to receive prize and stipend transfers" : "Required before money can be transferred"}</span></div>{user.stripeConnectAccountId ? <span className="badge badge-accent">Connected</span> : <button onClick={() => void startStripeOnboarding()} disabled={busy}>{busy ? "Opening…" : "Set up"}</button>}</div>
+          </div>
+        </section>
+      </div>
+
+      {editingProfile && (
+        <Sheet title="Edit public profile" onClose={() => setEditingProfile(false)} footer={<div className={styles.editActions}><button className="secondary" onClick={() => setEditingProfile(false)} disabled={profileBusy}>Cancel</button><button onClick={() => void saveProfile()} disabled={profileBusy}>{profileBusy ? "Saving…" : "Save profile"}</button></div>}>
+          <div className="field"><label htmlFor="displayName">Display name</label><input id="displayName" value={displayNameDraft} onChange={(event) => setDisplayNameDraft(event.target.value)} maxLength={60} placeholder="Your creator name" /></div>
+          <div className="field"><label htmlFor="location">Location</label><input id="location" value={locationDraft} onChange={(event) => setLocationDraft(event.target.value)} maxLength={80} placeholder="Brooklyn, NY" /></div>
+          <p className="muted">Only your display name, avatar, city and competition stats appear publicly.</p>
+        </Sheet>
       )}
-
-      <div className="card">
-        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <RallyIcon width={18} height={18} aria-hidden /> Invite friends
-        </h2>
-        <p className="muted">
-          Different from your rally link above — this one&rsquo;s for inviting new people to
-          Perokio itself. You earn $5 the first time someone you invite submits an entry or casts
-          a vote.
-        </p>
-        <p>
-          <code>/r/{user.referralCode}</code>{" "}
-          <button className="secondary" onClick={copyReferralLink}>
-            <ShareIcon width={14} height={14} aria-hidden style={{ verticalAlign: "-2px" }} />{" "}
-            {refCopied ? "Copied!" : "Copy link"}
-          </button>
-        </p>
-        {referralStats && (
-          <p>
-            <strong>{referralStats.totalReferred}</strong> people referred ·{" "}
-            <strong>{formatCents(referralStats.totalRewardedCents)}</strong> earned
-            {referralStats.pendingCount > 0 && (
-              <span className="muted"> · {referralStats.pendingCount} pending</span>
-            )}
-          </p>
-        )}
-      </div>
-
-      <div className="card">
-        <h2 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <WalletIcon width={18} height={18} aria-hidden /> Payouts
-        </h2>
-        {user.stripeConnectAccountId ? (
-          <p>Stripe Connect account linked ✓</p>
-        ) : (
-          <>
-            <p className="muted">
-              Link a Stripe Express account to receive payouts (prize/stipend transfers).
-            </p>
-            <button onClick={startStripeOnboarding} disabled={busy}>
-              Set up payouts
-            </button>
-          </>
-        )}
-        {error && <p className="error">{error}</p>}
-      </div>
     </div>
   );
 }
