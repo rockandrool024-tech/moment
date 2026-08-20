@@ -6,6 +6,7 @@ import { formatCents } from "@/lib/format";
 import { outcomeTone, OUTCOME_COPY } from "@/lib/outcome";
 import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { Avatar } from "@/components/Avatar";
+import { Celebration } from "@/components/Celebration";
 
 async function load(submissionId: string) {
   return api.get<SubmissionWithOutcome>(`/submissions/${submissionId}`);
@@ -57,7 +58,8 @@ export default async function ResultPage({ params }: { params: { submissionId: s
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", position: "relative" }}>
+        {tone === "winner" && <Celebration />}
         <Avatar userId={submission.creatorId} size={56} tier={submission.creatorTier} />
         <h1 style={{ margin: 0 }}>{headline}</h1>
       </div>

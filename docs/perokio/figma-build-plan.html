@@ -1,0 +1,589 @@
+<title>Perokio Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #150609;
+    --surface-2: #220D14;
+    --border: #3A1620;
+    --border-active: #FF0B55;
+    --fg: #FFDEDE;
+    --muted: #B98A94;
+    --muted-2: #6E4A52;
+    --crimson: #CF0F47;
+    --accent: #FF0B55;
+    --accent-gradient: linear-gradient(135deg, #CF0F47 0%, #FF0B55 100%);
+    --accent-ink: #000000;
+    --tier-bronze: #CD7F32;
+    --tier-silver: #94A3B8;
+    --tier-gold: #FBBF24;
+    --tier-platinum: #E2E8F0;
+    --info: #3B82F6;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --display: "Unbounded", "Hanken Grotesk", sans-serif;
+    --sans: "Hanken Grotesk", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", "Geist Mono", "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    line-height: 1.55;
+    padding: clamp(1.5rem, 4vw, 3.5rem) 1.25rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  /* ---------- header ---------- */
+  header.top { margin-bottom: 2.75rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.85rem;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 5vw, 2.75rem);
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    margin: 0 0 0.9rem;
+    text-wrap: balance;
+    max-width: 16ch;
+  }
+  .dek { color: var(--muted); max-width: 62ch; font-size: 1rem; margin: 0; }
+
+  nav.jump {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1.75rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  nav.jump a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.6rem 0.9rem 0.6rem 0;
+    margin-right: 0.9rem;
+  }
+  nav.jump a:hover { color: var(--fg); }
+
+  /* ---------- callout ---------- */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.3rem;
+    margin: 1.75rem 0 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .callout strong { color: var(--fg); }
+  .callout code {
+    font-family: var(--mono);
+    font-size: 0.83em;
+    background: var(--surface-2);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: var(--fg);
+  }
+
+  /* ---------- sections ---------- */
+  section { margin: 4rem 0; scroll-margin-top: 1.5rem; }
+  section > h2 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--fg);
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0 0 0.4rem;
+  }
+  section > h2 .n { color: var(--accent); }
+  .section-note { color: var(--muted); font-size: 0.88rem; max-width: 66ch; margin: 0 0 1.75rem; }
+
+  h3.band {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin: 2.25rem 0 0.3rem;
+    letter-spacing: -0.005em;
+  }
+  .band-note { color: var(--muted-2); font-size: 0.82rem; margin: 0 0 1.1rem; }
+
+  /* ---------- token swatches ---------- */
+  .tok-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+  .tok {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .tok .swatch { height: 52px; }
+  .tok .meta { padding: 0.55rem 0.65rem 0.7rem; }
+  .tok .name { font-family: var(--mono); font-size: 0.72rem; color: var(--fg); display: block; }
+  .tok .hex { font-family: var(--mono); font-size: 0.68rem; color: var(--muted-2); }
+
+  .type-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .type-sample { flex: 1 1 220px; }
+  .type-sample .role { font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; display: block; }
+  .type-sample .face { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .type-sample .stack { font-family: var(--mono); font-size: 0.68rem; color: var(--muted-2); }
+
+  /* ---------- card grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.9rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.2rem 1.2rem;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .card:hover { border-color: var(--border-active); transform: translateY(-2px); }
+  @media (prefers-reduced-motion: reduce) { .card:hover { transform: none; } }
+
+  .route {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-radius: 5px;
+    padding: 0.15rem 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .card h4 {
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+  }
+  .card p.purpose {
+    font-size: 0.83rem;
+    color: var(--muted);
+    margin: 0 0 0.7rem;
+  }
+  .card ul.states {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.32rem;
+  }
+  .card ul.states li {
+    font-size: 0.78rem;
+    color: var(--muted-2);
+    padding-left: 0.95rem;
+    position: relative;
+  }
+  .card ul.states li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted-2);
+  }
+  .card.flag { border-style: dashed; }
+  .card .tag-row { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.75rem; }
+  .card .tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+  }
+  .ref-tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--success);
+    border: 1px solid color-mix(in srgb, var(--success) 40%, var(--border));
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    display: inline-block;
+    margin-top: 0.75rem;
+  }
+  .new-tag {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--warning);
+    border: 1px solid color-mix(in srgb, var(--warning) 40%, var(--border));
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    display: inline-block;
+    margin-top: 0.75rem;
+  }
+
+  /* ---------- file structure ---------- */
+  .filetree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1.75rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    overflow-x: auto;
+  }
+  .filetree .page-name { color: var(--fg); font-weight: 600; }
+  .filetree .page-desc { color: var(--muted-2); }
+  .filetree .indent { padding-left: 1.4rem; display: block; }
+
+  footer.end {
+    margin-top: 4.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted-2);
+    font-size: 0.8rem;
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">Perokio &middot; design ops</p>
+    <h1>Everything left to draw</h1>
+    <p class="dek">
+      The app is fully built in code with no Figma file behind it. This is the complete inventory —
+      every live route and every reusable component — organized so you can build the Figma file in
+      the right order: tokens first, then components, then screens.
+    </p>
+    <nav class="jump">
+      <a href="#notice">Before you start</a>
+      <a href="#tokens">01 Tokens</a>
+      <a href="#components">02 Components</a>
+      <a href="#screens">03 Screens</a>
+      <a href="#file">04 Figma file setup</a>
+    </nav>
+  </header>
+
+  <div class="callout" id="notice">
+    <strong>Two existing files in this folder are from an earlier, superseded direction.</strong>
+    <code>component-library.html</code> and <code>tokens.css</code> document a "sunset gradient"
+    palette (yellow&rarr;orange&rarr;red) that was proposed and then replaced. The app that's
+    actually live today runs the <strong>black / crimson / hot-pink / pale-pink</strong> palette
+    below (verified directly against the current <code>globals.css</code>) — <code>tokens.css</code>'s
+    own header comment confirms this. Reuse that file's <em>structural</em> patterns (card anatomy,
+    button states, the segmented control, the outcome-ticket mechanic) freely — just recolor
+    everything against the tokens in §01, not the sunset values baked into its inline CSS.
+  </div>
+
+  <section id="tokens">
+    <h2><span class="n">01</span> Tokens — set these up as Figma styles/variables first</h2>
+    <p class="section-note">
+      Pulled directly from the live <code style="font-family:var(--mono);color:var(--fg)">apps/web/src/app/globals.css</code>.
+      Everything downstream references these — get them into Figma as color variables before
+      building a single component, so a future palette shift (there's already been one) is a
+      variable swap, not a re-draw.
+    </p>
+
+    <div class="tok-grid">
+      <div class="tok"><div class="swatch" style="background:#000000"></div><div class="meta"><span class="name">bg</span><span class="hex">#000000</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#150609"></div><div class="meta"><span class="name">card-bg</span><span class="hex">#150609</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#220D14"></div><div class="meta"><span class="name">bg-hover</span><span class="hex">#220D14</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#3A1620"></div><div class="meta"><span class="name">border</span><span class="hex">#3A1620</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#FF0B55"></div><div class="meta"><span class="name">accent / border-active</span><span class="hex">#FF0B55</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#CF0F47"></div><div class="meta"><span class="name">accent-gradient start</span><span class="hex">#CF0F47</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#FFDEDE"></div><div class="meta"><span class="name">fg (text)</span><span class="hex">#FFDEDE</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#B98A94"></div><div class="meta"><span class="name">muted</span><span class="hex">#B98A94</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#6E4A52"></div><div class="meta"><span class="name">text-muted</span><span class="hex">#6E4A52</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#CD7F32"></div><div class="meta"><span class="name">tier &middot; bronze</span><span class="hex">#CD7F32</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#94A3B8"></div><div class="meta"><span class="name">tier &middot; silver</span><span class="hex">#94A3B8</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#FBBF24"></div><div class="meta"><span class="name">tier &middot; gold</span><span class="hex">#FBBF24</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#E2E8F0"></div><div class="meta"><span class="name">tier &middot; platinum</span><span class="hex">#E2E8F0</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#3B82F6"></div><div class="meta"><span class="name">info</span><span class="hex">#3B82F6</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#22C55E"></div><div class="meta"><span class="name">success</span><span class="hex">#22C55E</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#F59E0B"></div><div class="meta"><span class="name">warning</span><span class="hex">#F59E0B</span></div></div>
+      <div class="tok"><div class="swatch" style="background:#EF4444"></div><div class="meta"><span class="name">danger / live</span><span class="hex">#EF4444</span></div></div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-sample">
+        <span class="role">Typeface — already live</span>
+        <div class="face" style="font-family:'Hanken Grotesk',sans-serif;font-weight:700">Geist</div>
+        <span class="stack">globals.css:72 — "Geist","Inter",-apple-system…</span>
+      </div>
+      <div class="type-sample">
+        <span class="role">Radii</span>
+        <div class="face">sm 10 &middot; md 14 &middot; lg 20</div>
+        <span class="stack">--radius-sm/md/lg</span>
+      </div>
+      <div class="type-sample">
+        <span class="role">Tone</span>
+        <div class="face">black, crimson, hot-pink, pale-pink</div>
+        <span class="stack">"neon space" — dark app-wide, no light mode</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="components">
+    <h2><span class="n">02</span> Components — 21 in code today</h2>
+    <p class="section-note">
+      <span class="ref-tag">has a reference pattern</span> means <code>component-library.html</code>
+      already mocked this shape (recolor only). <span class="new-tag">no mockup yet</span> means
+      build it from scratch against the live component's actual props/states.
+    </p>
+
+    <h3 class="band">App shell &amp; navigation</h3>
+    <p class="band-note">All rendered globally from <code style="font-family:var(--mono)">layout.tsx</code> — design once, applies everywhere.</p>
+    <div class="grid">
+      <div class="card">
+        <h4>Sidebar</h4>
+        <p class="purpose">Desktop vertical nav (&ge;768px) — wordmark, links, unread badge, user footer with log out.</p>
+        <ul class="states"><li>Each link's active state</li><li>Notification badge (1&ndash;9, "9+")</li><li>Logged out footer</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>BottomNav</h4>
+        <p class="purpose">Mobile fixed tab bar (&lt;768px) — Challenges / Map / Discover / Wallet / Me, icon + label.</p>
+        <ul class="states"><li>Active tab state</li><li>Logged-out "Log in" tab swap</li><li>Safe-area bottom inset</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>NavBar</h4>
+        <p class="purpose">Mobile top bar — wordmark, Feed link, notification bell with unread badge.</p>
+        <ul class="states"><li>Unread badge on/off</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>PwaInstallPrompt</h4>
+        <p class="purpose">"Add to Home Screen" banner, shown after a second visit.</p>
+        <ul class="states"><li>Default</li><li>Dismissed (doesn't return)</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>PageTransition</h4>
+        <p class="purpose">Route-change wrapper that replays an entrance animation — motion spec, not a static frame.</p>
+        <ul class="states"><li>Enter animation timing/easing only</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+    </div>
+
+    <h3 class="band">Surfaces &amp; feedback</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>Sheet</h4>
+        <p class="purpose">Generic bottom-sheet modal shell — title, close button, rise-in animation.</p>
+        <ul class="states"><li>Open/closing transition</li><li>Backdrop</li></ul>
+        <span class="ref-tag">has a reference pattern</span>
+      </div>
+      <div class="card">
+        <h4>EmptyState</h4>
+        <p class="purpose">Shared "nothing here" pattern — icon, title, body, optional action link.</p>
+        <ul class="states"><li>With action link</li><li>Without</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>Loading</h4>
+        <p class="purpose">Shared fill-sweep loading indicator with a label.</p>
+        <ul class="states"><li>Motion spec + reduced-motion fallback</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card flag">
+        <h4>Celebration</h4>
+        <p class="purpose">One-shot particle-burst "you won" effect &mdash; built, but not wired into any page yet.</p>
+        <ul class="states"><li>Design as a bonus win-moment, not a blocker</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>StatCard</h4>
+        <p class="purpose">Single-big-number card — label, value, icon, good/warn/bad tone.</p>
+        <ul class="states"><li>Good</li><li>Warn</li><li>Bad (neutral tone too)</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>CountUp</h4>
+        <p class="purpose">Animated number count-up used inside StatCard and Stories stats.</p>
+        <ul class="states"><li>Motion spec only, reduced-motion aware</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+    </div>
+
+    <h3 class="band">Forms &amp; inputs</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>StripeFundForm</h4>
+        <p class="purpose">Stripe Elements wrapper confirming a PaymentIntent for challenge escrow.</p>
+        <ul class="states"><li>Idle</li><li>Submitting</li><li>Error banner</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>RatingForm + StarRating</h4>
+        <p class="purpose">Post-resolution finalist star rating; StarRating is the input/display primitive underneath.</p>
+        <ul class="states"><li>Unrated</li><li>Selecting (hover/tap)</li><li>Already-rated (read-only)</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>SegmentedControl</h4>
+        <p class="purpose">Generic radio-based tab switcher — used on Discovery's creators/brands toggle.</p>
+        <ul class="states"><li>Selected/unselected</li><li>Focus ring</li></ul>
+        <span class="ref-tag">has a reference pattern</span>
+      </div>
+      <div class="card">
+        <h4>PushOptIn</h4>
+        <p class="purpose">Web Push subscribe/unsubscribe control on Notifications.</p>
+        <ul class="states"><li>Not subscribed</li><li>Subscribed</li><li>iOS-not-installed messaging</li><li>Busy/error</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+    </div>
+
+    <h3 class="band">Identity &amp; trust</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>Avatar</h4>
+        <p class="purpose">User avatar image with an optional pulsing tier-colored ring.</p>
+        <ul class="states"><li>No ring</li><li>Ring &times; 4 tiers</li><li>Regenerating (busy)</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>TrustStatsMini</h4>
+        <p class="purpose">Shareable public trust-stat grid — wins/finals-rate/brand-score for creators, cold-start variant for brands.</p>
+        <ul class="states"><li>Creator variant</li><li>Brand variant</li><li>Brand cold-start (no history yet)</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>JourneyStepper</h4>
+        <p class="purpose">Six-milestone progress list on /me — done/current/locked node states.</p>
+        <ul class="states"><li>Done</li><li>Current</li><li>Locked</li></ul>
+        <span class="new-tag">no mockup yet</span>
+      </div>
+      <div class="card">
+        <h4>Icon set</h4>
+        <p class="purpose">15 inline icons: flame, tier crown, vote check, rally, wallet, pin, verified, play, compass, bell, share, film, mute, unmute, coin.</p>
+        <ul class="states"><li>One consistent stroke weight/grid across all 15</li></ul>
+        <span class="ref-tag">has a reference pattern</span>
+      </div>
+    </div>
+
+    <h3 class="band">Competition-specific</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>VoteDeck</h4>
+        <p class="purpose">Pairwise A/B blind-vote deck for a round — the core interaction of the whole app.</p>
+        <ul class="states"><li>Min-view gate (buttons disabled ~3s)</li><li>Answered count</li><li>Deck exhausted</li><li>Error</li></ul>
+        <span class="new-tag">no mockup yet — highest priority in §02</span>
+      </div>
+      <div class="card flag">
+        <h4>RallyCapture</h4>
+        <p class="purpose">Invisible effect-only component that persists a referral code on mount. Renders nothing.</p>
+        <ul class="states"><li>No UI — skip in Figma</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <h2><span class="n">03</span> Screens — 22 routes, in build order</h2>
+    <p class="section-note">
+      Grouped by how central each screen is to the app actually working, not alphabetically —
+      build P0 first so there's a demoable core loop, then P1, then P2.
+    </p>
+
+    <h3 class="band">P0 &middot; Core loop</h3>
+    <p class="band-note">Sign up &rarr; fund or submit &rarr; vote &rarr; see the result. If this isn't real, nothing else matters yet.</p>
+    <div class="grid">
+      <div class="card"><span class="route">/</span><h4>Landing</h4><p class="purpose">Logged-out marketing splash; logged-in users bounce straight to /challenges.</p><ul class="states"><li>Logged out</li><li>Redirect flash (brief)</li></ul></div>
+      <div class="card"><span class="route">/login</span><h4>Sign in</h4><p class="purpose">Two-step phone OTP: request code, then verify.</p><ul class="states"><li>Phone entry</li><li>Code entry</li><li>Role picker (creator/seller/both)</li><li>Error banner</li></ul></div>
+      <div class="card"><span class="route">/challenges</span><h4>Challenge list</h4><p class="purpose">The authenticated home screen — every challenge, status-colored.</p><ul class="states"><li>Live / resolved / draft / cancelled edge colors</li><li>Loading</li><li>Empty (no live challenges)</li></ul></div>
+      <div class="card"><span class="route">/challenges/new</span><h4>Create challenge</h4><p class="purpose">Seller brief form — title, brief, prize pool, duration, hashtag rules.</p><ul class="states"><li>Default</li><li>Submitting</li><li>Error banner</li></ul></div>
+      <div class="card"><span class="route">/challenges/[id]</span><h4>Challenge hub</h4><p class="purpose">The busiest screen: funding, rounds, KYB, and post-resolution rating.</p><ul class="states"><li>Unfunded (Stripe form)</li><li>Funding confirm</li><li>Active rounds</li><li>Resolved + rating cards</li><li>Owner vs. viewer</li></ul></div>
+      <div class="card"><span class="route">/challenges/[id]/submit</span><h4>Submit entry</h4><p class="purpose">Creator's teaser/full-content submission with a video dropzone.</p><ul class="states"><li>Idle</li><li>Dragging</li><li>Uploading/processing</li><li>Ready</li><li>Auto-eliminated error</li></ul></div>
+      <div class="card"><span class="route">/rounds/[id]</span><h4>Vote round</h4><p class="purpose">Hosts VoteDeck plus post-vote share CTA and the round-3 seller override.</p><ul class="states"><li>Voting</li><li>Deck exhausted &rarr; share CTA</li><li>Seller override widget</li></ul></div>
+      <div class="card"><span class="route">/battle/[challengeId]</span><h4>Spectator / share page</h4><p class="purpose">Public, no-login page for the viral share link — live tally, blind until reveal.</p><ul class="states"><li>Voting open (blind)</li><li>Tally revealed</li><li>No active round</li></ul></div>
+      <div class="card"><span class="route">/results/[submissionId]</span><h4>Result / outcome card</h4><p class="purpose">Server-rendered share card for one submission's outcome — also the OG-image source.</p><ul class="states"><li>Won</li><li>Lost</li><li>Advanced</li><li>Pending</li><li>Mobile tap-to-reveal (see note below)</li></ul>
+        <div class="callout" style="margin-top:0.85rem;padding:0.7rem 0.9rem;font-size:0.76rem;">
+          <code>component-library.html</code> §08 already mocked this as an "outcome ticket" with a
+          hover-to-reveal mechanic — but it's server-rendered for OG unfurls, so touch devices never
+          fire <code>:hover</code>. Design a tap-to-reveal state explicitly, don't leave it hover-only.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="band">P1 &middot; Growth &amp; account</h3>
+    <p class="band-note">Why people come back, and where they manage themselves.</p>
+    <div class="grid">
+      <div class="card"><span class="route">/discovery</span><h4>Discover</h4><p class="purpose">No-auth browse of top creators / active brands.</p><ul class="states"><li>Creators tab</li><li>Brands tab</li><li>Location filter applied</li><li>Empty</li></ul></div>
+      <div class="card"><span class="route">/map</span><h4>Live map</h4><p class="purpose">Stylized 3D scene of creators/challenges as colored pins &mdash; not real geolocation.</p><ul class="states"><li>Pin by tier / challenge / "you"</li><li>Rank badge</li><li>Pin detail sheet</li></ul></div>
+      <div class="card"><span class="route">/feed</span><h4>Watch feed</h4><p class="purpose">Vertical swipe feed of ready-to-play submissions, TikTok-style.</p><ul class="states"><li>Autoplay-in-view</li><li>Muted/unmuted</li><li>Share (copied toast)</li><li>Empty</li></ul></div>
+      <div class="card"><span class="route">/stories</span><h4>Stories dashboard</h4><p class="purpose">Free/open-brief flow, separate from paid Challenges &mdash; stats + lifecycle stepper.</p><ul class="states"><li>Stage badges (submitted&rarr;claimed&rarr;content&rarr;posted)</li></ul></div>
+      <div class="card"><span class="route">/stories/new</span><h4>Create story</h4><p class="purpose">Open-brief creation form.</p><ul class="states"><li>Default</li><li>Error banner</li></ul></div>
+      <div class="card"><span class="route">/stories/[id]</span><h4>Story detail</h4><p class="purpose">Claim + content-submission flow with an external-post view/like tracker.</p><ul class="states"><li>Unclaimed</li><li>Claimed, adding content</li><li>External post rows</li></ul></div>
+      <div class="card"><span class="route">/me</span><h4>Profile</h4><p class="purpose">Own-profile hub — avatar, stats, rally tools, journey, editable fields.</p><ul class="states"><li>View mode</li><li>Editing (name/location)</li><li>Avatar regenerating</li></ul></div>
+      <div class="card"><span class="route">/notifications</span><h4>Notifications</h4><p class="purpose">Inbox with push opt-in above the list.</p><ul class="states"><li>Unread (edged)</li><li>Read</li><li>Empty</li><li>Push opt-in variants</li></ul></div>
+      <div class="card"><span class="route">/wallet</span><h4>Wallet</h4><p class="purpose">Real-money earnings/payouts plus a separate cosmetic coins purchase widget.</p><ul class="states"><li>Balance stats</li><li>Coin package picker</li><li>Checkout redirect / success / cancelled</li></ul></div>
+    </div>
+
+    <h3 class="band">P2 &middot; Owner tools &amp; back office</h3>
+    <p class="band-note">Not on the main nav — internal or single-role screens.</p>
+    <div class="grid">
+      <div class="card"><span class="route">/challenges/[id]/analytics</span><h4>Challenge analytics</h4><p class="purpose">Owner-only funnel: views/votes per round.</p><ul class="states"><li>Authorized</li><li>403</li><li>Loading</li></ul></div>
+      <div class="card"><span class="route">/challenges/[id]/invite</span><h4>Invite creators</h4><p class="purpose">Owner-only tool to invite discovery creators to a challenge.</p><ul class="states"><li>Default list</li><li>Invited (per-row)</li><li>Busy</li></ul></div>
+      <div class="card"><span class="route">/admin</span><h4>Admin console</h4><p class="purpose">Internal tabbed god-view: challenges, stuck rounds, KYB queue, disputes, growth.</p><ul class="states"><li>Per-tab tables</li><li>403 fallback</li></ul></div>
+      <div class="card flag"><span class="route">/v/[code]</span><h4>Rally redirect</h4><p class="purpose">Server-only redirect to a creator's live battle. No UI of its own.</p><ul class="states"><li>Skip in Figma</li></ul></div>
+      <div class="card flag"><span class="route">/r/[code]</span><h4>Referral redirect</h4><p class="purpose">Server-only redirect to /login?ref=. No UI of its own.</p><ul class="states"><li>Skip in Figma</li></ul></div>
+    </div>
+  </section>
+
+  <section id="file">
+    <h2><span class="n">04</span> Figma file setup</h2>
+    <p class="section-note">One suggested structure — matches the priority bands above so the page list in Figma reads as a build order, not an alphabetical dump.</p>
+    <div class="filetree">
+      <span class="page-name">📄 Cover</span>
+      <span class="page-name">📄 00 — Foundations</span><span class="indent page-desc">color variables, type styles, radii, icon set — build §01 here first</span>
+      <span class="page-name">📄 01 — Components</span><span class="indent page-desc">one frame per component in §02, each with every state as a variant</span>
+      <span class="page-name">📄 02 — P0 Core Loop</span><span class="indent page-desc">the 9 screens people need to complete one full round</span>
+      <span class="page-name">📄 03 — P1 Growth &amp; Account</span><span class="indent page-desc">the 9 screens that bring people back</span>
+      <span class="page-name">📄 04 — P2 Back Office</span><span class="indent page-desc">the 3 owner/admin screens (redirects need no frame)</span>
+    </div>
+  </section>
+
+  <footer class="end">
+    Inventory taken directly from the live codebase (<code style="font-family:var(--mono)">apps/web/src/app</code> and
+    <code style="font-family:var(--mono)">src/components</code>) — 22 routes, 21 components, cross-checked against
+    <code style="font-family:var(--mono)">docs/perokio/tokens.css</code>'s current definition. Re-run this check if new
+    routes or components ship before the Figma file catches up.
+  </footer>
+
+</div>

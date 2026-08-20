@@ -231,8 +231,15 @@ button:hover:not(:disabled),
 .btn:hover {
   filter: brightness(1.12);
 }
+/* Tactile press feedback — every button in the app gets this for free since
+   it's on the shared button/.btn rule, not a per-page addition. */
+button:active:not(:disabled),
+.btn:active {
+  transform: scale(0.96);
+}
 @media (prefers-reduced-motion: reduce) {
   button, .btn { transition: filter 0.15s ease; }
+  button:active:not(:disabled), .btn:active { transform: none; }
 }
 
 button:disabled {

@@ -147,11 +147,15 @@ async function main() {
     });
 
     // A couple of real notification rows so /notifications has content.
+    // Same shape NotificationsProcessor actually writes (data.payoutType
+    // included) — the icon on /notifications is keyed off that field, not
+    // the title text, so seed data needs to match or it falls back to a
+    // generic icon instead of the real payout-type one.
     await prisma.notification.createMany({
       data: [
-        { userId: ava.id, type: "payout", title: "🎉 You won: $500.00", body: `${challengeA.title} — $500.00 is on its way to your linked Stripe account.`, data: { challengeId: challengeA.id } },
-        { userId: ava.id, type: "round_result", title: "🏆 Round 3 revealed", body: `Results are in for "${challengeA.title}" — round 3.`, data: { challengeId: challengeA.id } },
-        { userId: marcus.id, type: "payout", title: "❤️ Crowd favourite bonus: " + `$${(breakdownA.crowdFavourite / 100).toFixed(2)}`, body: `${challengeA.title} — crowd favourite bonus is on its way.`, data: { challengeId: challengeA.id } },
+        { userId: ava.id, type: "payout", title: "You won: $500.00", body: `${challengeA.title} — $500.00 is on its way to your linked Stripe account.`, data: { challengeId: challengeA.id, payoutType: "winner" } },
+        { userId: ava.id, type: "round_result", title: "Round 3 revealed", body: `Results are in for "${challengeA.title}" — round 3.`, data: { challengeId: challengeA.id } },
+        { userId: marcus.id, type: "payout", title: "Crowd favourite bonus: " + `$${(breakdownA.crowdFavourite / 100).toFixed(2)}`, body: `${challengeA.title} — crowd favourite bonus is on its way.`, data: { challengeId: challengeA.id, payoutType: "crowd_favourite" } },
       ],
     });
 

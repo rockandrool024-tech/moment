@@ -13,12 +13,16 @@ function formatCents(cents: number): string {
   return (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
 }
 
-const PAYOUT_COPY: Record<string, { emoji: string; label: string }> = {
-  winner: { emoji: "🎉", label: "You won" },
-  stipend: { emoji: "💰", label: "Stipend paid" },
-  survivor_bonus: { emoji: "🎁", label: "Survivor bonus" },
-  crowd_favourite: { emoji: "❤️", label: "Crowd favourite bonus" },
-  referral_bonus: { emoji: "🤝", label: "Referral bonus" },
+// Plain text — no emoji. The client renders a real icon keyed off the
+// Notification.type / data.payoutType fields instead (see
+// apps/web/src/app/notifications/page.tsx), same icon-rollout posture as
+// the rest of the app (replaced emoji/text across nav/streak/KYB/wallet).
+const PAYOUT_COPY: Record<string, { label: string }> = {
+  winner: { label: "You won" },
+  stipend: { label: "Stipend paid" },
+  survivor_bonus: { label: "Survivor bonus" },
+  crowd_favourite: { label: "Crowd favourite bonus" },
+  referral_bonus: { label: "Referral bonus" },
 };
 
 // Writes the real Notification row an inbox reads from (GET /notifications),
@@ -80,11 +84,11 @@ export class NotificationsProcessor extends WorkerHost {
     });
     if (!payout) return;
 
-    const copy = PAYOUT_COPY[payout.type] ?? { emoji: "💵", label: "Payout" };
+    const copy = PAYOUT_COPY[payout.type] ?? { label: "Payout" };
     const n = await this.notifications.record(
       userId,
       "payout",
-      `${copy.emoji} ${copy.label}: ${formatCents(payout.amount)}`,
+      `${copy.label}: ${formatCents(payout.amount)}`,
       `${payout.challenge.title} — ${formatCents(payout.amount)} is on its way to your linked Stripe account.`,
       { payoutId, amount: payout.amount, payoutType: payout.type },
     );
@@ -101,7 +105,7 @@ export class NotificationsProcessor extends WorkerHost {
     const n = await this.notifications.record(
       userId,
       "round_result",
-      `🏆 Round ${round.roundNumber} revealed`,
+      `Round ${round.roundNumber} revealed`,
       `Results are in for "${round.challenge.title}" — round ${round.roundNumber}.`,
       { roundId, challengeId: round.challengeId },
     );
@@ -118,7 +122,7 @@ export class NotificationsProcessor extends WorkerHost {
     const n = await this.notifications.record(
       userId,
       "challenge_invite",
-      "📣 You're invited to a challenge",
+      "You're invited to a challenge",
       `A brand invited you to compete in "${challenge.title}".`,
       { challengeId },
     );
