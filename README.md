@@ -4,8 +4,12 @@
 model was added as an additive generalization of `Challenge` — see `TODO.md` — without reopening
 any of them, including the explicitly rejected CPM/off-platform-distribution mechanics.)*
 
-**Status: v1 LOCKED — 5 August 2026**
-Scope below is frozen. Changes require a new ADR, not an edit to an existing one.
+**Status: v1 core LOCKED — 5 August 2026 · v2 additive layer shipping**
+The v1 scope below (funnel, economics, growth loops, decisions table) is still frozen — changes
+there require a new ADR, not an edit to an existing one. "v2" is not a rewrite of that: it's the
+`Story`/live-map/video-feed/cosmetic-currency layer described in **The v2 additive layer** below,
+built on top of the locked core without reopening it. See `docs/ADR-006` for the one place a v2
+proposal actually conflicted with a locked decision, and what happened to that conflict.
 
 ---
 
@@ -63,6 +67,30 @@ If you only read two things: the prototype and ADR-005.
 - **Rally score** — votes from a creator's own attributed link. Earns XP and the crowd-favourite bonus. Never the prize.
 
 Attribution taint is scoped **per creator**, not globally: a voter recruited by `@x` can never cast quality votes where `@x` competes, and is a valid quality voter everywhere else immediately. A global taint would starve the judging pool as the growth loop succeeded.
+
+---
+
+## The v2 additive layer
+
+Everything here is real, shipped, and additive — none of it touches the funnel, the economics table
+above, or anything else in **Decisions locked**. Reviewed against those locks item by item in
+`docs/ADR-006`.
+
+- **Stories** (`Story`/`StoryClaim`/`Content`/`ExternalPost`) — generalizes `Challenge` to a free or
+  paid brief that doesn't need the escrow/round machinery. A funded, competitive brief is still a
+  `Story` with `mode: CHALLENGE`, linked to a real `Challenge` row — nothing about the funnel above
+  changed underneath it.
+- **Live map** (`/map`) — Mapbox Standard (night preset), teardrop pins with real wins/active-challenge
+  count badges, camera auto-orbits to the viewer's own pin on load. Positions are a deterministic hash
+  of each id, never a real coordinate — no GPS/geolocation permission flow exists anywhere in the app.
+- **Video feed** (`/feed`) — TikTok-style scrollable feed of real, ready-to-play challenge submissions
+  (`Submission.playbackId`, captured from the Mux webhook). Empty when nothing's ready to play; never a
+  placeholder pretending otherwise.
+- **Cosmetic currency** (`CoinPurchase`, Coinbase Commerce) — crypto-purchased coins, structurally
+  separate from `Payout` and never read by any scoring/vote/entry/payout code path. This is the one
+  place a v2 proposal (a crypto currency with a path to affecting outcomes) directly conflicted with
+  the "explicitly rejected" list below — resolved by scoping it to cosmetics only, not by reopening
+  the rejection.
 
 ---
 
