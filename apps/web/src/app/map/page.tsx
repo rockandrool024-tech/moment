@@ -19,6 +19,7 @@ import styles from "./map.module.css";
 // so per-viewer personalization can't live in its response.
 type ViewerPin = MapPin & { isSelf?: boolean };
 type MapIntent = "explore" | "creators" | "challenges" | "live";
+type LocationState = "unknown" | "requesting" | "granted" | "denied";
 
 const MAP_INTENTS: { key: MapIntent; label: string; description: string }[] = [
   { key: "explore", label: "Explore", description: "All public momentum" },
@@ -118,6 +119,9 @@ function MapPageInner() {
   // Fires the "welcome" orbit-to-self exactly once per visit, and never if
   // a `?pin=` deep link already claimed the initial selection.
   const autoOrbitedRef = useRef(false);
+  const sessionLocationRef = useRef<[number, number] | null>(null);
+  const [locationState, setLocationState] = useState<LocationState>("unknown");
+  const [locationNote, setLocationNote] = useState<string | null>(null);
 
   // Merge the viewer's own account into the anonymous, shared-cached pin
   // list — either flagging their existing pin (if they're already a top
@@ -274,9 +278,36 @@ function MapPageInner() {
     setSelected(selfPin);
   }, [mapReady, pins, preselectId]);
 
+  function requestLocation() {
+    if (locationState === "requesting") return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocationState("denied");
+      setLocationNote("Location is not available in this browser. You can still explore public momentum by zone.");
+      return;
+    }
+    setLocationState("requesting");
+    setLocationNote("Finding your approximate position for this visit…");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const center: [number, number] = [position.coords.longitude, position.coords.latitude];
+        sessionLocationRef.current = center;
+        setLocationState("granted");
+        setLocationNote("Location is used for this visit only. Your precise position is never published as a pin.");
+        mapRef.current?.easeTo({ center, zoom: 11.8, pitch: 45, bearing: -12, duration: 900 });
+      },
+      (error) => {
+        setLocationState("denied");
+        setLocationNote(error.code === 1 ? "Location permission is off. You can still explore public momentum by zone." : "We couldn’t find your position. You can still explore public momentum by zone.");
+      },
+      { enableHighAccuracy: false, maximumAge: 300_000, timeout: 10_000 },
+    );
+  }
+
   function recenter() {
     setSelected(null);
-    mapRef.current?.easeTo({ center: CENTER, zoom: 14.6, pitch: 58, bearing: -17, duration: 500 });
+    const center = sessionLocationRef.current ?? CENTER;
+    const hasSessionLocation = sessionLocationRef.current !== null;
+    mapRef.current?.easeTo({ center, zoom: hasSessionLocation ? 11.8 : 14.6, pitch: hasSessionLocation ? 45 : 58, bearing: -17, duration: 500 });
   }
 
   return (
@@ -289,10 +320,18 @@ function MapPageInner() {
             not surveillance.
           </p>
         </div>
-        <button type="button" className={styles.compass} onClick={recenter} aria-label="Re-center the map">
-          <CompassIcon width={18} height={18} />
-        </button>
+        <div className={styles.mapActions}>
+          <button type="button" className={styles.locationButton} onClick={requestLocation} disabled={locationState === "requesting"} aria-label="Use my location for this visit">
+            <PinIcon width={17} height={17} />
+            {locationState === "requesting" ? "Finding you…" : locationState === "granted" ? "Location on" : "Use my location"}
+          </button>
+          <button type="button" className={styles.compass} onClick={recenter} aria-label="Re-center the map">
+            <CompassIcon width={18} height={18} />
+          </button>
+        </div>
       </div>
+
+      {locationNote && <p className={`${styles.locationNote} ${locationState === "denied" ? styles.locationNoteDenied : ""}`} role="status">{locationNote}</p>}
 
       <div className={styles.intentRail} role="tablist" aria-label="Map discovery layers">
         {MAP_INTENTS.map((intent) => (

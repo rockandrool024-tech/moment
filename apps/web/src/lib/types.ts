@@ -4,6 +4,12 @@
 
 export type UserRole = "seller" | "creator" | "both";
 
+export interface CharacterProfile {
+  preset: "parrot" | "street" | "studio" | "night";
+  palette: "tropical" | "coral" | "midnight" | "sand";
+  updatedAt: string | null;
+}
+
 export interface User {
   id: string;
   role: UserRole;

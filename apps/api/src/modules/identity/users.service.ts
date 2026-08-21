@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { User, UserRole } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { computeJourney, JourneyMilestone } from "./journey";
+import { CharacterPalette, CharacterPreset } from "./dto/update-character.dto";
 
 @Injectable()
 export class UsersService {
@@ -61,6 +62,30 @@ export class UsersService {
       where: { id: userId },
       data: { avatarGeneratedAt: new Date(), avatarUrl: null },
     });
+  }
+
+  async getCharacter(userId: string): Promise<{ preset: CharacterPreset; palette: CharacterPalette; updatedAt: string | null }> {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { characterPreset: true, characterPalette: true, characterUpdatedAt: true },
+    });
+    return {
+      preset: (user.characterPreset as CharacterPreset | null) ?? "parrot",
+      palette: (user.characterPalette as CharacterPalette | null) ?? "tropical",
+      updatedAt: user.characterUpdatedAt?.toISOString() ?? null,
+    };
+  }
+
+  async updateCharacter(userId: string, data: { preset?: CharacterPreset; palette?: CharacterPalette }): Promise<{ preset: CharacterPreset; palette: CharacterPalette; updatedAt: string | null }> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.preset ? { characterPreset: data.preset } : {}),
+        ...(data.palette ? { characterPalette: data.palette } : {}),
+        characterUpdatedAt: new Date(),
+      },
+    });
+    return this.getCharacter(userId);
   }
 
   async getJourney(userId: string): Promise<JourneyMilestone[]> {

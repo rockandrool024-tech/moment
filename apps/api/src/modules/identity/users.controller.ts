@@ -5,6 +5,7 @@ import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { UsersService } from "./users.service";
 import { JourneyMilestone } from "./journey";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
+import { UpdateCharacterDto } from "./dto/update-character.dto";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard)
@@ -39,5 +40,15 @@ export class UsersController {
   @Patch("me")
   updateProfile(@CurrentUser() user: User, @Body() dto: UpdateProfileDto): Promise<User> {
     return this.users.updateProfile(user.id, dto);
+  }
+
+  @Get("me/character")
+  getCharacter(@CurrentUser() user: User): Promise<{ preset: string; palette: string; updatedAt: string | null }> {
+    return this.users.getCharacter(user.id);
+  }
+
+  @Patch("me/character")
+  updateCharacter(@CurrentUser() user: User, @Body() dto: UpdateCharacterDto): Promise<{ preset: string; palette: string; updatedAt: string | null }> {
+    return this.users.updateCharacter(user.id, dto);
   }
 }

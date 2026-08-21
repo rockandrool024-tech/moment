@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -118,7 +119,8 @@ export default function MePage() {
           </div>
         </div>
         <div className={styles.actions}>
-          <button className="secondary" onClick={() => setEditingProfile(true)}>Edit profile</button>
+          <Link className="secondary" href="/character">Customize character</Link>
+          <button className="ghost" onClick={() => setEditingProfile(true)}>Edit profile</button>
           <button className="ghost" onClick={() => void regenerateAvatar()} disabled={avatarBusy}>{avatarBusy ? "Generating…" : "Refresh avatar"}</button>
         </div>
       </section>

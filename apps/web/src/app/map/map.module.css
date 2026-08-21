@@ -35,6 +35,46 @@
   color: var(--text-muted);
   max-width: 30ch;
 }
+.mapActions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.locationButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.45rem;
+  padding: 0 0.85rem;
+  color: var(--fg);
+  border: 1px solid rgba(200, 255, 46, 0.28);
+  border-radius: 999px;
+  background: rgba(8, 15, 22, 0.78);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.locationButton:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(200, 255, 46, 0.12);
+  transform: translateY(-1px);
+}
+
+.locationButton:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.locationNote {
+  margin: -0.55rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.locationNoteDenied { color: var(--warning, #ffb900); }
+
 .compass {
   width: 40px;
   height: 40px;
@@ -47,6 +87,11 @@
   color: var(--fg);
   flex-shrink: 0;
   transition: transform var(--motion-map) var(--ease-out), background var(--motion-standard) var(--ease-out);
+}
+
+@media (max-width: 720px) {
+  .mapActions { align-items: stretch; flex-direction: column-reverse; }
+  .locationButton { justify-content: center; }
 }
 
 .intentRail {
