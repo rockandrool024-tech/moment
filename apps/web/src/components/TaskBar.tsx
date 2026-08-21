@@ -8,7 +8,7 @@ interface TaskBarProps {
 
 const TASKS = [
   { key: "vote", eyebrow: "Keep your streak", title: "Judge a live round", detail: "One focused vote helps the network find better work.", icon: VoteCheckIcon, tone: "live" },
-  { key: "story", eyebrow: "Build your story record", title: "Discover an open story", detail: "Claim a brief, make it yours and publish when ready.", icon: FilmIcon, tone: "story" },
+  { key: "story", eyebrow: "Build your story record", title: "Start your story", detail: "Claim a brief, make it yours and publish when ready.", icon: FilmIcon, tone: "story" },
   { key: "map", eyebrow: "Find local momentum", title: "Explore the live map", detail: "See public creator and challenge activity by zone.", icon: CompassIcon, tone: "map" },
 ] as const;
 

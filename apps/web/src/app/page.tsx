@@ -16,7 +16,7 @@ export default function HomePage() {
     if (!loading && user) router.replace("/challenges");
   }, [loading, user, router]);
 
-  if (loading || user) {
+  if (user) {
     return <div className={styles.loading}><div className={styles.loadingMark}><BrandMark /></div></div>;
   }
 
@@ -34,10 +34,10 @@ export default function HomePage() {
         <section className={styles.hero}>
           <div className={styles.copy}>
             <div className={styles.kicker}><span className={styles.kickerDot} />Live creative competitions</div>
-            <h1 className={styles.title}>Create. Compete. <span className={styles.titleAccent}>Get paid.</span></h1>
-            <p className={styles.lede}>Real brand briefs, blind voting and cash prizes. Your following can rally behind you, but your work still decides the win.</p>
+            <h1 className={styles.title}>Where stories become <span className={styles.titleAccent}>opportunities.</span></h1>
+            <p className={styles.lede}>Create work people want to watch, share and remember. Build a track record through fair briefs, blind voting and real opportunities.</p>
             <div className={styles.heroActions}>
-              <Link href="/login" className="btn">Start creating</Link>
+              <Link href="/login" className="btn">Start your story</Link>
               <Link href="/feed" className="btn secondary"><FilmIcon width={18} height={18} aria-hidden />Watch live</Link>
             </div>
           </div>

@@ -69,8 +69,8 @@ function LoginForm() {
       <aside className={styles.brandPanel} aria-hidden>
         <Link href="/" className="wordmark" aria-label="Perokio home"><BrandMark /></Link>
         <div className={styles.brandCopy}>
-          <h2>Your work deserves a real stage.</h2>
-          <p>Enter funded briefs, advance through blind voting and turn strong creative work into cash and momentum.</p>
+          <h2>Where stories become opportunities.</h2>
+          <p>Create work people want to watch, share and remember. Build a track record through fair briefs, blind voting and real opportunities.</p>
         </div>
         <div className={styles.brandStat}><strong>$84K</strong><span>paid to creators this month</span></div>
       </aside>
@@ -85,7 +85,7 @@ function LoginForm() {
             </div>
           </div>
 
-          <h1 className={styles.title}>{step === "phone" ? "Start your run." : "Check your phone."}</h1>
+          <h1 className={styles.title}>{step === "phone" ? "Start your story." : "Check your phone."}</h1>
           <p className={styles.subtitle}>{step === "phone" ? "Choose how you’ll use Perokio, then sign in without a password." : `We sent a one-time code to ${phone}.`}</p>
 
           <div className={styles.trust}>
@@ -115,7 +115,7 @@ function LoginForm() {
                 <input id="phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 123 4567" required />
               </div>
               {error && <p className="error" role="alert">{error}</p>}
-              <button type="submit" className="btn-block" disabled={busy}>{busy ? "Sending code…" : "Continue"}</button>
+              <button type="submit" className="btn-block" disabled={busy}>{busy ? "Sending code…" : "Start your story"}</button>
             </form>
           ) : (
             <form onSubmit={verifyOtp}>
