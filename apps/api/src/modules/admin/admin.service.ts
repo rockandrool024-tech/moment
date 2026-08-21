@@ -3,15 +3,21 @@ import { Challenge, Dispute, Submission, User } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { RoundStateMachineService } from "../rounds/round-state-machine.service";
 
+export interface RetentionCohort {
+  cohortSize: number;
+  d1: number | null;
+  d7: number | null;
+  d30: number | null;
+}
+
 export interface GrowthDashboard {
   voteDeckCompletionRate: number;
   avgEntriesPerCampaign: number;
   brandRepeatRate: number;
   avgTimeToFirstPayoutHours: number | null;
   rallyKProxy: number;
-  // Explicitly not computed — would need a signup-cohort table this schema
-  // doesn't have. Surfacing that honestly beats a fabricated number.
-  retentionD1D7D30: "needs a cohort table — not tracked yet";
+  viralKFactor: number;
+  retention: RetentionCohort;
 }
 
 @Injectable()
@@ -151,6 +157,12 @@ export class AdminService {
       winnerPayouts,
       rallyAttributionCount,
       creatorsWithSubmissions,
+      users,
+      completedDeckEvents,
+      submissionEvents,
+      voteEvents,
+      predictionEvents,
+      referralTotal,
     ] = await Promise.all([
       this.prisma.deck.count(),
       this.prisma.deck.count({ where: { completedAt: { not: null } } }),
@@ -163,9 +175,41 @@ export class AdminService {
       }),
       this.prisma.rallyAttribution.count(),
       this.prisma.submission.findMany({ distinct: ["creatorId"], select: { creatorId: true } }),
+      this.prisma.user.findMany({ select: { id: true, createdAt: true } }),
+      this.prisma.deck.findMany({ where: { completedAt: { not: null } }, select: { userId: true, completedAt: true } }),
+      this.prisma.submission.findMany({ select: { creatorId: true, createdAt: true } }),
+      this.prisma.vote.findMany({ select: { voterId: true, createdAt: true } }),
+      this.prisma.prediction.findMany({ select: { userId: true, createdAt: true } }),
+      this.prisma.referralReward.count(),
     ]);
 
     const repeatSellers = sellerChallengeCounts.filter((s) => s._count._all > 1).length;
+
+    const activityByUser = new Map<string, Date[]>();
+    const recordActivity = (userId: string, at: Date | null) => {
+      if (!at) return;
+      const existing = activityByUser.get(userId) ?? [];
+      existing.push(at);
+      activityByUser.set(userId, existing);
+    };
+    completedDeckEvents.forEach((event) => recordActivity(event.userId, event.completedAt));
+    submissionEvents.forEach((event) => recordActivity(event.creatorId, event.createdAt));
+    voteEvents.forEach((event) => recordActivity(event.voterId, event.createdAt));
+    predictionEvents.forEach((event) => recordActivity(event.userId, event.createdAt));
+
+    const dayMs = 24 * 60 * 60 * 1000;
+    const retentionAt = (day: number): number | null => {
+      const now = Date.now();
+      const eligible = users.filter((user) => now - user.createdAt.getTime() >= day * dayMs);
+      if (eligible.length === 0) return null;
+      const retained = eligible.filter((user) =>
+        (activityByUser.get(user.id) ?? []).some((activityAt) => {
+          const offset = activityAt.getTime() - user.createdAt.getTime();
+          return offset >= day * dayMs && offset < (day + 1) * dayMs;
+        }),
+      );
+      return retained.length / eligible.length;
+    };
 
     const timeToFirstPayoutSamples = winnerPayouts
       .filter((p) => p.challenge.resolvedAt)
@@ -190,7 +234,15 @@ export class AdminService {
       // recruited anyone, as a directional read on the rally loop's reach.
       rallyKProxy:
         creatorsWithSubmissions.length > 0 ? rallyAttributionCount / creatorsWithSubmissions.length : 0,
-      retentionD1D7D30: "needs a cohort table — not tracked yet",
+      // This is referred signups per registered user. It is a directional
+      // product proxy, not a causal viral coefficient or a forecast.
+      viralKFactor: users.length > 0 ? referralTotal / users.length : 0,
+      retention: {
+        cohortSize: users.length,
+        d1: retentionAt(1),
+        d7: retentionAt(7),
+        d30: retentionAt(30),
+      },
     };
   }
 }

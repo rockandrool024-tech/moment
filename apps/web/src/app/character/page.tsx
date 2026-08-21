@@ -9,6 +9,7 @@ import { Avatar } from "@/components/Avatar";
 import { Notice } from "@/components/Notice";
 import { CardSkeletonList } from "@/components/Skeleton";
 import { CheckIcon, RefreshIcon, UserIcon } from "@/components/icons";
+import { tierLabel } from "@/lib/tier";
 import styles from "./character.module.css";
 
 const PRESETS: Array<{ value: CharacterProfile["preset"]; name: string; description: string }> = [
@@ -18,11 +19,13 @@ const PRESETS: Array<{ value: CharacterProfile["preset"]; name: string; descript
   { value: "night", name: "Night mode", description: "Quiet confidence with a darker edge." },
 ];
 
-const PALETTES: Array<{ value: CharacterProfile["palette"]; name: string; colors: string[] }> = [
-  { value: "tropical", name: "Tropical", colors: ["#c8ff2e", "#00c6c9", "#ffb900"] },
-  { value: "coral", name: "Coral pulse", colors: ["#ff6f61", "#ffb900", "#16213a"] },
-  { value: "midnight", name: "Midnight", colors: ["#16213a", "#6e7dff", "#c8ff2e"] },
-  { value: "sand", name: "Warm sand", colors: ["#f2d2a2", "#e98a63", "#16213a"] },
+const PALETTES: Array<{ value: CharacterProfile["palette"]; name: string; colors: string[]; minTier: number }> = [
+  { value: "tropical", name: "Tropical", colors: ["#c8ff2e", "#00c6c9", "#ffb900"], minTier: 0 },
+  { value: "coral", name: "Coral pulse", colors: ["#ff6f61", "#ffb900", "#16213a"], minTier: 0 },
+  { value: "sand", name: "Warm sand", colors: ["#f2d2a2", "#e98a63", "#16213a"], minTier: 0 },
+  { value: "midnight", name: "Midnight", colors: ["#16213a", "#6e7dff", "#c8ff2e"], minTier: 1 },
+  { value: "sunset", name: "Sunset signal", colors: ["#ff6f61", "#ff8a00", "#5e3bff"], minTier: 2 },
+  { value: "aurora", name: "Aurora", colors: ["#80ffdb", "#6e7dff", "#f0ff58"], minTier: 3 },
 ];
 
 export default function CharacterPage() {
@@ -80,7 +83,7 @@ export default function CharacterPage() {
       {error && <Notice tone="danger" title="Character needs attention">{error}</Notice>}
       {saved && <Notice tone="success" title="Character saved">Your new identity is ready across Perokio.</Notice>}
 
-      <section className={`card ${styles.preview}`} style={{ ["--character-accent" as string]: palette === "coral" ? "#ff6f61" : palette === "midnight" ? "#6e7dff" : palette === "sand" ? "#e98a63" : "#c8ff2e" }}>
+      <section className={`card ${styles.preview}`} style={{ ["--character-accent" as string]: palette === "coral" ? "#ff6f61" : palette === "midnight" ? "#6e7dff" : palette === "sand" ? "#e98a63" : palette === "sunset" ? "#ff8a00" : palette === "aurora" ? "#80ffdb" : "#c8ff2e" }}>
         <div className={styles.previewGlow} />
         <div className={styles.previewIdentity}>
           <div className={styles.avatarFrame}><Avatar userId={user.id} size={128} tier={user.tier} cacheBust={avatarCacheBust} /></div>
@@ -105,13 +108,17 @@ export default function CharacterPage() {
       <section className={styles.section} aria-labelledby="palette-title">
         <div className={styles.sectionHeader}><div><span className="page-eyebrow">02 · Palette</span><h2 id="palette-title">Set your signal</h2></div><span className="muted">Perokio-safe colors only</span></div>
         <div className={styles.paletteGrid}>
-          {PALETTES.map((item) => (
-            <button key={item.value} type="button" className={`${styles.palette} ${palette === item.value ? styles.selected : ""}`} onClick={() => setPalette(item.value)} aria-pressed={palette === item.value}>
-              <span className={styles.swatches}>{item.colors.map((color) => <span key={color} style={{ background: color }} />)}</span>
-              <strong>{item.name}</strong>
-              {palette === item.value && <CheckIcon className={styles.check} width={17} height={17} aria-hidden />}
-            </button>
-          ))}
+          {PALETTES.map((item) => {
+            const unlocked = user.tier >= item.minTier;
+            return (
+              <button key={item.value} type="button" className={`${styles.palette} ${palette === item.value ? styles.selected : ""} ${!unlocked ? styles.locked : ""}`} onClick={() => unlocked && setPalette(item.value)} aria-pressed={palette === item.value} aria-disabled={!unlocked}>
+                <span className={styles.swatches}>{item.colors.map((color) => <span key={color} style={{ background: color }} />)}</span>
+                <strong>{item.name}</strong>
+                {!unlocked && <small>Unlock at {tierLabel(item.minTier)}</small>}
+                {palette === item.value && <CheckIcon className={styles.check} width={17} height={17} aria-hidden />}
+              </button>
+            );
+          })}
         </div>
       </section>
 

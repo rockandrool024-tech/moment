@@ -1,0 +1,57 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.18rem;
+  background: color-mix(in srgb, var(--surface-2) 86%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.button,
+.active {
+  min-width: 2rem;
+  min-height: 1.8rem;
+  padding: 0.2rem 0.45rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+
+.button:hover,
+.button:focus-visible {
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+.button:active,
+.active:active {
+  transform: scale(0.96);
+}
+
+.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+@media (max-width: 520px) {
+  .button,
+  .active {
+    min-width: 1.8rem;
+    min-height: 1.7rem;
+    font-size: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .active {
+    transition: none;
+  }
+}

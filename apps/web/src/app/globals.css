@@ -793,3 +793,27 @@ button.danger,
     transition-duration: 0.01ms !important;
   }
 }
+
+.locale-dock {
+  position: fixed;
+  top: 0.85rem;
+  right: 1rem;
+  z-index: 80;
+}
+
+html[dir="rtl"] .locale-dock {
+  right: auto;
+  left: 1rem;
+}
+
+@media (max-width: 680px) {
+  .locale-dock {
+    top: 0.65rem;
+    right: 0.75rem;
+  }
+
+  html[dir="rtl"] .locale-dock {
+    right: auto;
+    left: 0.75rem;
+  }
+}

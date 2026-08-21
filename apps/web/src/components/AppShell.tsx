@@ -6,6 +6,7 @@ import { NavBar } from "@/components/NavBar";
 import { PageTransition } from "@/components/PageTransition";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { Sidebar } from "@/components/Sidebar";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
 const BARE_ROUTES = new Set(["/", "/login"]);
 const FULL_BLEED_PREFIXES = ["/feed", "/map"];
@@ -33,6 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <div className="locale-dock"><LocaleSwitcher /></div>
       {showChrome && <NavBar />}
       {showChrome && <Sidebar />}
       <main className={mainClassName}>

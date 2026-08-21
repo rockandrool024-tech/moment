@@ -297,7 +297,10 @@ function GrowthTab({ onForbidden }: { onForbidden: () => void }) {
           </strong>
         </p>
         <p>Rally k-proxy: <strong>{dashboard.rallyKProxy.toFixed(2)}</strong></p>
-        <p className="muted">D1/D7/D30 retention: {dashboard.retentionD1D7D30}</p>
+        <p>Referred signup k-proxy: <strong>{dashboard.viralKFactor.toFixed(2)}</strong></p>
+        <p className="muted">Cohort size: {dashboard.retention.cohortSize}</p>
+        <p className="muted">D1 / D7 / D30 retention: <strong>{[dashboard.retention.d1, dashboard.retention.d7, dashboard.retention.d30].map((value) => value === null ? "n/a" : `${(value * 100).toFixed(0)}%`).join(" / ")}</strong></p>
+        <p className="muted">Retention uses users old enough for each window and recorded submissions, completed decks, votes or predictions. K values are directional product proxies, not forecasts.</p>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { PrismaService } from "../../common/prisma/prisma.service";
 import { PayoutEntry, PayoutsService } from "../payments/payouts.service";
 import { computeFundingBreakdown } from "../payments/pricing";
 import { NotificationsService } from "../notifications/notifications.service";
+import { PredictionsService } from "./predictions.service";
 import {
   applyParticipationPenalty,
   computeComposite,
@@ -31,6 +32,7 @@ export class RoundStateMachineService {
     private readonly config: ConfigService,
     private readonly payouts: PayoutsService,
     private readonly notifications: NotificationsService,
+    private readonly predictions: PredictionsService,
   ) {}
 
   async scheduleRoundJobs(round: Round): Promise<void> {
@@ -303,6 +305,7 @@ export class RoundStateMachineService {
     }
 
     if (winner) {
+      await this.predictions.settlePredictions(round.id, winner.id);
       const stipendEach = Math.floor(challenge.stipendPool / finalists.length);
       const breakdown = computeFundingBreakdown(
         challenge.prizePool,

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api-client";
+import { useEffect, useRef, useState } from "react";
+import { api, ApiError, upload } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { JourneyMilestone, RallyStats, ReferralStats, StreakSummary, User } from "@/lib/types";
 import { tierBadgeStyle, tierLabel } from "@/lib/tier";
@@ -22,6 +22,8 @@ export default function MePage() {
   const [busy, setBusy] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
   const [avatarVersion, setAvatarVersion] = useState(0);
+  const [avatarUploadProgress, setAvatarUploadProgress] = useState<number | null>(null);
+  const avatarUploadController = useRef<AbortController | null>(null);
   const [rallyStats, setRallyStats] = useState<RallyStats | null>(null);
   const [streak, setStreak] = useState<StreakSummary | null>(null);
   const [referralStats, setReferralStats] = useState<ReferralStats | null>(null);
@@ -56,6 +58,46 @@ export default function MePage() {
     } finally {
       setAvatarBusy(false);
     }
+  }
+
+  async function uploadProfileImage(file: File) {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Choose a JPEG, PNG or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Profile images must be 5 MB or smaller.");
+      return;
+    }
+
+    const controller = new AbortController();
+    avatarUploadController.current = controller;
+    setAvatarUploadProgress(0);
+    setError(null);
+    try {
+      const updated = await upload<User>(
+        "/users/me/avatar/upload",
+        file,
+        (progress) => setAvatarUploadProgress(progress),
+        controller.signal,
+      );
+      setAvatarVersion(Number(new Date(updated.updatedAt)));
+      await refresh();
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setError("Avatar upload cancelled.");
+      } else {
+        setError(err instanceof ApiError ? err.message : "The profile image could not be uploaded.");
+      }
+    } finally {
+      avatarUploadController.current = null;
+      setAvatarUploadProgress(null);
+    }
+  }
+
+  function cancelAvatarUpload() {
+    avatarUploadController.current?.abort();
   }
 
   async function saveProfile() {
@@ -121,8 +163,29 @@ export default function MePage() {
         <div className={styles.actions}>
           <Link className="secondary" href="/character">Customize character</Link>
           <button className="ghost" onClick={() => setEditingProfile(true)}>Edit profile</button>
-          <button className="ghost" onClick={() => void regenerateAvatar()} disabled={avatarBusy}>{avatarBusy ? "Generating…" : "Refresh avatar"}</button>
+          <label className={`secondary ${styles.uploadControl}`}>
+            Upload photo
+            <input
+              className={styles.fileInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={avatarUploadProgress !== null}
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0];
+                event.currentTarget.value = "";
+                if (file) void uploadProfileImage(file);
+              }}
+            />
+          </label>
+          <button className="ghost" onClick={() => void regenerateAvatar()} disabled={avatarBusy || avatarUploadProgress !== null}>{avatarBusy ? "Generating…" : "Refresh avatar"}</button>
         </div>
+        {avatarUploadProgress !== null && (
+          <div className={styles.uploadStatus} role="status" aria-live="polite">
+            <div className={styles.uploadStatusCopy}><span>Uploading profile image</span><strong>{avatarUploadProgress}%</strong></div>
+            <progress value={avatarUploadProgress} max={100} aria-label="Profile image upload progress" />
+            <button className="ghost" onClick={cancelAvatarUpload}>Cancel</button>
+          </div>
+        )}
       </section>
 
       <section className={styles.stats} aria-label="Creator statistics">

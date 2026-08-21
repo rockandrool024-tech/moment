@@ -12,6 +12,19 @@ export const TIER_SILVER = 1;
 export const TIER_GOLD = 2;
 export const TIER_PLATINUM = 3;
 
+export const CHARACTER_PALETTE_MIN_TIER = {
+  tropical: TIER_BRONZE,
+  coral: TIER_BRONZE,
+  sand: TIER_BRONZE,
+  midnight: TIER_SILVER,
+  sunset: TIER_GOLD,
+  aurora: TIER_PLATINUM,
+} as const;
+
+export function canUseCharacterPalette(tier: number, palette: keyof typeof CHARACTER_PALETTE_MIN_TIER): boolean {
+  return tier >= CHARACTER_PALETTE_MIN_TIER[palette];
+}
+
 const SILVER_EARNINGS_CENTS = 10_000; // $100
 const GOLD_EARNINGS_CENTS = 100_000; // $1,000
 const PLATINUM_EARNINGS_CENTS = 500_000; // $5,000

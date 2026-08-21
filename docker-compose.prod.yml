@@ -37,8 +37,11 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-moment}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-moment}?schema=public
       REDIS_URL: redis://redis:6379
+      AVATAR_UPLOAD_DIR: /var/lib/moment/avatars
       CORS_ORIGIN: https://${DOMAIN}
       APP_URL: https://${DOMAIN}
+    volumes:
+      - moment_avatar_data:/var/lib/moment/avatars
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,5 +91,6 @@ services:
 volumes:
   moment_postgres_data:
   moment_redis_data:
+  moment_avatar_data:
   moment_caddy_data:
   moment_caddy_config:

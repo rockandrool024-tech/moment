@@ -1,6 +1,15 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { User, UserRole } from "@prisma/client";
 import { PrismaService } from "../../common/prisma/prisma.service";
+import {
+  createAvatarFileKey,
+  detectAvatarFormat,
+  MAX_AVATAR_BYTES,
+  resolveAvatarFilePath,
+} from "./avatar-upload";
+import { canUseCharacterPalette } from "../payments/tier";
 import { computeJourney, JourneyMilestone } from "./journey";
 import { CharacterPalette, CharacterPreset } from "./dto/update-character.dto";
 
@@ -60,8 +69,53 @@ export class UsersService {
   generateAvatar(userId: string): Promise<User> {
     return this.prisma.user.update({
       where: { id: userId },
-      data: { avatarGeneratedAt: new Date(), avatarUrl: null },
+      data: { avatarGeneratedAt: new Date(), avatarUrl: null, avatarFileKey: null },
     });
+  }
+
+  async uploadAvatar(userId: string, file: { buffer: Buffer; size: number } | undefined): Promise<User> {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException("A profile image is required");
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      throw new BadRequestException("Profile images must be 5 MB or smaller");
+    }
+
+    const format = detectAvatarFormat(file.buffer);
+    if (!format) {
+      throw new BadRequestException("Only JPEG, PNG or WebP profile images are supported");
+    }
+
+    const previous = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { avatarFileKey: true },
+    });
+    const fileKey = createAvatarFileKey(userId, format);
+    const destination = resolveAvatarFilePath(fileKey);
+    const temporary = `${destination}.uploading`;
+
+    await mkdir(dirname(destination), { recursive: true });
+    await writeFile(temporary, file.buffer, { flag: "wx", mode: 0o600 });
+    await rename(temporary, destination);
+
+    try {
+      const updated = await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          avatarFileKey: fileKey,
+          avatarUrl: null,
+          avatarGeneratedAt: new Date(),
+        },
+      });
+
+      if (previous.avatarFileKey && previous.avatarFileKey !== fileKey) {
+        await unlink(resolveAvatarFilePath(previous.avatarFileKey)).catch(() => undefined);
+      }
+      return updated;
+    } catch (error) {
+      await unlink(destination).catch(() => undefined);
+      throw error;
+    }
   }
 
   async getCharacter(userId: string): Promise<{ preset: CharacterPreset; palette: CharacterPalette; updatedAt: string | null }> {
@@ -77,6 +131,13 @@ export class UsersService {
   }
 
   async updateCharacter(userId: string, data: { preset?: CharacterPreset; palette?: CharacterPalette }): Promise<{ preset: CharacterPreset; palette: CharacterPalette; updatedAt: string | null }> {
+    if (data.palette) {
+      const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { tier: true } });
+      if (!canUseCharacterPalette(user.tier, data.palette)) {
+        throw new BadRequestException("This palette unlocks at a higher creator tier");
+      }
+    }
+
     await this.prisma.user.update({
       where: { id: userId },
       data: {

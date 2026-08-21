@@ -269,3 +269,20 @@
   .presetGrid,
   .paletteGrid { grid-template-columns: 1fr; }
 }
+
+.locked {
+  opacity: 0.58;
+  filter: saturate(0.55);
+}
+
+.locked:hover {
+  transform: none;
+  border-color: var(--line);
+  background: var(--surface-1);
+}
+
+.locked small {
+  display: block;
+  color: var(--text-2);
+  font-size: 0.65rem;
+}

@@ -57,6 +57,7 @@ model User {
   // deterministic placeholder from avatarGeneratedAt so "Generate avatar"
   // still does something real and swaps cleanly later (see avatar.service.ts).
   avatarUrl         String?   @map("avatar_url")
+  avatarFileKey     String?   @map("avatar_file_key")
   avatarGeneratedAt DateTime? @map("avatar_generated_at")
   characterPreset   String?   @map("character_preset")
   characterPalette  String?   @map("character_palette")

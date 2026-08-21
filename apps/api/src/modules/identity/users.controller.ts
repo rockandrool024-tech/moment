@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { User } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
@@ -30,6 +31,15 @@ export class UsersController {
   @Post("me/avatar/generate")
   generateAvatar(@CurrentUser() user: User): Promise<User> {
     return this.users.generateAvatar(user.id);
+  }
+
+  @Post("me/avatar/upload")
+  @UseInterceptors(FileInterceptor("file", { limits: { fileSize: 5 * 1024 * 1024 } }))
+  uploadAvatar(
+    @CurrentUser() user: User,
+    @UploadedFile() file: { buffer: Buffer; size: number } | undefined,
+  ): Promise<User> {
+    return this.users.uploadAvatar(user.id, file);
   }
 
   @Get("me/journey")

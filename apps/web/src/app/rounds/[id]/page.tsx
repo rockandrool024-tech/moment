@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
 import { Challenge, Round, Submission } from "@/lib/types";
 import { VoteDeck } from "@/components/VoteDeck";
+import { PredictionPanel } from "@/components/PredictionPanel";
 import { getRallyCode } from "@/lib/rally";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowLeftIcon, CheckIcon, FilmIcon, ShareIcon, VoteCheckIcon } from "@/components/icons";
@@ -187,6 +188,7 @@ export default function RoundPage() {
         <>
           <SellerFinalPick round={round} />
           <PublicVote round={round} />
+          <PredictionPanel roundId={round.id} />
         </>
       ) : (
         <VoteDeck roundId={round.id} challengeId={round.challengeId} />

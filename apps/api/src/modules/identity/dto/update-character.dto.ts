@@ -1,7 +1,7 @@
 import { IsIn, IsOptional, IsString } from "class-validator";
 
 export const CHARACTER_PRESETS = ["parrot", "street", "studio", "night"] as const;
-export const CHARACTER_PALETTES = ["tropical", "coral", "midnight", "sand"] as const;
+export const CHARACTER_PALETTES = ["tropical", "coral", "midnight", "sand", "sunset", "aurora"] as const;
 
 export type CharacterPreset = (typeof CHARACTER_PRESETS)[number];
 export type CharacterPalette = (typeof CHARACTER_PALETTES)[number];

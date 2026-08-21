@@ -1,7 +1,11 @@
 import { Controller, Get, NotFoundException, Param, ParseUUIDPipe, Res } from "@nestjs/common";
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import { extname } from "node:path";
 import type { Response } from "express";
 import { UsersService } from "./users.service";
 import { generateAvatarPng } from "./avatar-generator";
+import { resolveAvatarFilePath } from "./avatar-upload";
 import { PublicCacheService } from "../public/public-cache.service";
 
 const AVATAR_CACHE_TTL_SECONDS = 86_400; // matches the Cache-Control below
@@ -22,6 +26,30 @@ export class AvatarController {
   async getAvatar(@Param("id", ParseUUIDPipe) id: string, @Res() res: Response): Promise<void> {
     const user = await this.users.findById(id);
     if (!user) throw new NotFoundException("User not found");
+
+    if (user.avatarFileKey) {
+      try {
+        const filePath = resolveAvatarFilePath(user.avatarFileKey);
+        const fileStats = await stat(filePath);
+        const contentTypeByExtension: Record<string, string> = {
+          ".jpg": "image/jpeg",
+          ".png": "image/png",
+          ".webp": "image/webp",
+        };
+        const contentType = contentTypeByExtension[extname(filePath).toLowerCase()];
+        if (!contentType) throw new Error("Unsupported stored avatar type");
+
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Content-Length", fileStats.size);
+        res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        createReadStream(filePath).pipe(res);
+        return;
+      } catch {
+        // If a volume restore omitted an old object, fall through to the
+        // deterministic avatar instead of breaking public profile surfaces.
+      }
+    }
 
     if (user.avatarUrl) {
       res.redirect(302, user.avatarUrl);

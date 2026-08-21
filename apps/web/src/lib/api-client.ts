@@ -48,6 +48,54 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return body as T;
 }
 
+export function upload<T>(
+  path: string,
+  file: File,
+  onProgress?: (percent: number) => void,
+  signal?: AbortSignal,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_URL}${path}`);
+    const token = getToken();
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+    const abort = () => xhr.abort();
+    signal?.addEventListener("abort", abort, { once: true });
+
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
+    });
+    xhr.addEventListener("load", () => {
+      signal?.removeEventListener("abort", abort);
+      const body = JSON.parse(xhr.responseText || "null") as { message?: string | string[] } | T | null;
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(body as T);
+        return;
+      }
+      const message =
+        body && typeof body === "object" && "message" in body
+          ? Array.isArray(body.message)
+            ? body.message.join(", ")
+            : body.message
+          : `Upload failed with status ${xhr.status}`;
+      reject(new ApiError(xhr.status, message || "Upload failed"));
+    });
+    xhr.addEventListener("error", () => {
+      signal?.removeEventListener("abort", abort);
+      reject(new ApiError(0, "The upload could not reach the server"));
+    });
+    xhr.addEventListener("abort", () => {
+      signal?.removeEventListener("abort", abort);
+      reject(new DOMException("Upload cancelled", "AbortError"));
+    });
+
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+    xhr.send(formData);
+  });
+}
+
 export const api = {
   get: <T>(path: string) => request<T>(path, { method: "GET" }),
   post: <T>(path: string, data?: unknown) =>

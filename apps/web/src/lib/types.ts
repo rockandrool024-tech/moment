@@ -6,7 +6,7 @@ export type UserRole = "seller" | "creator" | "both";
 
 export interface CharacterProfile {
   preset: "parrot" | "street" | "studio" | "night";
-  palette: "tropical" | "coral" | "midnight" | "sand";
+  palette: "tropical" | "coral" | "midnight" | "sand" | "sunset" | "aurora";
   updatedAt: string | null;
 }
 
@@ -337,7 +337,13 @@ export interface GrowthDashboard {
   brandRepeatRate: number;
   avgTimeToFirstPayoutHours: number | null;
   rallyKProxy: number;
-  retentionD1D7D30: string;
+  viralKFactor: number;
+  retention: {
+    cohortSize: number;
+    d1: number | null;
+    d7: number | null;
+    d30: number | null;
+  };
 }
 
 // ADR-004's two distinct stat blocks — a `both`-role user can have both.
