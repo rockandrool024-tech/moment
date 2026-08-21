@@ -1,7 +1,32 @@
+(security_defaults) {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(self), camera=(), microphone=()"
+		-Server
+	}
+}
+
 {$DOMAIN} {
+	import security_defaults
+
+	request_body {
+		max_size 50MB
+	}
+
 	reverse_proxy web:3001
 }
 
 api.{$DOMAIN} {
+	import security_defaults
+
+	request_body {
+		max_size 50MB
+	}
+
 	reverse_proxy api:3000
 }

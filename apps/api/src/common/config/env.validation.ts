@@ -99,8 +99,15 @@ export function validateEnv(config: Record<string, unknown>) {
   });
   const errors = validateSync(validated, { skipMissingProperties: false });
 
-  if (errors.length > 0) {
-    throw new Error(`Invalid environment configuration:\n${errors.toString()}`);
+  const productionMissing = process.env.NODE_ENV === "production"
+    ? ["APP_URL", "CORS_ORIGIN"].filter((key) => !String(config[key] ?? "").trim())
+    : [];
+
+  if (errors.length > 0 || productionMissing.length > 0) {
+    const productionError = productionMissing.length > 0
+      ? `\nMissing production values: ${productionMissing.join(", ")}`
+      : "";
+    throw new Error(`Invalid environment configuration:\n${errors.toString()}${productionError}`);
   }
 
   return validated;

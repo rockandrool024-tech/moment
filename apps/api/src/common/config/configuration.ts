@@ -3,8 +3,8 @@ export default () => ({
   port: parseInt(process.env.PORT ?? "3000", 10),
   // Public URL of the web app — used for Stripe Connect onboarding redirect
   // links (never called from the browser, so no CORS implications).
-  appUrl: process.env.APP_URL ?? "http://localhost:3001",
-  corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3001",
+  appUrl: process.env.APP_URL ?? (process.env.NODE_ENV === "production" ? "" : "http://localhost:3001"),
+  corsOrigin: process.env.CORS_ORIGIN ?? (process.env.NODE_ENV === "production" ? "" : "http://localhost:3001"),
   // Admin allowlist by phone number (E.164) — see admin.guard.ts. No admin
   // role in the User model on purpose: this is reviewed manually via env,
   // not self-service, since it's the one gate with no downstream check.
