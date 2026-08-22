@@ -15,6 +15,7 @@ import { Sheet } from "@/components/Sheet";
 import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { CardSkeleton } from "@/components/Skeleton";
+import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -152,6 +153,16 @@ export default function ChallengeDetailPage() {
   const canOpenNextRound = isOwner && rounds.length < 3 && ((rounds.length === 0 && challenge.status === "funded") || (rounds.length > 0 && rounds[rounds.length - 1].status === "revealed"));
   const criteria = Object.entries(challenge.checklistCriteria ?? {});
   const isLive = challenge.status.includes("_open") || challenge.status === "funded";
+  const journeyStages: JourneyStage[] = [
+    { id: "discover", label: "Discover", description: "Find a brief that fits your voice.", status: "completed" },
+    { id: "claim", label: "Enter", description: isLive ? "Claim your place in this opportunity." : "This opportunity opens after funding.", status: isLive ? "current" : "locked", actionLabel: isLive ? "Start your story" : undefined, href: isLive ? `/challenges/${challenge.id}/submit` : undefined },
+    { id: "teaser", label: "First teaser", description: "Make a strong first impression in 15 seconds.", status: "locked" },
+    { id: "review", label: "Blind review", description: "Verified peers judge the work, not the follower count.", status: "locked" },
+    { id: "advance", label: "Advance", description: "Reach the money round and keep moving.", status: "locked", reward: "Survivor reward" },
+    { id: "full-video", label: "Full video", description: "Turn the teaser into the finished piece.", status: "locked" },
+    { id: "final-vote", label: "Final vote", description: "The final work meets the reveal moment.", status: "locked" },
+    { id: "reward", label: "Reward", description: "Payout, rating and your next opportunity.", status: "locked" },
+  ];
 
   return (
     <div>
@@ -176,6 +187,13 @@ export default function ChallengeDetailPage() {
         <span className="chip">Up to 3 rounds</span>
         <span className="chip">Blind peer vote</span>
       </div>
+
+      {!isOwner && <JourneyProgress
+        stages={journeyStages}
+        title="Your path through this opportunity"
+        summary="Every milestone is visible. Your supporters can add momentum, but only the work decides the quality result."
+        className={styles.journey}
+      />}
 
       {isOwner && (
         <div className={styles.ownerActions}>

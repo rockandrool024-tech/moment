@@ -13,6 +13,7 @@ import { ArrowLeftIcon, CheckIcon, FilmIcon, ShareIcon, VoteCheckIcon } from "@/
 import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { CardSkeletonList } from "@/components/Skeleton";
+import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
 import styles from "./round.module.css";
 
 function roundTypeLabel(type: Round["type"]) {
@@ -166,6 +167,18 @@ export default function RoundPage() {
     return <div className={styles.loading}>{loadError ? <Notice tone="danger" title="Round unavailable" action={<button className="secondary" onClick={load}>Retry</button>}>We couldn’t load this vote.</Notice> : <CardSkeletonList count={2} media />}</div>;
   }
 
+  const isFinalVote = round.type === "public_vote_final";
+  const journeyStages: JourneyStage[] = [
+    { id: "discover", label: "Discover", description: "Find an opportunity that fits your voice.", status: "completed" },
+    { id: "claim", label: "Enter", description: "Your place in the story is confirmed.", status: "completed" },
+    { id: "teaser", label: "First teaser", description: "The first impression is submitted.", status: "completed" },
+    { id: "review", label: "Blind review", description: "Verified peers judge the work anonymously.", status: !isFinalVote && round.roundNumber === 1 && round.status === "open" ? "current" : "completed" },
+    { id: "advance", label: "Advance", description: "Make the money round and keep moving.", status: round.roundNumber > 1 || isFinalVote ? "completed" : "locked", reward: round.roundNumber > 1 || isFinalVote ? "Survivor reward" : undefined },
+    { id: "full-video", label: "Full video", description: "The finished piece is ready for review.", status: isFinalVote || round.roundNumber > 1 ? "completed" : "locked" },
+    { id: "final-vote", label: "Final vote", description: "The final work meets the reveal moment.", status: isFinalVote && round.status === "open" ? "current" : round.status === "revealed" ? "completed" : "locked", actionLabel: isFinalVote && round.status === "open" ? "Make the call" : undefined },
+    { id: "reward", label: "Reward", description: "Result, payout, rating and your next story.", status: round.status === "revealed" ? "current" : "locked", actionLabel: round.status === "revealed" ? "View result" : undefined },
+  ];
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -175,6 +188,8 @@ export default function RoundPage() {
           <div className={styles.headerMeta}><span className={round.status === "open" ? "badge badge-live" : "badge"}>{round.status}</span><span>{round.advanceCount} advance from this round</span></div>
         </div>
       </header>
+
+      <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="The work moves forward one visible milestone at a time." />
 
       {round.status === "revealed" ? (
         <section className={`card ${styles.revealed}`}>

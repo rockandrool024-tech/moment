@@ -99,6 +99,10 @@
   line-height: 1;
 }
 
+.journey {
+  margin: 1.25rem 0 1.5rem;
+}
+
 .statusRow {
   display: flex;
   flex-wrap: wrap;

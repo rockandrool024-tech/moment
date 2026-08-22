@@ -8,6 +8,7 @@ import { Challenge, Submission, SubmissionPhase } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowLeftIcon, CheckIcon, FilmIcon, PlayIcon, VoteCheckIcon } from "@/components/icons";
 import { Notice } from "@/components/Notice";
+import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
 import { PageHeader } from "@/components/PageHeader";
 import styles from "./submit.module.css";
 
@@ -39,6 +40,18 @@ export default function SubmitPage() {
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
 
   const maxDuration = typeof challenge?.checklistCriteria?.maxDurationSeconds === "number" ? challenge.checklistCriteria.maxDurationSeconds : phase === "teaser" ? 15 : undefined;
+  const hasReadyVideo = uploadState === "ready";
+  const isFullSubmission = submission?.phase === "full_content" || phase === "full_content";
+  const journeyStages: JourneyStage[] = [
+    { id: "discover", label: "Discover", description: "Find the brief that fits your voice.", status: "completed" },
+    { id: "claim", label: "Enter", description: "Your place in this opportunity is ready.", status: "completed", href: `/challenges/${challengeId}` },
+    { id: "teaser", label: "First teaser", description: "Make the first impression count.", status: isFullSubmission || submission ? "completed" : "current", actionLabel: !submission && !isFullSubmission ? "Choose your cut" : undefined, href: "#video" },
+    { id: "review", label: "Blind review", description: "Verified peers judge the work, not the audience size.", status: hasReadyVideo && !isFullSubmission ? "review" : isFullSubmission ? "completed" : "locked", timestamp: hasReadyVideo && !isFullSubmission ? "Next: peer deck" : undefined },
+    { id: "advance", label: "Advance", description: "Reach the money round and keep moving.", status: isFullSubmission ? "completed" : "locked", reward: isFullSubmission ? "Survivor reward" : undefined },
+    { id: "full-video", label: "Full video", description: "Turn the teaser into the finished piece.", status: isFullSubmission ? (hasReadyVideo ? "completed" : "current") : "locked", actionLabel: isFullSubmission && !hasReadyVideo ? "Upload the final cut" : undefined, href: isFullSubmission ? "#video" : undefined },
+    { id: "final-vote", label: "Final vote", description: "Your finished work meets the reveal moment.", status: isFullSubmission && hasReadyVideo ? "current" : "locked", actionLabel: isFullSubmission && hasReadyVideo ? "See the vote" : undefined },
+    { id: "reward", label: "Reward", description: "Payout, rating and your next opportunity.", status: "locked" },
+  ];
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -96,6 +109,7 @@ export default function SubmitPage() {
           <span className="page-eyebrow">Entry received</span>
           <h1>Your idea is in.</h1>
           <p className="muted">Entry {submission.id.slice(0, 8)} · {submission.phase === "teaser" ? "Round 1 teaser" : "Full content"}</p>
+          <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="The next milestone is always visible, from the first cut to the final vote." compact />
 
           {uploadState === "errored" ? (
             <Notice tone="danger" title="The video didn’t finish processing">Your entry record is safe, but the round needs a playable video. Return to the challenge and contact the campaign owner if the deadline is close.</Notice>
@@ -126,6 +140,7 @@ export default function SubmitPage() {
       <PageHeader eyebrow="Creator entry" title="Submit your strongest cut." description={challenge ? `You’re entering “${challenge.title}”. Review the rules, attach the media and keep the first round concise.` : "Review the rules, attach the media and keep the first round concise."} />
 
       {submission?.status === "eliminated" && error && <Notice tone="danger" title="Entry needs changes">{error}</Notice>}
+      <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="One visible path from your first teaser to the final video vote." />
 
       <div className={styles.layout}>
         <form className={`card ${styles.formCard}`} onSubmit={onSubmit}>
