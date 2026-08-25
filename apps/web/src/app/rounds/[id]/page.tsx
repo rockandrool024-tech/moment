@@ -13,7 +13,8 @@ import { ArrowLeftIcon, CheckIcon, FilmIcon, ShareIcon, VoteCheckIcon } from "@/
 import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { CardSkeletonList } from "@/components/Skeleton";
-import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import styles from "./round.module.css";
 
 function roundTypeLabel(type: Round["type"]) {
@@ -189,7 +190,12 @@ export default function RoundPage() {
         </div>
       </header>
 
-      <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="The work moves forward one visible milestone at a time." />
+      <JourneyTaskbar
+        journey={journeyStages}
+        mode={round.status === "revealed" ? "completion" : "focus"}
+        activeContext={{ id: round.id, kind: "challenge", title: `Round ${round.roundNumber} · ${roundTypeLabel(round.type)}`, status: round.status === "revealed" ? "completed" : round.status === "open" ? "active" : "waiting" }}
+        nextAction={round.status === "revealed" ? { label: "Share the result", href: `/results/${round.finalPickSubmissionId ?? ""}`, tone: "primary" } : round.type === "public_vote_final" ? { label: "Make the call", href: `#vote`, tone: "primary" } : { label: "Open the blind deck", href: `#vote`, tone: "primary" }}
+      />
 
       {round.status === "revealed" ? (
         <section className={`card ${styles.revealed}`}>

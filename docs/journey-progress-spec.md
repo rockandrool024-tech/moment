@@ -65,3 +65,58 @@ The component should accept a list of stages with `id`, `label`, `description`, 
 ## Accessibility
 
 The rail uses semantic ordered-list markup, visible labels and an `aria-current="step"` marker for the current stage. Every locked state explains its prerequisite in text. Color is never the only state indicator. Keyboard users can reach every available milestone. The mobile version preserves large touch targets and safe-area spacing.
+
+
+## Journey Taskbar — persistent creator mode
+
+The Journey Taskbar is the persistent, context-aware version of Journey Progress. It appears on the authenticated creator home and adapts to the active challenge or Story. It is not a generic checklist: it is a single next-action surface backed by real account and submission state.
+
+The taskbar uses the following priority order when more than one opportunity is active: an action required before a deadline, a submission awaiting creator action, a review or reveal that needs attention, the newest active challenge, then the creator’s next global milestone. It must never silently switch the active challenge while the creator is in a focused upload or vote flow.
+
+| Taskbar layer | Purpose | Example copy |
+|---|---|---|
+| Status strip | Shows the active opportunity and current stage. | “Your story is in Blind review.” |
+| Progress rail | Shows the complete creator path without hiding future stages. | “3 of 8 milestones complete.” |
+| Next action card | Gives one primary action and one supporting explanation. | “Submit your final video.” |
+| Proof/reward line | Shows only earned or contractually available value. | “Advance reward secured.” |
+| Return cue | Brings the creator back after an external event. | “Reveal in 2h 14m — come back for the result.” |
+
+The taskbar has five product states: **start**, **in progress**, **waiting**, **action needed** and **completed**. Start encourages the creator to read or claim a brief. In progress highlights the next submission or setup step. Waiting explains that the creator’s work is safe and what event is pending. Action needed is reserved for a failed upload, missing requirement, expired window or appealable issue. Completed connects the reveal to wallet, rating, tier progress and the next story.
+
+The component should feel rewarding through clarity, visible proof and restrained milestone motion. It must not use deceptive countdowns, artificial scarcity, pay-to-win language or endless notification loops. Rally momentum can be displayed as a secondary line, but it must never change quality-stage completion or imply that sharing buys advancement.
+
+The current global `/users/me/journey` endpoint remains the source for account-level milestones. Challenge-level taskbars continue to use the active challenge, submission and round data already fetched by their parent route. A future aggregated endpoint may replace multiple requests, but the first implementation should not invent a new backend contract merely to render the component.
+
+## Recommended placement
+
+On `/challenges`, the taskbar becomes the creator’s home command center and shows the highest-priority active challenge. On `/challenges/[id]`, it becomes challenge-specific and explains the path before entry. On `/challenges/[id]/submit` and `/rounds/[id]`, it becomes a compact sticky progress strip with the next action visible above the main task. On `/me`, it summarizes the active journey and links to the full challenge. On `/results/[submissionId]` and `/wallet`, it changes to the completed state and points toward proof, payout and the next opportunity.
+
+Every taskbar variant must support loading, unavailable data and retry states. When a creator has no active opportunity, the empty state should invite them to **Start your story** or discover a funded brief instead of displaying a zero-progress bar.
+
+## Engagement success criteria
+
+The taskbar is successful if a creator can answer, within a few seconds, what they completed, what is happening now, what is next, why the next action matters and what verified outcome follows. Product analytics should measure taskbar impression, next-action click, resume rate, stage completion, time between milestones and return after a waiting state. These are behavioral signals to validate in cohorts, not guaranteed growth claims.
+
+## Proposed component API
+
+```ts
+interface JourneyTaskbarProps {
+  journey: JourneyStage[];
+  activeContext?: {
+    id: string;
+    kind: "challenge" | "story";
+    title: string;
+    deadline?: string;
+    status?: "active" | "waiting" | "completed" | "blocked";
+  };
+  mode?: "home" | "challenge" | "focus" | "completion";
+  nextAction?: {
+    label: string;
+    href?: string;
+    tone?: "primary" | "secondary";
+  };
+  onDismiss?: () => void;
+}
+```
+
+The parent owns state and business rules. The component renders honest presentation, accessibility semantics, deep links, reduced-motion behavior and responsive density.

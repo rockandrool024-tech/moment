@@ -11,7 +11,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { PageHeader } from "@/components/PageHeader";
 import { CardSkeletonList } from "@/components/Skeleton";
-import { TaskBar } from "@/components/TaskBar";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import styles from "./challenges.module.css";
 
 type Filter = "all" | "live" | "resolved";
@@ -39,6 +40,7 @@ export default function ChallengesPage() {
   const [error, setError] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [journey, setJourney] = useState<JourneyStage[] | null>(null);
   const { user } = useAuth();
 
   const load = useCallback(() => {
@@ -51,6 +53,35 @@ export default function ChallengesPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!user) {
+      setJourney(null);
+      return;
+    }
+    api.get<Array<{ key: string; label: string; achieved: boolean }>>("/users/me/journey")
+      .then((milestones) => {
+        const liveId = challenges?.find((challenge) => isLive(challenge.status))?.id;
+        const hrefFor = (key: string) => {
+          if (key === "verified") return "/me";
+          if (key === "first_entry" || key === "advanced") return liveId ? `/challenges/${liveId}` : "/challenges";
+          if (key === "voted") return "/feed";
+          if (key === "paid") return "/wallet";
+          return "/me";
+        };
+        let nextIndex = milestones.findIndex((milestone) => !milestone.achieved);
+        if (nextIndex < 0) nextIndex = Math.max(0, milestones.length - 1);
+        setJourney(milestones.map((milestone, index) => ({
+          id: milestone.key,
+          label: milestone.label,
+          description: milestone.achieved ? "This proof is now part of your creator record." : "Complete this milestone to keep your journey moving.",
+          status: milestone.achieved ? "completed" : index === nextIndex ? "current" : "locked",
+          actionLabel: milestone.achieved ? undefined : "Continue",
+          href: milestone.achieved ? hrefFor(milestone.key) : hrefFor(milestone.key),
+        })));
+      })
+      .catch(() => setJourney(null));
+  }, [challenges, user]);
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -72,7 +103,22 @@ export default function ChallengesPage() {
         actions={canCreate ? <Link href="/challenges/new" className="btn"><PlusIcon width={18} height={18} aria-hidden />New challenge</Link> : <Link href="/feed" className="btn secondary"><PlayIcon width={17} height={17} aria-hidden />Watch live</Link>}
       />
 
-      {user && <TaskBar liveChallengeHref={challenges?.find((challenge) => isLive(challenge.status)) ? `/challenges/${challenges.find((challenge) => isLive(challenge.status))?.id}` : "/challenges"} />}
+      {user && journey && (
+        <JourneyTaskbar
+          journey={journey}
+          activeContext={challenges?.find((challenge) => isLive(challenge.status)) ? {
+            id: challenges.find((challenge) => isLive(challenge.status))!.id,
+            kind: "challenge",
+            title: challenges.find((challenge) => isLive(challenge.status))!.title,
+            status: "active",
+          } : undefined}
+          nextAction={challenges?.find((challenge) => isLive(challenge.status)) ? {
+            label: "Open the brief",
+            href: `/challenges/${challenges.find((challenge) => isLive(challenge.status))!.id}`,
+            tone: "primary",
+          } : { label: "Discover a brief", href: "/challenges", tone: "secondary" }}
+        />
+      )}
 
       <div className={styles.toolbar}>
         <div className={styles.search}>

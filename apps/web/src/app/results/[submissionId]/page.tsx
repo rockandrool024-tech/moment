@@ -10,6 +10,8 @@ import { Celebration } from "@/components/Celebration";
 import { OutcomeTicket } from "@/components/OutcomeTicket";
 import { BrandMark } from "@/components/BrandMark";
 import { SharePanel } from "@/components/SharePanel";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import { FilmIcon, ShareIcon } from "@/components/icons";
 import styles from "./result.module.css";
 
@@ -45,6 +47,16 @@ export default async function ResultPage({ params }: { params: { submissionId: s
 
   const ticketId = `PK-${submission.id.slice(0, 8).toUpperCase()}`;
   const payoutLabel = submission.isWinner ? formatCents(submission.challenge.prizePool) : "—";
+  const resultJourney: JourneyStage[] = [
+    { id: "discover", label: "Discover", description: "Opportunity found.", status: "completed" },
+    { id: "claim", label: "Enter", description: "Your place was confirmed.", status: "completed" },
+    { id: "teaser", label: "First teaser", description: "Your first cut was submitted.", status: "completed" },
+    { id: "review", label: "Blind review", description: "The work was judged on its own merit.", status: "completed" },
+    { id: "advance", label: "Advance", description: "The round outcome is recorded.", status: tone === "knockout" ? "retry" : "completed" },
+    { id: "full-video", label: "Full video", description: "Your finished piece is on record.", status: submission.phase === "full_content" || tone === "winner" ? "completed" : "current" },
+    { id: "final-vote", label: "Final vote", description: "The reveal is decided by the campaign state.", status: tone === "winner" || tone === "knockout" ? "completed" : votingIsLive ? "current" : "review" },
+    { id: "reward", label: "Reward", description: "Payout, rating and your next opportunity.", status: tone === "winner" ? "completed" : tone === "knockout" ? "retry" : "locked", actionLabel: tone === "winner" ? "Share the result" : undefined, href: tone === "winner" ? `/results/${submission.id}` : undefined },
+  ];
 
   return (
     <div className={styles.page}>
@@ -59,6 +71,12 @@ export default async function ResultPage({ params }: { params: { submissionId: s
           <span className="page-eyebrow">Verified campaign outcome</span>
           <h1>{headline}</h1>
           <p className={styles.tagline}>{tagline}</p>
+          <JourneyTaskbar
+            journey={resultJourney}
+            mode={tone === "winner" ? "completion" : "focus"}
+            activeContext={{ id: submission.id, kind: "challenge", title: submission.challenge.title, status: tone === "winner" ? "completed" : tone === "knockout" ? "blocked" : votingIsLive ? "active" : "waiting" }}
+            nextAction={tone === "winner" ? { label: "Share the result", href: `/results/${submission.id}?rally=${submission.creatorReferralCode}`, tone: "primary" } : votingIsLive ? { label: "Rally this creator", href: `/battle/${submission.challengeId}?rally=${submission.creatorReferralCode}`, tone: "primary" } : { label: "Watch the battle", href: `/battle/${submission.challengeId}`, tone: "secondary" }}
+          />
           {votingIsLive && <div className={styles.liveVotes}><strong>{liveVotes}</strong><span>verified votes so far</span></div>}
           <section className={`card ${styles.campaign}`}>
             <div className={styles.campaignTop}><div><span className="page-eyebrow">Campaign</span><h2>{submission.challenge.title}</h2></div><span className={`${styles.pool} money`}>{formatCents(submission.challenge.prizePool)}</span></div>

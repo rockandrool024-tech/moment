@@ -8,7 +8,8 @@ import { JourneyMilestone, RallyStats, ReferralStats, StreakSummary, User } from
 import { tierBadgeStyle, tierLabel } from "@/lib/tier";
 import { formatCents } from "@/lib/format";
 import { Avatar } from "@/components/Avatar";
-import { JourneyStepper } from "@/components/JourneyStepper";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import { SharePanel } from "@/components/SharePanel";
 import { Sheet } from "@/components/Sheet";
 import { Notice } from "@/components/Notice";
@@ -226,11 +227,19 @@ export default function MePage() {
         </section>
 
         {journey && (
-          <section className={`card ${styles.card}`}>
-            <span className="page-eyebrow">Progress</span>
-            <h2>Your journey</h2>
-            <JourneyStepper milestones={journey} />
-          </section>
+          <JourneyTaskbar
+            journey={journey.map((milestone, index): JourneyStage => ({
+              id: milestone.key,
+              label: milestone.label,
+              description: milestone.achieved ? "This proof is now part of your creator record." : "Complete this milestone to keep your story moving.",
+              status: milestone.achieved ? "completed" : index === journey.findIndex((item) => !item.achieved) ? "current" : "locked",
+              actionLabel: milestone.achieved ? undefined : "Continue",
+              href: milestone.key === "paid" ? "/wallet" : milestone.key === "voted" ? "/feed" : "/challenges",
+            }))}
+            mode="home"
+            activeContext={{ id: user.id, kind: "story", title: user.displayName ? `${user.displayName}'s creator journey` : "Your creator journey", status: journey.every((milestone) => milestone.achieved) ? "completed" : "active" }}
+            nextAction={journey.every((milestone) => milestone.achieved) ? { label: "Start your next story", href: "/challenges", tone: "primary" } : { label: "Continue your journey", href: "/challenges", tone: "primary" }}
+          />
         )}
 
         <section className={`card ${styles.card}`}>

@@ -83,7 +83,7 @@ export function VoteDeck({ roundId, challengeId }: { roundId: string; challengeI
 
   if (!currentPair) {
     return (
-      <section className={`card ${styles.complete}`}>
+      <section id="vote" className={`card ${styles.complete}`}>
         <span className={styles.completeIcon}><VoteCheckIcon width={28} height={28} aria-hidden /></span>
         <span className="page-eyebrow">Deck complete</span>
         <h2>{answeredCount} votes counted.</h2>
@@ -96,7 +96,7 @@ export function VoteDeck({ roundId, challengeId }: { roundId: string; challengeI
   const remaining = Math.max(total - answeredCount, 0);
 
   return (
-    <div className={styles.deck}>
+      <div id="vote" className={styles.deck}>
       <div className={styles.progressHead}>
         <strong>{answeredCount + 1} of {total} votes</strong>
         <span>{remaining} remaining</span>

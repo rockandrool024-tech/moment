@@ -15,7 +15,8 @@ import { Sheet } from "@/components/Sheet";
 import { EmptyState } from "@/components/EmptyState";
 import { Notice } from "@/components/Notice";
 import { CardSkeleton } from "@/components/Skeleton";
-import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -188,10 +189,11 @@ export default function ChallengeDetailPage() {
         <span className="chip">Blind peer vote</span>
       </div>
 
-      {!isOwner && <JourneyProgress
-        stages={journeyStages}
-        title="Your path through this opportunity"
-        summary="Every milestone is visible. Your supporters can add momentum, but only the work decides the quality result."
+      {!isOwner && <JourneyTaskbar
+        journey={journeyStages}
+        mode="challenge"
+        activeContext={{ id: challenge.id, kind: "challenge", title: challenge.title, status: isLive ? "active" : "waiting" }}
+        nextAction={isLive ? { label: "Start your story", href: `/challenges/${challenge.id}/submit`, tone: "primary" } : { label: "Watch for the opening", href: `/challenges/${challenge.id}`, tone: "secondary" }}
         className={styles.journey}
       />}
 

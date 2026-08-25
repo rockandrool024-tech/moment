@@ -8,7 +8,8 @@ import { Challenge, Submission, SubmissionPhase } from "@/lib/types";
 import { useAuth } from "@/lib/auth-context";
 import { ArrowLeftIcon, CheckIcon, FilmIcon, PlayIcon, VoteCheckIcon } from "@/components/icons";
 import { Notice } from "@/components/Notice";
-import { JourneyProgress, JourneyStage } from "@/components/JourneyProgress";
+import { JourneyStage } from "@/components/JourneyProgress";
+import { JourneyTaskbar } from "@/components/JourneyTaskbar";
 import { PageHeader } from "@/components/PageHeader";
 import styles from "./submit.module.css";
 
@@ -109,7 +110,7 @@ export default function SubmitPage() {
           <span className="page-eyebrow">Entry received</span>
           <h1>Your idea is in.</h1>
           <p className="muted">Entry {submission.id.slice(0, 8)} · {submission.phase === "teaser" ? "Round 1 teaser" : "Full content"}</p>
-          <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="The next milestone is always visible, from the first cut to the final vote." compact />
+          <JourneyTaskbar journey={journeyStages} mode="completion" activeContext={{ id: challengeId, kind: "challenge", title: challenge?.title ?? "Your challenge", status: "waiting" }} nextAction={{ label: "Return to the challenge", href: `/challenges/${challengeId}`, tone: "secondary" }} />
 
           {uploadState === "errored" ? (
             <Notice tone="danger" title="The video didn’t finish processing">Your entry record is safe, but the round needs a playable video. Return to the challenge and contact the campaign owner if the deadline is close.</Notice>
@@ -140,7 +141,7 @@ export default function SubmitPage() {
       <PageHeader eyebrow="Creator entry" title="Submit your strongest cut." description={challenge ? `You’re entering “${challenge.title}”. Review the rules, attach the media and keep the first round concise.` : "Review the rules, attach the media and keep the first round concise."} />
 
       {submission?.status === "eliminated" && error && <Notice tone="danger" title="Entry needs changes">{error}</Notice>}
-      <JourneyProgress stages={journeyStages} title="Your path to the reveal" summary="One visible path from your first teaser to the final video vote." />
+      <JourneyTaskbar journey={journeyStages} mode="focus" activeContext={{ id: challengeId, kind: "challenge", title: challenge?.title ?? "Your challenge", status: uploadState === "processing" || uploadState === "uploading" ? "waiting" : submission?.status === "eliminated" ? "blocked" : "active" }} nextAction={isFullSubmission ? { label: hasReadyVideo ? "Open the final vote" : "Upload the final cut", href: hasReadyVideo ? `/challenges/${challengeId}` : "#video", tone: "primary" } : { label: hasReadyVideo ? "View your submission" : "Attach your teaser", href: "#video", tone: "primary" }} />
 
       <div className={styles.layout}>
         <form className={`card ${styles.formCard}`} onSubmit={onSubmit}>
