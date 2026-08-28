@@ -1,8 +1,8 @@
 {
   "name": "moment",
   "private": true,
-  "version": "0.1.0",
-  "description": "MOMENT — creator-competition marketplace. Phase 1: the spine (backend only).",
+  "version": "2.0.0",
+  "description": "MOMENT v2 — Viral-first multi-platform distribution + prediction market + reputation economy.",
   "scripts": {
     "api:dev": "pnpm --filter @moment/api start:dev",
     "api:build": "pnpm --filter @moment/api build",
