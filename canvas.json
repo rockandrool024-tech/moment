@@ -1,0 +1,9 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1200, "h": 1400, "expand": "fit" },
+    { "file": "CreatorJourney.dc.html", "x": 0, "y": 1500, "w": 1000, "h": 800, "expand": "fit" },
+    { "file": "BrandJourney.dc.html", "x": 1100, "y": 1500, "w": 1000, "h": 800, "expand": "fit" },
+    { "file": "Summary.dc.html", "x": 0, "y": 2400, "w": 1200, "h": 600, "expand": "fit" }
+  ],
+  "launch": { "view": "canvas" }
+}

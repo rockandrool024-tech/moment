@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Marketing Agency — Visual Design</title>
+    <style>
+        /* ===== COLOR TOKENS ===== */
+        :root {
+            --bg-0: #f8f8f8;
+            --bg-1: #0a0e14;
+            --bg-2: #1a1f28;
+            --bg-3: #2a3038;
+            --fg-primary: #0a0e14;
+            --fg-secondary: #666666;
+            --fg-inverse: #f8f8f8;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --grow: #4ade80;
+            --decline: #ef4444;
+            --border: #2a3038;
+
+            --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-data: 'Courier New', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-0: #0a0e14;
+                --bg-1: #f8f8f8;
+                --fg-primary: #f8f8f8;
+                --fg-secondary: #999999;
+                --fg-inverse: #0a0e14;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-0: #0a0e14;
+            --bg-1: #f8f8f8;
+            --fg-primary: #f8f8f8;
+            --fg-secondary: #999999;
+            --fg-inverse: #0a0e14;
+        }
+
+        /* ===== BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg-0);
+            color: var(--fg-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        h1, h2, h3 { font-family: var(--font-display); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; }
+        h1 { font-size: 3rem; margin-bottom: 1rem; }
+        h2 { font-size: 2.25rem; margin-bottom: 1.5rem; }
+        h3 { font-size: 1.5rem; }
+        p { max-width: 70ch; margin-bottom: 1rem; color: var(--fg-secondary); }
+
+        .label { font-family: var(--font-data); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+        .eyebrow { display: block; margin-bottom: 1rem; font-size: 0.875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+        /* ===== SECTION STRUCTURE ===== */
+        section { padding: 6rem 2rem; border-top: 1px solid var(--border); }
+        section:first-of-type { border-top: none; }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* ===== DESIGN GRID ===== */
+        .design-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* ===== COMPONENT SAMPLES ===== */
+        .sample {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .sample-title { font-size: 0.875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--fg-primary);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--fg-inverse);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn-primary:hover { box-shadow: 0 0 30px rgba(0, 217, 255, 0.4); }
+        .btn-secondary { border-color: var(--border); }
+        .btn-secondary:hover { border-color: var(--accent); }
+
+        /* ===== HERO PREVIEW ===== */
+        .hero-preview {
+            background: linear-gradient(135deg, #0a0e14 0%, #1a1f28 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .hero-preview::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content { position: relative; z-index: 2; max-width: 50%; }
+        .hero-content h1 { margin-bottom: 2rem; }
+        .hero-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+
+        .hero-floating {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .float-card {
+            background: rgba(26, 31, 40, 0.6);
+            border: 1px solid rgba(42, 48, 56, 0.8);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .float-value { font-family: var(--font-data); font-size: 1.75rem; font-weight: 900; color: var(--accent); }
+        .float-label { font-size: 0.75rem; color: var(--fg-secondary); margin-bottom: 0.5rem; }
+
+        /* ===== METRICS ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .metric {
+            padding: 2rem;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .metric-value { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.75rem; }
+        .metric-positive .metric-value { color: var(--grow); }
+        .metric-neutral .metric-value { color: var(--accent); }
+
+        /* ===== CARDS ===== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .card h3 { margin-bottom: 0.5rem; }
+        .card p { font-size: 0.95rem; }
+
+        /* ===== CASE STUDY ===== */
+        .case-study {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            padding: 3rem;
+            margin-top: 2rem;
+        }
+
+        .case-image {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(42, 48, 56, 0.3));
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 12px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .case-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+        .case-metric { background: rgba(10, 14, 20, 0.5); padding: 1.5rem; border-radius: 8px; }
+        .case-metric-value { font-size: 1.5rem; font-weight: 900; color: var(--accent); }
+
+        /* ===== TYPOGRAPHY SCALE ===== */
+        .type-scale {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .type-sample { padding: 1.5rem; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; }
+        .type-sample-label { font-size: 0.75rem; color: var(--accent); margin-bottom: 0.75rem; text-transform: uppercase; }
+        .type-display-lg { font-size: 3.5rem; font-weight: 900; line-height: 1.1; }
+        .type-display-md { font-size: 2.25rem; font-weight: 900; }
+        .type-body { font-size: 1rem; line-height: 1.6; }
+        .type-small { font-size: 0.875rem; }
+
+        /* ===== COLOR PALETTE ===== */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .color-swatch-label { font-size: 0.75rem; font-weight: 600; margin-top: 0.75rem; }
+
+        /* ===== PORTFOLIO GRID ===== */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-item {
+            aspect-ratio: 9/16;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(42, 48, 56, 0.4));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* ===== UTILITY ===== */
+        .text-center { text-align: center; }
+        .mb-large { margin-bottom: 3rem; }
+        .mt-large { margin-top: 3rem; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .card-grid { grid-template-columns: repeat(2, 1fr); }
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .case-study { grid-template-columns: 1fr; }
+            .hero-preview { flex-direction: column; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.75rem; }
+            section { padding: 3rem 1rem; }
+            .card-grid, .metrics-grid { grid-template-columns: 1fr; }
+            .portfolio-grid { grid-template-columns: repeat(3, 1fr); }
+            .color-grid { grid-template-columns: repeat(3, 1fr); }
+            .hero-floating { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO SECTION -->
+<section class="text-center">
+    <div class="container">
+        <h2>Premium Marketing Agency<br>Visual Design System</h2>
+        <p style="margin: 1.5rem auto; font-size: 1.1rem;">Dark aesthetic × Electric accent × Performance focus</p>
+
+        <div class="hero-preview">
+            <div class="hero-content">
+                <span class="eyebrow">PERFORMANCE × CREATIVE × AI</span>
+                <h1 style="color: var(--fg-inverse); text-align: left;">We turn attention into customers.</h1>
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary">Start Growing →</a>
+                    <a href="#" class="btn btn-secondary">See Our Work</a>
+                </div>
+            </div>
+            <div class="hero-floating">
+                <div class="float-card">
+                    <div class="float-label">New Leads</div>
+                    <div class="float-value">+127</div>
+                </div>
+                <div class="float-card">
+                    <div class="float-label">ROAS</div>
+                    <div class="float-value">4.8x</div>
+                </div>
+                <div class="float-card">
+                    <div class="float-label">Active</div>
+                    <div class="float-value">12</div>
+                </div>
+                <div class="float-card">
+                    <div class="float-label">Conv. Rate</div>
+                    <div class="float-value">8.2%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TYPOGRAPHY SYSTEM -->
+<section>
+    <div class="container">
+        <h2>Typography System</h2>
+        <p>Bold, editorial headlines paired with clean, readable body text. Strong typographic hierarchy drives the visual experience.</p>
+
+        <div class="type-scale">
+            <div class="type-sample">
+                <div class="type-sample-label">Display Large</div>
+                <div class="type-display-lg">We turn attention into customers.</div>
+            </div>
+            <div class="type-sample">
+                <div class="type-sample-label">Display Medium</div>
+                <div class="type-display-md">Services that move the needle</div>
+            </div>
+            <div class="type-sample">
+                <div class="type-sample-label">Body Text</div>
+                <p class="type-body">Scientific approach to paid campaigns. Real ROAS. Real growth. Each service combines creative excellence with performance rigor.</p>
+            </div>
+            <div class="type-sample">
+                <div class="type-sample-label">Caption / Label</div>
+                <div class="label">PERFORMANCE MEDIA</div>
+                <div class="type-small" style="margin-top: 0.75rem; color: var(--fg-secondary);">Supporting detail text for captions, metadata, and UI labels.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COLOR PALETTE -->
+<section>
+    <div class="container">
+        <h2>Color Palette</h2>
+        <p>Dark ground with electric cyan accent. Semantic colors for metrics (green for growth, red for cost). High contrast typography.</p>
+
+        <div class="color-grid">
+            <div class="color-swatch" style="background: #0a0e14; border-color: var(--accent);">
+                <span class="color-swatch-label">Deep Black<br>#0a0e14</span>
+            </div>
+            <div class="color-swatch" style="background: #1a1f28;">
+                <span class="color-swatch-label">Elevated<br>#1a1f28</span>
+            </div>
+            <div class="color-swatch" style="background: #2a3038;">
+                <span class="color-swatch-label">Border<br>#2a3038</span>
+            </div>
+            <div class="color-swatch" style="background: #f8f8f8; color: #0a0e14;">
+                <span class="color-swatch-label" style="color: #0a0e14;">Off-White<br>#f8f8f8</span>
+            </div>
+            <div class="color-swatch" style="background: #00d9ff;">
+                <span class="color-swatch-label">Accent<br>#00d9ff</span>
+            </div>
+            <div class="color-swatch" style="background: #4ade80;">
+                <span class="color-swatch-label">Growth<br>#4ade80</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES CARDS -->
+<section>
+    <div class="container">
+        <h2>Service Cards</h2>
+        <p>Each service has a mini working interface showing what the service does, not just a generic icon.</p>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="label">Paid Media</div>
+                <h3>Performance Ads</h3>
+                <p>Scientific approach to paid campaigns. Real ROAS. Real growth.</p>
+                <div style="background: rgba(10, 14, 20, 0.5); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--font-data); font-size: 0.875rem; color: var(--accent); line-height: 1.8;">
+                    → Leads: 342<br>→ CPL: $8.40<br>→ ROAS: 5.2x<br>→ Status: Live
+                </div>
+            </div>
+            <div class="card">
+                <div class="label">Creative Tech</div>
+                <h3>AI Video Ads</h3>
+                <p>Generate winning ad variations at scale. Test, learn, win.</p>
+                <div style="background: rgba(10, 14, 20, 0.5); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--font-data); font-size: 0.875rem; color: var(--accent); line-height: 1.8;">
+                    ▶ Video 01 (4.2%) ✓<br>▶ Video 02 (3.8%)<br>▶ Video 03 (2.1%)<br>Generating 4 more...
+                </div>
+            </div>
+            <div class="card">
+                <div class="label">Funnel Ops</div>
+                <h3>Lead Generation</h3>
+                <p>Convert prospects into qualified leads. Predictable pipeline.</p>
+                <div style="background: rgba(10, 14, 20, 0.5); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: var(--font-data); font-size: 0.875rem; color: var(--accent); line-height: 1.8;">
+                    ◇ Top of Funnel<br>◆ Mid (2,400)<br>◆ Qualified (840)<br>◇ Closed (127)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RESULTS / METRICS -->
+<section>
+    <div class="container">
+        <h2 class="text-center">We don't chase views.<br>We chase results.</h2>
+        <p class="text-center">Transparent metrics. Predictable growth. Real outcomes.</p>
+
+        <div class="metrics-grid">
+            <div class="metric metric-positive">
+                <div class="metric-value">+184%</div>
+                <div class="label" style="text-align: center;">Lead Growth</div>
+            </div>
+            <div class="metric metric-neutral">
+                <div class="metric-value">4.8x</div>
+                <div class="label" style="text-align: center;">Avg ROAS</div>
+            </div>
+            <div class="metric metric-positive">
+                <div class="metric-value">−37%</div>
+                <div class="label" style="text-align: center;">Cost Per Lead</div>
+            </div>
+            <div class="metric metric-positive">
+                <div class="metric-value">+62%</div>
+                <div class="label" style="text-align: center;">Conversion Rate</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section>
+    <div class="container">
+        <h2>Creative Portfolio</h2>
+        <p>Vertical 9:16 ad formats displayed in elegant grid. Hover reveals preview. Clean, cinematic presentation.</p>
+
+        <div class="portfolio-grid">
+            <div class="portfolio-item">Video Ad</div>
+            <div class="portfolio-item">Social</div>
+            <div class="portfolio-item">Campaign</div>
+            <div class="portfolio-item">Video Ad</div>
+            <div class="portfolio-item">Branding</div>
+            <div class="portfolio-item">Social</div>
+        </div>
+    </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section>
+    <div class="container">
+        <h2>Case Studies</h2>
+        <p>Large, immersive layouts combining client info, visuals, and performance metrics in editorial style.</p>
+
+        <div class="case-study">
+            <div class="case-image">🎬</div>
+            <div>
+                <h3>SaaS B2B Growth Campaign</h3>
+                <p>Enterprise software company needed qualified leads at scale. Multi-channel strategy combining LinkedIn ads, video content, and landing page optimization.</p>
+                <div class="case-metrics">
+                    <div class="case-metric">
+                        <div class="case-metric-value">+143%</div>
+                        <div class="label">Lead Growth</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">−41%</div>
+                        <div class="label">CPL</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">3.2x</div>
+                        <div class="label">ROAS</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">+89%</div>
+                        <div class="label">Pipeline</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROCESS -->
+<section>
+    <div class="container">
+        <h2>Our Process</h2>
+        <p>Five-stage systematic approach with continuous line connecting each stage.</p>
+
+        <div style="display: flex; align-items: center; gap: 1rem; margin-top: 2rem; overflow-x: auto; padding-bottom: 1rem;">
+            <div style="text-align: center; flex: 0 0 auto;">
+                <div style="width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; margin-bottom: 0.75rem;">01</div>
+                <div class="label" style="font-size: 0.75rem;">DISCOVER</div>
+            </div>
+            <div style="color: var(--accent); font-size: 1.5rem; flex: 0 0 auto;">→</div>
+            <div style="text-align: center; flex: 0 0 auto;">
+                <div style="width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; margin-bottom: 0.75rem;">02</div>
+                <div class="label" style="font-size: 0.75rem;">STRATEGIZE</div>
+            </div>
+            <div style="color: var(--accent); font-size: 1.5rem; flex: 0 0 auto;">→</div>
+            <div style="text-align: center; flex: 0 0 auto;">
+                <div style="width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; margin-bottom: 0.75rem;">03</div>
+                <div class="label" style="font-size: 0.75rem;">CREATE</div>
+            </div>
+            <div style="color: var(--accent); font-size: 1.5rem; flex: 0 0 auto;">→</div>
+            <div style="text-align: center; flex: 0 0 auto;">
+                <div style="width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; margin-bottom: 0.75rem;">04</div>
+                <div class="label" style="font-size: 0.75rem;">LAUNCH</div>
+            </div>
+            <div style="color: var(--accent); font-size: 1.5rem; flex: 0 0 auto;">→</div>
+            <div style="text-align: center; flex: 0 0 auto;">
+                <div style="width: 80px; height: 80px; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; margin-bottom: 0.75rem;">05</div>
+                <div class="label" style="font-size: 0.75rem;">OPTIMIZE</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI LAB -->
+<section>
+    <div class="container">
+        <h2>The AI Creative Lab</h2>
+        <p>Futuristic section showing AI production pipeline: Idea → Script → AI Generate → Edit → Test → Winner</p>
+
+        <div style="background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), transparent); border: 1px solid rgba(0, 217, 255, 0.2); border-radius: 16px; padding: 3rem; margin-top: 2rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.5rem;">
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">💡</div>
+                <strong>Idea</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">📝</div>
+                <strong>Script</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">✨</div>
+                <strong>AI Generate</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">✂️</div>
+                <strong>Edit</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">📊</div>
+                <strong>Test</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(26, 31, 40, 0.8); border: 1px solid rgba(0, 217, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1rem;;">🏆</div>
+                <strong>Winner</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DESIGN NOTES -->
+<section>
+    <div class="container">
+        <h2>Design System Principles</h2>
+        <div class="design-grid">
+            <div class="sample">
+                <div class="sample-title">Dark Aesthetic</div>
+                <p>Deep charcoal (#0a0e14) ground with off-white typography. Sophisticated, premium. Subtle gradients and soft glows.</p>
+            </div>
+            <div class="sample">
+                <div class="sample-title">Electric Accent</div>
+                <p>Cyan (#00d9ff) stops the scroll. Used for calls-to-action, active states, and key data highlights. Feels AI/futuristic.</p>
+            </div>
+            <div class="sample">
+                <div class="sample-title">Semantic Colors</div>
+                <p>Green (#4ade80) for growth metrics, Red (#ef4444) for cost/decline. Non-accent semantic colors maintain hierarchy.</p>
+            </div>
+            <div class="sample">
+                <div class="sample-title">Generous Spacing</div>
+                <p>Large whitespace between sections. Breathing room. Refined spacing system creates premium feel. No cramped layouts.</p>
+            </div>
+            <div class="sample">
+                <div class="sample-title">Thin Borders</div>
+                <p>1px subtle borders on cards. Elevated surfaces with slight transparency. Glass effect used selectively, not everywhere.</p>
+            </div>
+            <div class="sample">
+                <div class="sample-title">Editorial Typography</div>
+                <p>Oversized headlines with tight line height. Geometric sans for display. Clean sans for body. Monospace for data/metrics.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER NOTES -->
+<section style="border-top: 1px solid var(--border); text-align: center; padding: 4rem 2rem;">
+    <div class="container">
+        <p style="color: var(--fg-secondary); font-size: 0.95rem; max-width: 100%;">
+            This design system balances creative power with performance clarity. Every section is visually distinctive while maintaining one coherent visual language. The first impression communicates: <strong>Creative Power + AI + Performance + Trust</strong>.
+        </p>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Marketing Agency — Visual Design System</title>
+    <style>
+        /* ===== TOKEN SYSTEM ===== */
+        :root {
+            --bg-0: #f8f8f8;
+            --bg-1: #0a0e14;
+            --bg-2: #1a1f28;
+            --bg-3: #2a3038;
+            --fg-primary: #0a0e14;
+            --fg-secondary: #666666;
+            --fg-inverse: #f8f8f8;
+            --accent: #00d9ff;
+            --accent-dark: #0099cc;
+            --grow: #4ade80;
+            --decline: #ef4444;
+            --border: #2a3038;
+
+            --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-data: 'Courier New', monospace;
+
+            --space-1: 0.5rem;
+            --space-2: 1rem;
+            --space-3: 1.5rem;
+            --space-4: 2rem;
+            --space-5: 3rem;
+            --space-6: 4rem;
+            --space-7: 6rem;
+            --space-8: 8rem;
+
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+
+            --duration: 0.3s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-0: #0a0e14;
+                --bg-1: #f8f8f8;
+                --fg-primary: #f8f8f8;
+                --fg-secondary: #999999;
+                --fg-inverse: #0a0e14;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg-0: #0a0e14;
+            --bg-1: #f8f8f8;
+            --fg-primary: #f8f8f8;
+            --fg-secondary: #999999;
+            --fg-inverse: #0a0e14;
+        }
+
+        /* ===== BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg-0);
+            color: var(--fg-primary);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-display);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            text-wrap: balance;
+        }
+
+        h1 { font-size: clamp(2.5rem, 8vw, 5rem); }
+        h2 { font-size: clamp(2rem, 5vw, 3.5rem); }
+        h3 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+        h4 { font-size: 1.5rem; }
+        p { max-width: 70ch; margin-bottom: var(--space-3); }
+
+        .label {
+            font-family: var(--font-data);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .eyebrow {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-size: 0.875rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--fg-secondary);
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--fg-primary);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--duration) ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--fg-inverse);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            border-color: var(--border);
+            background: rgba(26, 31, 40, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(42, 48, 56, 0.8);
+            border-color: var(--accent);
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            padding: var(--space-8) var(--space-4);
+        }
+
+        @media (max-width: 768px) {
+            section { padding: var(--space-6) var(--space-3); }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.75rem; }
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: var(--space-3) var(--space-4);
+            backdrop-filter: blur(10px);
+            background: rgba(10, 14, 20, 0.7);
+            border-bottom: 1px solid rgba(42, 48, 56, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-size: 0.875rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-4);
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+            text-decoration: none;
+            transition: color var(--duration);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-cta {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: var(--space-8) var(--space-4);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a0e14 0%, #1a1f28 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 60%;
+        }
+
+        .hero h1 {
+            margin-bottom: var(--space-4);
+            font-size: 4.5rem;
+            line-height: 1;
+        }
+
+        .hero .eyebrow {
+            color: var(--accent);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+        }
+
+        .hero-floating {
+            position: absolute;
+            right: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-3);
+            max-width: 350px;
+        }
+
+        .float-card {
+            background: rgba(26, 31, 40, 0.6);
+            border: 1px solid rgba(42, 48, 56, 0.8);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            backdrop-filter: blur(10px);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float-card:nth-child(1) { animation-delay: 0s; }
+        .float-card:nth-child(2) { animation-delay: 0.3s; }
+        .float-card:nth-child(3) { animation-delay: 0.6s; }
+        .float-card:nth-child(4) { animation-delay: 0.9s; }
+
+        .float-label {
+            font-size: 0.75rem;
+            color: var(--fg-secondary);
+            margin-bottom: var(--space-1);
+        }
+
+        .float-value {
+            font-family: var(--font-data);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .float-subtitle {
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+            margin-top: var(--space-1);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-floating { display: none; }
+            .hero-content { max-width: 100%; }
+        }
+
+        /* ===== CARD GRID ===== */
+        .grid {
+            display: grid;
+            gap: var(--space-4);
+            margin-top: var(--space-6);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        @media (max-width: 768px) {
+            .grid-3, .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            transition: all var(--duration) ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 217, 255, 0.1);
+        }
+
+        .card-header {
+            margin-bottom: var(--space-3);
+        }
+
+        .card-mini-interface {
+            background: rgba(10, 14, 20, 0.5);
+            border: 1px solid rgba(42, 48, 56, 0.6);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            margin-top: var(--space-3);
+            font-family: var(--font-data);
+            font-size: 0.875rem;
+            color: var(--accent);
+            line-height: 1.8;
+        }
+
+        /* ===== METRICS SECTION ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-top: var(--space-6);
+        }
+
+        .metric {
+            padding: var(--space-4);
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: var(--space-2);
+        }
+
+        .metric-positive .metric-value {
+            color: var(--grow);
+        }
+
+        .metric-negative .metric-value {
+            color: var(--decline);
+        }
+
+        .metric-neutral .metric-value {
+            color: var(--accent);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--fg-secondary);
+        }
+
+        /* ===== PORTFOLIO ===== */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-2);
+            margin-top: var(--space-6);
+        }
+
+        .portfolio-item {
+            aspect-ratio: 9/16;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(42, 48, 56, 0.5));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--duration) ease;
+            display: flex;
+            align-items: flex-end;
+            padding: var(--space-3);
+        }
+
+        .portfolio-item:hover {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .portfolio-label {
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* ===== CASE STUDY ===== */
+        .case-study {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-top: var(--space-4);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            align-items: center;
+            padding: var(--space-6);
+        }
+
+        .case-study:nth-child(even) {
+            grid-template-columns: 1fr 1fr;
+            direction: rtl;
+        }
+
+        .case-study:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .case-study-image {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(42, 48, 56, 0.3));
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: var(--radius-lg);
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .case-study-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+
+        .case-metric {
+            background: rgba(10, 14, 20, 0.5);
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(42, 48, 56, 0.6);
+        }
+
+        .case-metric-value {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .case-metric-label {
+            font-size: 0.75rem;
+            color: var(--fg-secondary);
+            margin-top: var(--space-1);
+        }
+
+        @media (max-width: 768px) {
+            .case-study {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+            .case-study:nth-child(even) { direction: ltr; }
+        }
+
+        /* ===== PROCESS ===== */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-3);
+            margin-top: var(--space-6);
+        }
+
+        .process-step {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            min-width: 120px;
+        }
+
+        .process-circle {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            position: relative;
+        }
+
+        .process-step:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -60px;
+            top: 32px;
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.5;
+        }
+
+        .process-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-align: center;
+            color: var(--fg-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .process-step { min-width: 100px; }
+            .process-step::after { right: -40px; }
+        }
+
+        /* ===== AI LAB ===== */
+        .ai-lab-pipeline {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), transparent);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-top: var(--space-6);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .pipeline-stage {
+            text-align: center;
+            position: relative;
+        }
+
+        .pipeline-stage::after {
+            content: '↓';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .pipeline-stage:last-child::after {
+            display: none;
+        }
+
+        .pipeline-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(26, 31, 40, 0.8);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto var(--space-3);
+        }
+
+        /* ===== TESTIMONIAL ===== */
+        .testimonial {
+            max-width: 800px;
+            margin: var(--space-8) auto;
+            text-align: center;
+        }
+
+        .testimonial-quote {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            color: var(--accent);
+        }
+
+        .testimonial-author {
+            margin-top: var(--space-4);
+            font-size: 0.9rem;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta-final {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05) 0%, transparent 100%);
+        }
+
+        .cta-final h2 {
+            margin-bottom: var(--space-6);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid var(--border);
+            background: var(--bg-2);
+            padding: var(--space-8) var(--space-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .footer-col h4 {
+            margin-bottom: var(--space-3);
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--fg-secondary);
+            text-decoration: none;
+            margin-bottom: var(--space-2);
+            transition: color var(--duration);
+            font-size: 0.9rem;
+        }
+
+        .footer-col a:hover {
+            color: var(--accent);
+        }
+
+        .footer-brand {
+            grid-column: 1 / -1;
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--space-4);
+        }
+
+        /* ===== UTILITY ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .text-center { text-align: center; }
+        .mt-large { margin-top: var(--space-6); }
+        .mb-large { margin-bottom: var(--space-6); }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-brand">PEROKIO</div>
+    <ul class="nav-links">
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Work</a></li>
+        <li><a href="#">Results</a></li>
+        <li><a href="#">Process</a></li>
+        <li><a href="#">About</a></li>
+    </ul>
+    <div class="nav-cta">
+        <a href="#" class="btn btn-primary">Get More Customers →</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <span class="eyebrow">PERFORMANCE × CREATIVE × AI</span>
+        <h1>We turn attention into customers.</h1>
+        <div class="hero-buttons">
+            <a href="#" class="btn btn-primary">Start Growing →</a>
+            <a href="#" class="btn btn-secondary">See Our Work</a>
+        </div>
+    </div>
+
+    <div class="hero-floating">
+        <div class="float-card">
+            <div class="float-label">New Leads</div>
+            <div class="float-value">+127</div>
+            <div class="float-subtitle">This week</div>
+        </div>
+        <div class="float-card">
+            <div class="float-label">ROAS</div>
+            <div class="float-value">4.8x</div>
+            <div class="float-subtitle">Campaign avg</div>
+        </div>
+        <div class="float-card">
+            <div class="float-label">Active</div>
+            <div class="float-value">12</div>
+            <div class="float-subtitle">Campaigns</div>
+        </div>
+        <div class="float-card">
+            <div class="float-label">Conversion</div>
+            <div class="float-value">8.2%</div>
+            <div class="float-subtitle">Rate ↑</div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section>
+    <div class="container">
+        <h2>Services that move the needle</h2>
+        <p>Each service combines creative excellence with performance rigor.</p>
+
+        <div class="grid grid-3">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Performance Ads</h3>
+                    <span class="label">Paid Media</span>
+                </div>
+                <p>Scientific approach to paid campaigns. Real ROAS. Real growth.</p>
+                <div class="card-mini-interface">
+                    → Leads: 342<br>
+                    → CPL: $8.40<br>
+                    → ROAS: 5.2x<br>
+                    → Status: Live
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>AI Video Ads</h3>
+                    <span class="label">Creative Tech</span>
+                </div>
+                <p>Generate winning ad variations at scale. Test, learn, win.</p>
+                <div class="card-mini-interface">
+                    ▶ Video 01 (4.2%) ✓<br>
+                    ▶ Video 02 (3.8%)<br>
+                    ▶ Video 03 (2.1%)<br>
+                    Generating 4 more...
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Lead Generation</h3>
+                    <span class="label">Funnel Ops</span>
+                </div>
+                <p>Convert prospects into qualified leads. Predictable pipeline.</p>
+                <div class="card-mini-interface">
+                    ◇ Top of Funnel<br>
+                    ◆ Mid (2,400 leads)<br>
+                    ◆ Qualified (840)<br>
+                    ◇ Closed Won (127)
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Social Media</h3>
+                    <span class="label">Community</span>
+                </div>
+                <p>Strategic content that builds authority and drives action.</p>
+                <div class="card-mini-interface">
+                    📱 Feed: 12 posts<br>
+                    📊 Reach: 284k<br>
+                    ♥ Engagement: 8.4%<br>
+                    → Conversions: 634
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Branding</h3>
+                    <span class="label">Identity</span>
+                </div>
+                <p>Premium positioning that justifies price. Perception = power.</p>
+                <div class="card-mini-interface">
+                    ◼ Color A (Primary)<br>
+                    ◼ Color B (Accent)<br>
+                    ◼ Logo System<br>
+                    ◼ Brand Book v2
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Conversion Systems</h3>
+                    <span class="label">Landing Pages</span>
+                </div>
+                <p>High-converting landing pages built for your specific offer.</p>
+                <div class="card-mini-interface">
+                    Page A: 8.4%<br>
+                    Page B: 7.2%<br>
+                    Page C: 5.1% (off)<br>
+                    → Winner: Page A
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RESULTS -->
+<section>
+    <div class="container">
+        <h2>We don't chase views.<br>We chase results.</h2>
+        <p>Transparent metrics. Predictable growth. Real outcomes.</p>
+
+        <div class="metrics-grid">
+            <div class="metric metric-positive">
+                <div class="metric-value">+184%</div>
+                <div class="metric-label">Lead Growth</div>
+            </div>
+            <div class="metric metric-neutral">
+                <div class="metric-value">4.8x</div>
+                <div class="metric-label">Avg ROAS</div>
+            </div>
+            <div class="metric metric-positive">
+                <div class="metric-value">−37%</div>
+                <div class="metric-label">Cost Per Lead</div>
+            </div>
+            <div class="metric metric-positive">
+                <div class="metric-value">+62%</div>
+                <div class="metric-label">Conversion Rate</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section>
+    <div class="container">
+        <h2>Your next ad should stop the scroll.</h2>
+        <p>Vertical video ads that work. Tested. Proven. Winning.</p>
+
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <span class="portfolio-label">Video Ad</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Social</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Campaign</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Video Ad</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Branding</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Social</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Campaign</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Video Ad</span>
+            </div>
+            <div class="portfolio-item">
+                <span class="portfolio-label">Social</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section>
+    <div class="container">
+        <h2>Brands that grew with us</h2>
+
+        <div class="case-study">
+            <div class="case-study-image">🎬</div>
+            <div>
+                <h3>SaaS B2B Growth Campaign</h3>
+                <p>Enterprise software company needed qualified leads at scale. We built a multi-channel strategy combining LinkedIn ads, video content, and landing page optimization.</p>
+                <div class="case-study-metrics">
+                    <div class="case-metric">
+                        <div class="case-metric-value">+143%</div>
+                        <div class="case-metric-label">Lead Growth</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">−41%</div>
+                        <div class="case-metric-label">CPL</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">3.2x</div>
+                        <div class="case-metric-label">ROAS</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">+89%</div>
+                        <div class="case-metric-label">Pipeline</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <div class="case-study-image">📱</div>
+            <div>
+                <h3>E-Commerce Brand Rebrand + Performance</h3>
+                <p>Direct-to-consumer brand repositioned as premium with new brand identity. Launched integrated campaign across social, paid, and email to communicate new positioning.</p>
+                <div class="case-study-metrics">
+                    <div class="case-metric">
+                        <div class="case-metric-value">+267%</div>
+                        <div class="case-metric-label">Revenue</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">−23%</div>
+                        <div class="case-metric-label">CAC</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">6.4x</div>
+                        <div class="case-metric-label">ROAS</div>
+                    </div>
+                    <div class="case-metric">
+                        <div class="case-metric-value">+142%</div>
+                        <div class="case-metric-label">LTV</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROCESS -->
+<section>
+    <div class="container">
+        <h2>Our process</h2>
+        <p>A systematic approach to growth that works every time.</p>
+
+        <div class="process-flow">
+            <div class="process-step">
+                <div class="process-circle">01</div>
+                <div class="process-label">Discover</div>
+            </div>
+            <div class="process-step">
+                <div class="process-circle">02</div>
+                <div class="process-label">Strategize</div>
+            </div>
+            <div class="process-step">
+                <div class="process-circle">03</div>
+                <div class="process-label">Create</div>
+            </div>
+            <div class="process-step">
+                <div class="process-circle">04</div>
+                <div class="process-label">Launch</div>
+            </div>
+            <div class="process-step">
+                <div class="process-circle">05</div>
+                <div class="process-label">Optimize</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI LAB -->
+<section>
+    <div class="container">
+        <h2>The AI Creative Lab</h2>
+        <p>Where creative and technology meet. Human-directed, AI-powered.</p>
+
+        <div class="ai-lab-pipeline">
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">💡</div>
+                <div class="pipeline-label"><strong>Idea</strong></div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">📝</div>
+                <div class="pipeline-label"><strong>Script</strong></div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">✨</div>
+                <div class="pipeline-label"><strong>AI Generate</strong></div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">✂️</div>
+                <div class="pipeline-label"><strong>Edit</strong></div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">📊</div>
+                <div class="pipeline-label"><strong>Test</strong></div>
+            </div>
+            <div class="pipeline-stage">
+                <div class="pipeline-icon">🏆</div>
+                <div class="pipeline-label"><strong>Winner</strong></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section>
+    <div class="container">
+        <div class="testimonial">
+            <div class="testimonial-quote">"They don't just create ads. They create systems that win."</div>
+            <div class="testimonial-author">
+                <strong>Sarah Chen</strong>, VP Growth<br>
+                <span class="label">TechScale Ventures</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-final">
+    <div class="container text-center">
+        <h2>Ready to grow?</h2>
+        <p style="font-size: 1.2rem; margin-bottom: var(--space-6);">Let's build a growth system that actually works.</p>
+        <div class="cta-buttons">
+            <a href="#" class="btn btn-primary" style="padding: var(--space-3) var(--space-6); font-size: 1.1rem;">Book a Growth Call →</a>
+            <a href="#" class="btn btn-secondary" style="padding: var(--space-3) var(--space-6); font-size: 1.1rem;">WhatsApp Us</a>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-brand">
+        <h3>PEROKIO</h3>
+        <p style="color: var(--fg-secondary); font-size: 0.9rem;">We turn attention into customers.</p>
+    </div>
+    <div class="footer-col">
+        <h4>Services</h4>
+        <a href="#">Performance Ads</a>
+        <a href="#">AI Video Ads</a>
+        <a href="#">Lead Generation</a>
+        <a href="#">Social Media</a>
+    </div>
+    <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Work</a>
+        <a href="#">Process</a>
+        <a href="#">Results</a>
+    </div>
+    <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Instagram</a>
+        <a href="#">hello@perokio.com</a>
+    </div>
+</footer>
+
+</body>
+</html>

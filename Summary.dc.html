@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #fff; }
+    .action-box { padding: 20px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid; }
+    .action-p0 { border-left-color: #a6212e; background: #fbe9ea; }
+    .action-p1 { border-left-color: #b9660f; background: #faf1e2; }
+    .action-p2 { border-left-color: #1f8a4c; background: #e8f5ec; }
+    .action-title { font-weight: 700; color: #1a1a1a; margin: 0 0 6px; font-size: 15px; }
+    .action-desc { font-size: 13px; color: #6b6b6b; margin: 0; line-height: 1.5; }
+  </style>
+</helmet>
+<div style="padding: 40px; max-width: 1000px;">
+  <h2 style="margin: 0 0 10px; font-size: 24px; font-weight: 700; color: #1a1a1a;">Recommendations: Clear Value, Simple Path</h2>
+  <p style="margin: 0 0 30px; font-size: 14px; color: #6b6b6b;">Three swings at clarity. Do these before shipping any new feature.</p>
+
+  <h3 style="margin: 30px 0 15px; font-size: 16px; font-weight: 700; color: #a6212e;">🔴 P0 — Do First (Copy + Layout)</h3>
+
+  <div class="action-box action-p0">
+    <p class="action-title">1. Home page: Replace "Where stories become opportunities" with the loop</p>
+    <p class="action-desc">Show three simple steps: (1) "Brands post real briefs" ($5K pool), (2) "Creators submit work" (126 entered), (3) "Blind votes pick the best" (winner gets $2K). Lead with social proof: "$84K paid to creators this month." ONE primary button: "Create or vote now" (then split by role on login).</p>
+  </div>
+
+  <div class="action-box action-p0">
+    <p class="action-title">2. Login: Show what each role CAN DO</p>
+    <p class="action-desc">Change radio cards from "Creator / Brand / Both" to show ACTIONS. Creator: "📹 Enter challenges, win money." Brand: "📤 Post briefs, see blind votes." Both: "Do all of it." Add small icon + one-line benefit to each.</p>
+  </div>
+
+  <div class="action-box action-p0">
+    <p class="action-title">3. Challenges list: One strong CTA per card, add sticky "How to"</p>
+    <p class="action-desc">Replace passive click-to-open with explicit "Enter this challenge" button on every card (visible on hover, always on mobile). Add sticky bar at top: "First time? (1) Pick a challenge, (2) Upload your video, (3) Wait for voting results." Status badges ("funded", "round1_open", "resolved") → human text ("Accepting entries until 3pm", "Round 1 voting now", "Winner announced").</p>
+  </div>
+
+  <div class="action-box action-p0">
+    <p class="action-title">4. Challenge detail: Show prize breakdown inline (not in sheet)</p>
+    <p class="action-desc">Prize section: "Winner: $2,000 | Runner-up: $800 | 3rd: $300 | Crowd favourite: $200" (single row, no "see more"). Show current round status: "🎬 Round 1: Accept teasers (2 days left)." Creators see "Submit a teaser". Brands see "View analytics / Invite creators".</p>
+  </div>
+
+  <div class="action-box action-p0">
+    <p class="action-title">5. Results page: Outcome as headline, not detail</p>
+    <p class="action-desc">Top of page, large and clear: "🎉 You won $2,000!" or "Advanced to Round 2" or "Didn't advance (16th place, 342 votes)". THEN show breakdown. Action button below: "Share your win" or "Enter another challenge."</p>
+  </div>
+
+  <h3 style="margin: 30px 0 15px; font-size: 16px; font-weight: 700; color: #b9660f;">🟠 P1 — Do Second (CTAs + Visibility)</h3>
+
+  <div class="action-box action-p1">
+    <p class="action-title">6. Challenge card CTA scope: Creator vs. Brand vs. Voter</p>
+    <p class="action-desc">Same card, three contexts. Creator sees "Enter now". Brand sees "View analytics" (clickable only if they own the challenge). Voter sees "Vote for Round 2" (if round is open). No guessing.</p>
+  </div>
+
+  <div class="action-box action-p1">
+    <p class="action-title">7. Voting round: Show impact statement</p>
+    <p class="action-desc">VoteDeck cards: Add under the pair "Your vote decides who advances to Round 2 (top 10 of 126)." After voting: "You've voted 12/30 times today. Voting streak: 4 days! 🔥"</p>
+  </div>
+
+  <div class="action-box action-p1">
+    <p class="action-title">8. Brands: Surface "Create a challenge" from everywhere</p>
+    <p class="action-desc">On /challenges list, add sticky pill-button: "Create new challenge" (for sellers/both only). On challenge detail owned by brand, show "Invite creators" link + "View analytics" link side-by-side.</p>
+  </div>
+
+  <div class="action-box action-p1">
+    <p class="action-title">9. Empty states: Tie them to actions</p>
+    <p class="action-desc">"No payouts yet" → Button: "Browse challenges to start earning" (/challenges). "No challenges" → Button: "Create your first brief" (/challenges/new for brands). No passive text without next step.</p>
+  </div>
+
+  <h3 style="margin: 30px 0 15px; font-size: 16px; font-weight: 700; color: #1f8a4c;">🟢 P2 — Polish (Micro-copy)</h3>
+
+  <div class="action-box action-p2">
+    <p class="action-title">10. Status badges: Use plain language</p>
+    <p class="action-desc">"funded" → "Prize secured" / "round1_open" → "Accepting entries" / "resolved" → "Winner announced". Every badge should answer "Can I enter?"</p>
+  </div>
+
+  <div class="action-box action-p2">
+    <p class="action-title">11. Form errors: Replace Mux debug strings</p>
+    <p class="action-desc">Any upload error: "Upload didn't go through — try again in a moment." Add "Need help?" link to FAQ.</p>
+  </div>
+
+  <div class="action-box action-p2">
+    <p class="action-title">12. Rally link: Explain the benefit</p>
+    <p class="action-desc">Button text: "Share & earn rally bonus" (not "Copy link"). Tooltip: "Votes from this link count extra if your round is still voting."</p>
+  </div>
+
+  <div style="margin-top: 40px; padding: 24px; background: linear-gradient(135deg, #16643f 0%, #0d4a2d 100%); color: white; border-radius: 8px;">
+    <p style="margin: 0 0 12px; font-weight: 700; font-size: 16px;">The North Star: One-Sentence Clarity</p>
+    <p style="margin: 0; font-size: 14px; line-height: 1.6;">Every page should answer these three questions clearly: <strong>(1) What am I looking at?</strong> (the current round/status) <strong>(2) What can I do?</strong> (submit, vote, create, share) <strong>(3) What happens next?</strong> (timeline, payouts, next round). If a visitor can't answer all three in 10 seconds, we're hiding the value.</p>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

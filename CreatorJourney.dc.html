@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #fff; }
+    .flow-step { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .step-num { width: 40px; height: 40px; border-radius: 50%; background: #16643f; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 700; font-size: 16px; color: #1a1a1a; margin: 0 0 4px; }
+    .step-desc { font-size: 14px; color: #6b6b6b; margin: 0; }
+    .step-cta { font-size: 13px; color: #16643f; font-weight: 600; margin-top: 4px; }
+    .arrow { font-size: 20px; color: #d9d9d9; margin: 0 8px; }
+  </style>
+</helmet>
+<div style="padding: 40px; max-width: 900px;">
+  <h2 style="margin: 0 0 10px; font-size: 24px; font-weight: 700; color: #1a1a1a;">Creator Journey</h2>
+  <p style="margin: 0 0 40px; font-size: 14px; color: #6b6b6b;">From "I want to compete" to "I won money"</p>
+
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <p class="step-title">Find a challenge</p>
+      <p class="step-desc">Browse live challenges on dashboard. See prize pool, deadline, entry count, current round status.</p>
+      <p class="step-cta">✓ Current CTA: Click card (not obvious)</p>
+      <p class="step-cta">→ Fix: "Enter this challenge" button on every card</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <p class="step-title">Understand the opportunity</p>
+      <p class="step-desc">View prize breakdown (total pool, breakdown by round), current round status (teaser or full?), timeline.</p>
+      <p class="step-cta">✓ Current CTA: "Submit an entry"</p>
+      <p class="step-cta">→ Issue: Prize breakdown hidden behind "see breakdown" sheet</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <p class="step-title">Submit entry (phase depends on round)</p>
+      <p class="step-desc">Upload video (teaser 15s, or full content). Add caption/hashtag if required. Get success confirmation with next step.</p>
+      <p class="step-cta">✓ Current CTA: Upload button</p>
+      <p class="step-cta">→ Issue: Mux debug string on error. No "You're entered!" confirmation.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <p class="step-title">Wait for voting round (passive)</p>
+      <p class="step-desc">Round 1 closes in X days. Creator can see: "3 others entered", live vote count (if public round), or "voting is blind".</p>
+      <p class="step-cta">→ Opportunity: Show "Come back to vote" CTA</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <p class="step-title">See results + outcome</p>
+      <p class="step-desc">Headline: "🎉 You won! $2,000 coming" OR "Advanced to Round 2" OR "Eliminated (16th, 342 votes)". Show vote breakdown.</p>
+      <p class="step-cta">→ Current: Just vote count, unclear outcome</p>
+      <p class="step-cta">→ Fix: Outcome as primary headline, not secondary</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <p class="step-title">Rally votes / share result</p>
+      <p class="step-desc">Get rally link. Share to social. Earn bonus if those votes come in during their round.</p>
+      <p class="step-cta">✓ Current: Rally link + "Vote for me" card</p>
+      <p class="step-cta">→ Issue: Share prominence low. Copy button doesn't hint at benefit.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px; padding: 20px; background: #e8f5ec; border-left: 4px solid #1f8a4c; border-radius: 4px;">
+    <p style="margin: 0; font-size: 13px; color: #1f8a4c; font-weight: 600;">💡 KEY INSIGHT: Creator motivation is OUTCOME → Money. Every screen should show: "What round is this?" + "What do I earn if I place?" + "When is voting?"</p>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

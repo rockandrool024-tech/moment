@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #f8f8f8; }
+    a { color: #16643f; } a:hover { color: #0d4a2d; }
+  </style>
+</helmet>
+<div style="max-width: 1200px; margin: 0 auto; padding: 60px 40px; background: white;">
+  <section style="margin-bottom: 80px;">
+    <h1 style="margin: 0 0 20px; font-size: 48px; line-height: 1.2; color: #1a1a1a; font-weight: 800;">MOMENT App — UX Flow & Value Prop Analysis</h1>
+    <p style="margin: 0; font-size: 18px; color: #6b6b6b; max-width: 800px;">Three user personas, one core loop. Identifying clarity gaps, engagement points, and CTA opportunities.</p>
+  </section>
+
+  <section style="margin-bottom: 60px;">
+    <h2 style="font-size: 28px; margin: 0 0 30px; color: #1a1a1a; font-weight: 700;">The Core Value Prop</h2>
+    <div style="background: linear-gradient(135deg, #16643f 0%, #0d4a2d 100%); color: white; padding: 40px; border-radius: 12px; margin-bottom: 20px;">
+      <p style="margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">For creators:</p>
+      <h3 style="margin: 0 0 10px; font-size: 24px; font-weight: 700;">"Fair briefs. Blind votes. Real money."</h3>
+      <p style="margin: 0; font-size: 16px; opacity: 0.95; line-height: 1.6;">Compete in live challenges where your work is judged by quality, not followers. Win cash if you place in the top positions.</p>
+    </div>
+    <div style="background: linear-gradient(135deg, #ff6f91 0%, #ff4f73 100%); color: white; padding: 40px; border-radius: 12px; margin-bottom: 20px;">
+      <p style="margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">For brands:</p>
+      <h3 style="margin: 0 0 10px; font-size: 24px; font-weight: 700;">"Original work. Real voting. No ads."</h3>
+      <p style="margin: 0; font-size: 16px; opacity: 0.95; line-height: 1.6;">Post a brief, fund the prize, watch creators compete. You get authentic work and direct voting data—no followers, no algorithms.</p>
+    </div>
+    <div style="background: linear-gradient(135deg, #7ee0c9 0%, #5cd3bb 100%); color: white; padding: 40px; border-radius: 12px;">
+      <p style="margin: 0 0 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">For voters:</p>
+      <h3 style="margin: 0 0 10px; font-size: 24px; font-weight: 700;">"Vote blind. Pick the best. Shape outcomes."</h3>
+      <p style="margin: 0; font-size: 16px; opacity: 0.95; line-height: 1.6;">Your vote decides winners in blind peer voting. No creator names, no follower counts—just pure work quality.</p>
+    </div>
+  </section>
+
+  <section style="margin-bottom: 60px;">
+    <h2 style="font-size: 28px; margin: 0 0 30px; color: #1a1a1a; font-weight: 700;">CLARITY GAPS — What's Confusing?</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Landing page says "Where stories become opportunities"</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">Clear? No. What ARE the opportunities? How do I get paid? When? How much?</p>
+      </div>
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Login asks "I'm joining as..." but doesn't explain what's different</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">Creator vs. Brand vs. Both — what can each person DO? Why does it matter?</p>
+      </div>
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Challenges list shows status badges ("funded", "round1_open", "resolved")</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">What do these MEAN to a creator? Can I still enter? Is voting happening?</p>
+      </div>
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Prize pool shown but breakdown hidden behind "see breakdown"</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">How much do winners actually get? What's the cut between rounds? Why hide it?</p>
+      </div>
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Teaser vs. Full submission — what's the difference? Why submit twice?</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">Is there a penalty for going straight to full? Are both required?</p>
+      </div>
+      <div style="border-left: 4px solid #a6212e; padding: 20px; background: #fbe9ea; border-radius: 8px;">
+        <p style="margin: 0 0 10px; font-weight: 700; color: #a6212e;">Voting shows two videos side-by-side with "pick faster"</p>
+        <p style="margin: 0; font-size: 14px; color: #6b6b6b;">Is this the only round? What happens after? Who sees my vote?</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-bottom: 60px;">
+    <h2 style="font-size: 28px; margin: 0 0 30px; color: #1a1a1a; font-weight: 700;">KEY ENGAGEMENT POINTS — Where Do We Lose People?</h2>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 1: First visit (no login)</p>
+        <p style="margin: 0; color: #6b6b6b;">Landing page headline + 2 CTAs. Loss: Users don't understand the mechanic. Fix: Show the loop in 3 steps, with numbers ($84K paid this month). Make "Start your story" the ONE primary CTA.</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 2: Role selection (login step 1)</p>
+        <p style="margin: 0; color: #6b6b6b;">Three radio-card options. Loss: Users pick "Both" by default because it "sounds better". Fix: Show what each role CAN DO (Creators: enter challenges, win money. Brands: post briefs, see voting results). Add a small icon showing the main action.</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 3: First dashboard (challenges list)</p>
+        <p style="margin: 0; color: #6b6b6b;">Challenge cards with status + prize + entry count. Loss: Users don't know what to click or how to "do" anything. Fix: Lead with the strongest challenge card (one with active voting, close deadline). Add a sticky "How to enter" banner at top.</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 4: Challenge detail (decision to enter)</p>
+        <p style="margin: 0; color: #6b6b6b;">Prize breakdown + "Submit an entry" CTA. Loss: KYB gate blocks brand accounts. Fix: Pre-check KYB before redirecting to login. Show "Entry phase" clearly (teaser or full?) so creators know what to submit.</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 5: Submission upload (creator enters)</p>
+        <p style="margin: 0; color: #6b6b6b;">Drag-drop zone. Loss: Upload fails silently or with Mux debug string. Fix: Clear success state ("You're entered!" with next step). Show "Round 1 closes in 3 days" to set expectations.</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 6: Voting (the core loop)</p>
+        <p style="margin: 0; color: #6b6b6b;">VoteDeck cards. Loss: No submission media wired in (shows blank/placeholder). Fix: Get real media into the API response FIRST. Then show vote impact: "Your vote counts toward the top 10 advancing to Round 2."</p>
+      </div>
+      <div style="border: 1px solid #d9d9d9; padding: 20px; border-radius: 8px; background: #fafafa;">
+        <p style="margin: 0 0 10px; font-weight: 700; font-size: 14px; text-transform: uppercase; color: #16643f;">Moment 7: Results (creator finds out they won)</p>
+        <p style="margin: 0; color: #6b6b6b;">Results card with live vote count. Loss: Unclear if you won or advanced. Fix: Headline should be ONE of: "You won! $2,000 coming soon" or "You advanced to Round 2" or "Eliminated (16th place, 342 votes)". Make next step clear.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size: 28px; margin: 0 0 30px; color: #1a1a1a; font-weight: 700;">CTA AUDIT — Are They Clear?</h2>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <thead>
+        <tr style="background: #f0f0f0; border-bottom: 2px solid #d9d9d9;">
+          <th style="text-align: left; padding: 12px; font-weight: 700; color: #1a1a1a;">Page</th>
+          <th style="text-align: left; padding: 12px; font-weight: 700; color: #1a1a1a;">Current CTA</th>
+          <th style="text-align: left; padding: 12px; font-weight: 700; color: #1a1a1a;">Problem</th>
+          <th style="text-align: left; padding: 12px; font-weight: 700; color: #1a1a1a;">Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/</strong> (home)</td>
+          <td style="padding: 12px; color: #6b6b6b;">"Start your story" + "Watch live"</td>
+          <td style="padding: 12px; color: #a6212e;">Two equal buttons. Unclear which is for whom.</td>
+          <td style="padding: 12px; color: #1f8a4c;">One big "Create or vote now" + optional secondary</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/login</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">"Start your story" (same text as home)</td>
+          <td style="padding: 12px; color: #a6212e;">Generic. Doesn't change based on role selected.</td>
+          <td style="padding: 12px; color: #1f8a4c;">"Enter this challenge" or "Create a challenge" based on role</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/challenges</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">Click a card, or "New challenge" (hidden for creators)</td>
+          <td style="padding: 12px; color: #a6212e;">Non-obvious. Creators see no actions they can take.</td>
+          <td style="padding: 12px; color: #1f8a4c;">Floating "Enter a challenge" on any card. Brands see prominent "Create new"</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/challenges/[id]</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">"Submit an entry" (large button)</td>
+          <td style="padding: 12px; color: #a6212e;">Good, but hidden if KYB gate blocks. Brands see nothing they can do.</td>
+          <td style="padding: 12px; color: #1f8a4c;">Show CTA for BOTH roles: Creators "Enter now", Brands "View results/analytics"</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/rounds/[id]</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">Vote button (implied in cards)</td>
+          <td style="padding: 12px; color: #a6212e;">No text. Unclear what happens after you vote. No next-step CTA.</td>
+          <td style="padding: 12px; color: #1f8a4c;">"Vote" + after: "View results" or "Enter this challenge"</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/results/[id]</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">Share result + "Vote for me" link</td>
+          <td style="padding: 12px; color: #a6212e;">Secondary. Main outcome not emphasized.</td>
+          <td style="padding: 12px; color: #1f8a4c;">Headline says outcome (Won/Advanced/Eliminated) THEN "Share this" or "Enter next challenge"</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #d9d9d9;">
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/wallet</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">Empty state "No payouts yet"</td>
+          <td style="padding: 12px; color: #a6212e;">Discouraging. No action offered.</td>
+          <td style="padding: 12px; color: #1f8a4c;">"Browse challenges" link in empty state CTA</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px; color: #1a1a1a;"><strong>/discovery</strong></td>
+          <td style="padding: 12px; color: #6b6b6b;">Tab toggle + avatar rows with no action per row</td>
+          <td style="padding: 12px; color: #a6212e;">Browsing is passive. No "invite" or "view profile" offered.</td>
+          <td style="padding: 12px; color: #1f8a4c;">Per-row action: "View profile" or (for brands only) "Invite to challenge"</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
