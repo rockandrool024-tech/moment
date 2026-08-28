@@ -11,6 +11,9 @@ interface EmptyStateProps {
 
 // Replaces every bare "No X yet." line in the app — see
 // docs/design-system.md §3.7 for the full copy table this was spec'd from.
+// Failed-fetch states use <Notice tone="danger"> with a retry button
+// instead (see challenges/page.tsx) — this component stays for genuinely
+// empty results only.
 export function EmptyState({ icon, title, body, action }: EmptyStateProps) {
   return (
     <div className={styles.wrap}>

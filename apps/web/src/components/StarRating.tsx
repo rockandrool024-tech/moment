@@ -29,7 +29,7 @@ export function StarRating({
             minWidth: 44,
             minHeight: 44,
             cursor: readOnly ? "default" : "pointer",
-            color: star <= (hover || value) ? "#e8b93f" : "#d9d9d9",
+            color: star <= (hover || value) ? "var(--tier-2)" : "var(--muted)",
             transition: "color 0.15s",
             padding: 0,
             lineHeight: 1,

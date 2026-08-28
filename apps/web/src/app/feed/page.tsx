@@ -7,7 +7,8 @@ import { FeedVideo } from "@/lib/types";
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
 import { Loading } from "@/components/Loading";
-import { FilmIcon, MuteIcon, ShareIcon, UnmuteIcon } from "@/components/icons";
+import { Notice } from "@/components/Notice";
+import { FilmIcon, MuteIcon, RefreshIcon, ShareIcon, UnmuteIcon } from "@/components/icons";
 import styles from "./feed.module.css";
 
 // TikTok-style scrollable feed of real, ready-to-play challenge submissions
@@ -17,13 +18,20 @@ import styles from "./feed.module.css";
 // of a fresh environment before any Mux asset finishes processing.
 export default function FeedPage() {
   const [videos, setVideos] = useState<FeedVideo[] | null>(null);
+  const [error, setError] = useState(false);
   const [muted, setMuted] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
+  const loadVideos = () => {
+    setError(false);
+    api.get<{ videos: FeedVideo[] }>("/public/feed/videos").then((r) => setVideos(r.videos)).catch(() => setError(true));
+  };
+
   useEffect(() => {
-    api.get<{ videos: FeedVideo[] }>("/public/feed/videos").then((r) => setVideos(r.videos));
+    loadVideos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch once on mount only
   }, []);
 
   // Only the section mostly in view plays — every other video stays paused
@@ -62,6 +70,23 @@ export default function FeedPage() {
     navigator.clipboard.writeText(link);
     setCopiedId(video.id);
     setTimeout(() => setCopiedId(null), 2000);
+  }
+
+  if (error) {
+    return (
+      <Notice
+        tone="danger"
+        title="Couldn't load the feed"
+        action={
+          <button className="secondary" onClick={loadVideos}>
+            <RefreshIcon width={16} height={16} aria-hidden />
+            Retry
+          </button>
+        }
+      >
+        Something went wrong reaching the server.
+      </Notice>
+    );
   }
 
   if (videos === null) return <Loading />;
