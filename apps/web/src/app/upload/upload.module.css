@@ -1,35 +1,22 @@
-:root {
-  --bg-0: #0a0e14;
-  --bg-1: #1a1f28;
-  --bg-2: #2a3038;
-  --fg-primary: #f8f8f8;
-  --fg-secondary: #999999;
-  --accent: #00d9ff;
-  --accent-dark: #0099cc;
-  --grow: #4ade80;
-  --decline: #ef4444;
-  --border: #2a3038;
-}
-
 .back {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  color: var(--fg-secondary);
+  color: var(--moment-fg-secondary);
   font-size: 0.875rem;
   text-decoration: none;
   transition: color 200ms;
 }
 
 .back:hover {
-  color: var(--fg-primary);
+  color: var(--moment-fg-primary);
 }
 
 .uploadSection {
   margin-bottom: 3rem;
-  background: var(--bg-1);
-  border: 1px solid var(--border);
+  background: var(--moment-bg-1);
+  border: 1px solid var(--moment-border);
   border-radius: 16px;
   padding: 2rem;
 }
@@ -47,7 +34,7 @@
 }
 
 .uploadHeader p {
-  color: var(--fg-secondary);
+  color: var(--moment-fg-secondary);
   max-width: 60ch;
 }
 
@@ -61,7 +48,7 @@
   justify-content: center;
   min-height: 280px;
   padding: 2rem;
-  border: 2px dashed var(--border);
+  border: 2px dashed var(--moment-border);
   border-radius: 16px;
   background: linear-gradient(135deg, rgba(0, 217, 255, 0.08) 0%, rgba(0, 217, 255, 0.02) 100%);
   cursor: pointer;
@@ -69,7 +56,7 @@
 }
 
 .dropZone:hover {
-  border-color: var(--accent);
+  border-color: var(--moment-accent);
   background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(0, 217, 255, 0.08) 100%);
   box-shadow: 0 12px 30px rgba(0, 217, 255, 0.17);
 }
@@ -114,22 +101,22 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--moment-border);
   border-radius: 12px;
-  background: var(--bg-2);
+  background: var(--moment-bg-2);
   cursor: pointer;
   transition: all 220ms cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
 }
 
 .platformOption:hover {
-  border-color: var(--accent);
-  background: var(--bg-1);
+  border-color: var(--moment-accent);
+  background: var(--moment-bg-1);
   box-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.3);
 }
 
 .platformOption.selected {
-  border-color: var(--accent);
+  border-color: var(--moment-accent);
   background: rgba(0, 217, 255, 0.12);
   box-shadow: 0 0 24px rgba(0, 217, 255, 0.15);
 }
@@ -164,7 +151,7 @@
 
 .caption {
   padding: 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--moment-border);
   border-radius: 8px;
   background: var(--input-bg, transparent);
   color: var(--fg);
@@ -175,7 +162,7 @@
 
 .caption:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--moment-accent);
 }
 
 .charCount {
@@ -229,13 +216,13 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--moment-border);
   border-radius: 12px;
   transition: all 0.2s;
 }
 
 .videoCard:hover {
-  border-color: var(--accent);
+  border-color: var(--moment-accent);
   background: rgba(var(--accent-rgb), 0.02);
 }
 
@@ -322,7 +309,7 @@
 .previewStats code {
   font-family: monospace;
   font-size: 0.875rem;
-  color: var(--accent);
+  color: var(--moment-accent);
   background: rgba(var(--accent-rgb), 0.1);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;

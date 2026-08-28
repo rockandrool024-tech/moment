@@ -58,6 +58,18 @@
 
   --sidebar-width: 216px;
   --bottom-nav-clearance: 72px;
+
+  /* MOMENT v2 design tokens — premium agency aesthetic */
+  --moment-bg-0: #0a0e14;
+  --moment-bg-1: #1a1f28;
+  --moment-bg-2: #2a3038;
+  --moment-fg-primary: #f8f8f8;
+  --moment-fg-secondary: #999999;
+  --moment-accent: #00d9ff;
+  --moment-accent-dark: #0099cc;
+  --moment-grow: #4ade80;
+  --moment-decline: #ef4444;
+  --moment-border: #2a3038;
 }
 
 * {
