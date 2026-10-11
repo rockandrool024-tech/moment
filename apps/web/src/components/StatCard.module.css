@@ -50,3 +50,8 @@
   background: var(--status-bad-bg);
   color: var(--status-bad);
 }
+
+.verdict-neutral {
+  background: var(--surface-3);
+  color: var(--muted);
+}

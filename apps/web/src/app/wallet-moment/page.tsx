@@ -166,7 +166,7 @@ export default function WalletMomentPage() {
                   <div className={styles.historyIcon}>{sourceIcon[earning.source]}</div>
                   <div className={styles.historyCopy}>
                     <strong>{sourceLabel[earning.source]}</strong>
-                    {earning.storyTitle && <span>"{earning.storyTitle}"</span>}
+                    {earning.storyTitle && <span>&quot;{earning.storyTitle}&quot;</span>}
                     <span className="muted">
                       {new Intl.DateTimeFormat(undefined, {
                         month: "short",

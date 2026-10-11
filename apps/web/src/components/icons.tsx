@@ -240,3 +240,57 @@ export function RefreshIcon(props: IconProps) {
     </svg>
   );
 }
+
+export function TrendingUpIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m4 16 5-5 3.5 3.5L20 7" />
+      <path d="M15 7h5v5" />
+    </svg>
+  );
+}
+
+export function BarChart3Icon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 20V10M12 20V4M19 20v-7" />
+      <path d="M3 20h18" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 2.5 2.5L16.5 9" />
+    </svg>
+  );
+}
+
+export function TargetIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function ZapIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m13 2-8 12h6l-1 8 8-12h-6Z" />
+    </svg>
+  );
+}
+
+export function AwardIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="8" r="5" />
+      <path d="m8.5 12.2-1 8 4.5-2.4 4.5 2.4-1-8" />
+    </svg>
+  );
+}

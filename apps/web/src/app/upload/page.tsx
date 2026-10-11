@@ -66,7 +66,7 @@ export default function UploadPage() {
         <div className={styles.uploadHeader}>
           <span className="page-eyebrow">Creator Dashboard</span>
           <h1>Upload once, post everywhere</h1>
-          <p>Select your platforms. We'll auto-post your video at the same time across all of them.</p>
+          <p>Select your platforms. We&apos;ll auto-post your video at the same time across all of them.</p>
         </div>
 
         <div className={styles.uploadZone}>
@@ -212,7 +212,7 @@ export default function UploadPage() {
 
             <Notice tone="info" title="How MOMENT works">
               <p>
-                Your video will accumulate views from all platforms. Community members vote to predict if you'll hit
+                Your video will accumulate views from all platforms. Community members vote to predict if you&apos;ll hit
                 5K views. Everyone earns parrot points—you for views, them for accurate predictions.
               </p>
             </Notice>

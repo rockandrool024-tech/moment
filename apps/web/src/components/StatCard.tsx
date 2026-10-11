@@ -6,7 +6,7 @@ import styles from "./StatCard.module.css";
 interface StatCardProps {
   label: string;
   value: string | number;
-  verdict?: { text: string; tone: "good" | "warn" | "bad" };
+  verdict?: { text: string; tone: "good" | "warn" | "bad" | "neutral" };
   icon?: React.ReactNode;
 }
 
